@@ -34,13 +34,13 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
     depends_on:
-      - ***REMOVED***
+      - ***REMOVED***-domain-order
     networks:
       - domain-registrar-network
 
-  ***REMOVED***:
+  ***REMOVED***-domain-order:
     image: ***REMOVED***:15-alpine
-    container_name: ***REMOVED***
+    container_name: ***REMOVED***-domain-order
     environment:
       POSTGRES_DB: domain_order_db
       POSTGRES_USER: ***REMOVED***
@@ -48,13 +48,13 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ***REMOVED***-data:/var/lib/***REMOVED***ql/data
+      - ***REMOVED***-domain-order-data:/var/lib/***REMOVED***ql/data
     networks:
       - domain-registrar-network
 
 volumes:
   redis-data:
-  ***REMOVED***-data:
+  ***REMOVED***-domain-order-data:
 
 networks:
   domain-registrar-network:
