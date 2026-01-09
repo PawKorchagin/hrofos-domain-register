@@ -39,6 +39,9 @@ public class User {
     @Column(name ${DB_USER:***REMOVED***} "verification_token", columnDefinition ${DB_USER:***REMOVED***} "UUID")
     private UUID verificationToken;
 
+    @Column(name ${DB_USER:***REMOVED***} "is_admin", nullable ${DB_USER:***REMOVED***} false)
+    private Boolean isAdmin ${DB_USER:***REMOVED***} false;
+
     @Column(name ${DB_USER:***REMOVED***} "created_at", nullable ${DB_USER:***REMOVED***} false, updatable ${DB_USER:***REMOVED***} false)
     private LocalDateTime createdAt;
 

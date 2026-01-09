@@ -8,3 +8,12 @@ databaseChangeLog:
   - include:
       file: changes/user/002-add-verification-fields.sql
       relativeToChangelogFile: true
+  - include:
+      file: changes/user/003-add-admin-field.sql
+      relativeToChangelogFile: true
+  - include:
+      file: changes/user/004-rename-admin-to-is-admin.sql
+      relativeToChangelogFile: true
+  - include:
+      file: changes/refresh_token/001-create-table.sql
+      relativeToChangelogFile: true

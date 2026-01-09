@@ -33,6 +33,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(error));
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentials(InvalidCredentialsException e) {
+        log.error("Invalid credentials: {}", e.getMessage());
+        ApiError error ${DB_USER:***REMOVED***} new ApiError("INVALID_CREDENTIALS", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(error));
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidToken(InvalidTokenException e) {
+        log.error("Invalid token: {}", e.getMessage());
+        ApiError error ${DB_USER:***REMOVED***} new ApiError("INVALID_TOKEN", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(error));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception e) {
         log.error("Unexpected error: ", e);

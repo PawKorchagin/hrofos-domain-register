@@ -9,15 +9,22 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import ru.itmo.auth.dto.LoginRequest;
 import ru.itmo.auth.dto.LoginResponse;
+import ru.itmo.auth.dto.RefreshTokenRequest;
 import ru.itmo.auth.dto.RegisterRequest;
 import ru.itmo.auth.dto.UserResponse;
+import ru.itmo.auth.entity.RefreshToken;
 import ru.itmo.auth.entity.User;
 import ru.itmo.auth.exception.EmailAlreadyExistsException;
+import ru.itmo.auth.exception.InvalidCredentialsException;
+import ru.itmo.auth.exception.InvalidTokenException;
 import ru.itmo.auth.exception.UserNotFoundException;
+import ru.itmo.auth.repository.RefreshTokenRepository;
 import ru.itmo.auth.repository.UserRepository;
+import ru.itmo.auth.util.JwtUtil;
 import ru.itmo.common.notification.NotificationType;
 import ru.itmo.common.notification.SendNotificationRequest;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -28,7 +35,9 @@ import java.util.UUID;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
     private final RestTemplate restTemplate;
     
     @Value("${services.notification.url}")
@@ -39,6 +48,9 @@ public class AuthService {
     
     @Value("${verification.base-url}")
     private String verificationBaseUrl;
+    
+    @Value("${jwt.refresh-token-expiration-days:30}")
+    private Long refreshTokenExpirationDays;
 
     @Transactional
     public User register(RegisterRequest request) {
@@ -126,10 +138,77 @@ public class AuthService {
         log.info("Verification email resent to: {}", email);
     }
 
-    // TODO: Implement login logic
+    @Transactional
     public LoginResponse login(LoginRequest request) {
         log.info("Login request for email: {}", request.getEmail());
-        throw new UnsupportedOperationException("Login not implemented yet");
+
+        User user ${DB_USER:***REMOVED***} userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            throw new InvalidCredentialsException("Invalid email or password");
+        }
+
+        String accessToken ${DB_USER:***REMOVED***} jwtUtil.generateAccessToken(user.getId(), user.getEmail(), user.getIsAdmin());
+        String refreshTokenString ${DB_USER:***REMOVED***} jwtUtil.generateRefreshToken(user.getId());
+
+        RefreshToken refreshToken ${DB_USER:***REMOVED***} new RefreshToken();
+        refreshToken.setUserId(user.getId());
+        refreshToken.setToken(refreshTokenString);
+        refreshToken.setExpiresAt(LocalDateTime.now().plusDays(refreshTokenExpirationDays));
+        refreshTokenRepository.save(refreshToken);
+
+        log.info("User logged in successfully: {}", user.getId());
+
+        LoginResponse response ${DB_USER:***REMOVED***} new LoginResponse();
+        response.setUserId(user.getId());
+        response.setAccessToken(accessToken);
+        response.setRefreshToken(refreshTokenString);
+        response.setEmail(user.getEmail());
+
+        return response;
+    }
+
+    @Transactional
+    public LoginResponse refreshToken(RefreshTokenRequest request) {
+        log.info("Refresh token request");
+
+        if (!jwtUtil.validateToken(request.getRefreshToken(), "refresh")) {
+            throw new InvalidTokenException("Invalid refresh token");
+        }
+
+        RefreshToken refreshToken ${DB_USER:***REMOVED***} refreshTokenRepository.findByToken(request.getRefreshToken())
+                .orElseThrow(() -> new InvalidTokenException("Refresh token not found"));
+
+        if (refreshToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            refreshTokenRepository.delete(refreshToken);
+            throw new InvalidTokenException("Refresh token expired");
+        }
+
+        UUID userId ${DB_USER:***REMOVED***} jwtUtil.getUserIdFromToken(request.getRefreshToken());
+        User user ${DB_USER:***REMOVED***} userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        String newAccessToken ${DB_USER:***REMOVED***} jwtUtil.generateAccessToken(user.getId(), user.getEmail(), user.getIsAdmin());
+        String newRefreshTokenString ${DB_USER:***REMOVED***} jwtUtil.generateRefreshToken(user.getId());
+
+        refreshTokenRepository.delete(refreshToken);
+
+        RefreshToken newRefreshToken ${DB_USER:***REMOVED***} new RefreshToken();
+        newRefreshToken.setUserId(user.getId());
+        newRefreshToken.setToken(newRefreshTokenString);
+        newRefreshToken.setExpiresAt(LocalDateTime.now().plusDays(refreshTokenExpirationDays));
+        refreshTokenRepository.save(newRefreshToken);
+
+        log.info("Tokens refreshed for user: {}", user.getId());
+
+        LoginResponse response ${DB_USER:***REMOVED***} new LoginResponse();
+        response.setUserId(user.getId());
+        response.setAccessToken(newAccessToken);
+        response.setRefreshToken(newRefreshTokenString);
+        response.setEmail(user.getEmail());
+
+        return response;
     }
 
     private UserResponse mapToUserResponse(User user) {

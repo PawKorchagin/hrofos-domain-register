@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.itmo.common.dto.ApiResponse;
 import ru.itmo.auth.dto.LoginRequest;
 import ru.itmo.auth.dto.LoginResponse;
+import ru.itmo.auth.dto.RefreshTokenRequest;
 import ru.itmo.auth.dto.RegisterRequest;
 import ru.itmo.auth.dto.UserResponse;
 import ru.itmo.auth.service.AuthService;
@@ -41,6 +42,12 @@ public class AuthController {
     public ResponseEntity<ApiResponse<String>> resendVerificationEmail(@RequestParam("email") String email) {
         authService.resendVerificationEmail(email);
         return ResponseEntity.ok(ApiResponse.success("Verification email has been sent"));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<LoginResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        LoginResponse response ${DB_USER:***REMOVED***} authService.refreshToken(request);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/health")
