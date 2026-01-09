@@ -21,7 +21,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        UserResponse user ${DB_USER:***REMOVED***} authService.register(request);
+        UserResponse user ${DB_USER:***REMOVED***} authService.registerAndSendVerificationEmail(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(user));
     }
 
@@ -29,6 +29,18 @@ public class AuthController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response ${DB_USER:***REMOVED***} authService.login(request);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/verify-email")
+    public ResponseEntity<ApiResponse<String>> verifyEmail(@RequestParam("token") java.util.UUID token) {
+        authService.verifyEmail(token);
+        return ResponseEntity.ok(ApiResponse.success("Email verified successfully"));
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<ApiResponse<String>> resendVerificationEmail(@RequestParam("email") String email) {
+        authService.resendVerificationEmail(email);
+        return ResponseEntity.ok(ApiResponse.success("Verification email has been sent"));
     }
 
     @GetMapping("/health")

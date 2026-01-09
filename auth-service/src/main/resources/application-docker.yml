@@ -3,3 +3,12 @@ spring:
     url: jdbc:***REMOVED***ql://***REMOVED***-auth:5432/auth_db
     username: ***REMOVED***
     password: ***REMOVED***
+
+services:
+  notification:
+    url: http://notification-service:8085
+  api-gateway:
+    url: http://api-gateway:8080
+
+verification:
+  base-url: http://localhost:8080

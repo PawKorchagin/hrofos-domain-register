@@ -62,6 +62,10 @@ management:
     health:
       show-details: always
 
+services:
+  auth:
+    url: http://localhost:8081
+
 logging:
   level:
     ru.itmo: INFO

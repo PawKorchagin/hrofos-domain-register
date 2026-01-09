@@ -5,3 +5,6 @@ databaseChangeLog:
   - include:
       file: changes/user/001-create-table.sql
       relativeToChangelogFile: true
+  - include:
+      file: changes/user/002-add-verification-fields.sql
+      relativeToChangelogFile: true

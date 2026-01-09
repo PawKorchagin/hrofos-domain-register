@@ -41,6 +41,15 @@ management:
     health:
       show-details: always
 
+services:
+  notification:
+    url: http://localhost:8085
+  api-gateway:
+    url: http://localhost:8080
+
+verification:
+  base-url: http://localhost:8080
+
 logging:
   level:
     ru.itmo: INFO

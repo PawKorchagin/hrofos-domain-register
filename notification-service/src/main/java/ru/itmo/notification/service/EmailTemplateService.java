@@ -21,6 +21,7 @@ public class EmailTemplateService {
             case DOMAIN_ACTIVATED -> "domain-activated";
             case DOMAIN_EXPIRING_SOON -> "domain-expiring-soon";
             case DOMAIN_EXPIRED -> "domain-expired";
+            case EMAIL_VERIFICATION -> "email-verification";
         };
     }
 
