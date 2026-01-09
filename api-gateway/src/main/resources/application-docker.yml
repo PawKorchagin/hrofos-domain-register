@@ -10,7 +10,7 @@ spring:
             - StripPrefix${DB_USER:***REMOVED***}1
         
         - id: domain-service
-          uri: http://domain-service:8082
+          uri: http://domain-order-service:8082
           predicates:
             - Path${DB_USER:***REMOVED***}/api/domains/**, /api/orders/**, /api/zones/**
           filters:
