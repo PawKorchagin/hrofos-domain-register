@@ -9,6 +9,14 @@ spring:
     username: ***REMOVED***
     password: ***REMOVED***
     driver-class-name: org.***REMOVED***ql.Driver
+    hikari:
+      pool-name: DomainOrderHikariPool
+      minimum-idle: 5
+      maximum-pool-size: 20
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
   jpa:

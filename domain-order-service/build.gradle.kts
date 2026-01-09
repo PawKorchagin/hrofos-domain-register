@@ -16,6 +16,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.liquibase:liquibase-core")
+    implementation("com.zaxxer:HikariCP")
     implementation(project(":common"))
     
     runtimeOnly("org.***REMOVED***ql:***REMOVED***ql")
