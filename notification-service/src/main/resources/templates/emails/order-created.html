@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th${DB_USER:***REMOVED***}"http://www.thymeleaf.org">
+<head>
+    <meta charset${DB_USER:***REMOVED***}"UTF-8">
+    <title>Заказ создан</title>
+</head>
+<body>
+    <h2>Заказ успешно создан</h2>
+    <p>Здравствуйте!</p>
+    <p>Ваш заказ был успешно создан.</p>
+    <p th:if${DB_USER:***REMOVED***}"${orderId}">Номер заказа: <strong th:text${DB_USER:***REMOVED***}"${orderId}"></strong></p>
+    <p th:if${DB_USER:***REMOVED***}"${totalAmount}">Сумма заказа: <strong th:text${DB_USER:***REMOVED***}"${totalAmount}"></strong> руб.</p>
+    <p>Для оплаты заказа перейдите по ссылке в личном кабинете.</p>
+    <p>С уважением,<br>Команда Domain Registrar</p>
+</body>
+</html>

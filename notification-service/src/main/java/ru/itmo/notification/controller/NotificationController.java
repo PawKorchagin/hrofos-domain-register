@@ -1,27 +1,25 @@
 package ru.itmo.notification.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.itmo.common.dto.ApiResponse;
 import ru.itmo.common.notification.SendNotificationRequest;
-
-import java.util.UUID;
+import ru.itmo.notification.service.NotificationService;
 
 @RestController
 @RequestMapping("/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
 
+    private final NotificationService notificationService;
+
     @PostMapping("/send")
     public ResponseEntity<ApiResponse<Void>> sendNotification(
-            @RequestBody SendNotificationRequest request) {
-        // TODO: Implement notification sending logic
-        // - Validate request
-        // - Get user email from Auth Service
-        // - Send email via SMTP/Email API
-        // - Log notification status
+            @Valid @RequestBody SendNotificationRequest request) {
+        notificationService.sendNotification(request);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(ApiResponse.success(null));
     }

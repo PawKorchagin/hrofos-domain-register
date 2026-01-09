@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th${DB_USER:***REMOVED***}"http://www.thymeleaf.org">
+<head>
+    <meta charset${DB_USER:***REMOVED***}"UTF-8">
+    <title>Напоминание: срок действия домена истекает</title>
+</head>
+<body>
+    <h2>Напоминание о продлении домена</h2>
+    <p>Здравствуйте!</p>
+    <p>Срок действия вашего домена скоро истечет.</p>
+    <p th:if${DB_USER:***REMOVED***}"${domainName}">Домен: <strong th:text${DB_USER:***REMOVED***}"${domainName}"></strong></p>
+    <p th:if${DB_USER:***REMOVED***}"${expiresAt}">Срок действия до: <strong th:text${DB_USER:***REMOVED***}"${expiresAt}"></strong></p>
+    <p th:if${DB_USER:***REMOVED***}"${daysLeft}">Осталось дней: <strong th:text${DB_USER:***REMOVED***}"${daysLeft}"></strong></p>
+    <p>Чтобы продолжить использование домена, необходимо продлить его регистрацию.</p>
+    <p>Продлите домен в личном кабинете, чтобы избежать его деактивации.</p>
+    <p>С уважением,<br>Команда Domain Registrar</p>
+</body>
+</html>

@@ -61,6 +61,10 @@ services:
       - "8085:8085"
     environment:
       - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+      - MAIL_HOST${DB_USER:***REMOVED***}${MAIL_HOST:-smtp.yandex.ru}
+      - MAIL_PORT${DB_USER:***REMOVED***}${MAIL_PORT:-587}
+      - MAIL_USERNAME${DB_USER:***REMOVED***}${MAIL_USERNAME:-}
+      - MAIL_PASSWORD${DB_USER:***REMOVED***}${MAIL_PASSWORD:-}
     depends_on:
       - ***REMOVED***-notification
     networks:

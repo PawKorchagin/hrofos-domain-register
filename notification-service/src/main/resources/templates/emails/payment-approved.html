@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th${DB_USER:***REMOVED***}"http://www.thymeleaf.org">
+<head>
+    <meta charset${DB_USER:***REMOVED***}"UTF-8">
+    <title>Платеж успешно обработан</title>
+</head>
+<body>
+    <h2>Платеж успешно обработан</h2>
+    <p>Здравствуйте!</p>
+    <p>Ваш платеж был успешно обработан.</p>
+    <p th:if${DB_USER:***REMOVED***}"${orderId}">Номер заказа: <strong th:text${DB_USER:***REMOVED***}"${orderId}"></strong></p>
+    <p th:if${DB_USER:***REMOVED***}"${amount}">Сумма платежа: <strong th:text${DB_USER:***REMOVED***}"${amount}"></strong> руб.</p>
+    <p th:if${DB_USER:***REMOVED***}"${domainName}">Домен <strong th:text${DB_USER:***REMOVED***}"${domainName}"></strong> будет активирован в ближайшее время.</p>
+    <p>С уважением,<br>Команда Domain Registrar</p>
+</body>
+</html>

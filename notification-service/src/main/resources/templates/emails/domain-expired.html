@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th${DB_USER:***REMOVED***}"http://www.thymeleaf.org">
+<head>
+    <meta charset${DB_USER:***REMOVED***}"UTF-8">
+    <title>Срок действия домена истек</title>
+</head>
+<body>
+    <h2>Срок действия домена истек</h2>
+    <p>Здравствуйте!</p>
+    <p>Срок действия вашего домена истек.</p>
+    <p th:if${DB_USER:***REMOVED***}"${domainName}">Домен: <strong th:text${DB_USER:***REMOVED***}"${domainName}"></strong></p>
+    <p th:if${DB_USER:***REMOVED***}"${expiresAt}">Срок действия истек: <strong th:text${DB_USER:***REMOVED***}"${expiresAt}"></strong></p>
+    <p>Домен был деактивирован. Для восстановления доступа необходимо продлить регистрацию домена.</p>
+    <p>Продлите домен в личном кабинете как можно скорее.</p>
+    <p>С уважением,<br>Команда Domain Registrar</p>
+</body>
+</html>
