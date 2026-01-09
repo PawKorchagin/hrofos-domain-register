@@ -1,5 +1,4 @@
 services:
-  # API Gateway
   api-gateway:
     build:
       context: .
@@ -14,7 +13,6 @@ services:
     networks:
       - domain-registrar-network
 
-  # Redis для rate limiting и кэширования
   redis:
     image: redis:7-alpine
     container_name: redis
@@ -26,24 +24,37 @@ services:
       - domain-registrar-network
     command: redis-server --appendonly yes
 
-  # PostgreSQL (для будущих сервисов)
-  # ***REMOVED***:
-  #   image: ***REMOVED***:15-alpine
-  #   container_name: ***REMOVED***
-  #   environment:
-  #     POSTGRES_DB: domain_registrar
-  #     POSTGRES_USER: ***REMOVED***
-  #     POSTGRES_PASSWORD: ***REMOVED***
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - ***REMOVED***-data:/var/lib/***REMOVED***ql/data
-  #   networks:
-  #     - domain-registrar-network
+  domain-order-service:
+    build:
+      context: .
+      dockerfile: domain-order-service/Dockerfile
+    container_name: domain-order-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+    depends_on:
+      - ***REMOVED***
+    networks:
+      - domain-registrar-network
+
+  ***REMOVED***:
+    image: ***REMOVED***:15-alpine
+    container_name: ***REMOVED***
+    environment:
+      POSTGRES_DB: domain_order_db
+      POSTGRES_USER: ***REMOVED***
+      POSTGRES_PASSWORD: ***REMOVED***
+    ports:
+      - "5432:5432"
+    volumes:
+      - ***REMOVED***-data:/var/lib/***REMOVED***ql/data
+    networks:
+      - domain-registrar-network
 
 volumes:
   redis-data:
-  # ***REMOVED***-data:
+  ***REMOVED***-data:
 
 networks:
   domain-registrar-network:

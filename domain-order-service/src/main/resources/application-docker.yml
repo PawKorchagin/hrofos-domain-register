@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:***REMOVED***ql://***REMOVED***:5432/domain_order_db
+    username: ***REMOVED***
+    password: ***REMOVED***

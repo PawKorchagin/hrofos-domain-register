@@ -1,0 +1,33 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: domain-order-service
+  datasource:
+    url: jdbc:***REMOVED***ql://localhost:5432/domain_order_db
+    username: ***REMOVED***
+    password: ***REMOVED***
+    driver-class-name: org.***REMOVED***ql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    ru.itmo: INFO
+    org.springframework.web: INFO
