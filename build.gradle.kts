@@ -10,6 +10,9 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven {
+            url ${DB_USER:***REMOVED***} uri("https://repo1.maven.org/maven2/")
+        }
     }
 }
 

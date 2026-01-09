@@ -12,7 +12,7 @@ spring:
         - id: domain-service
           uri: http://domain-order-service:8082
           predicates:
-            - Path${DB_USER:***REMOVED***}/api/domains/**, /api/orders/**, /api/zones/**
+            - Path${DB_USER:***REMOVED***}/api/domains/**, /api/orders/**, /api/zones/**, /api/cart/**
           filters:
             - StripPrefix${DB_USER:***REMOVED***}1
         
