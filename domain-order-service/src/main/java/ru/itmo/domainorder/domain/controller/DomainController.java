@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import ru.itmo.common.dto.ApiResponse;
 import ru.itmo.domainorder.domain.dto.CreateDomainRequest;
 import ru.itmo.domainorder.domain.dto.DomainResponse;
+import ru.itmo.domainorder.domain.dto.DomainSearchResult;
 import ru.itmo.domainorder.domain.dto.UpdateDomainRequest;
 import ru.itmo.domainorder.domain.service.DomainService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -65,5 +67,12 @@ public class DomainController {
     public ResponseEntity<ApiResponse<DomainResponse>> activateDomain(@PathVariable UUID id) {
         DomainResponse domain ${DB_USER:***REMOVED***} domainService.activateDomain(id);
         return ResponseEntity.ok(ApiResponse.success(domain));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<DomainSearchResult>>> searchDomains(
+            @RequestParam("query") String query) {
+        List<DomainSearchResult> results ${DB_USER:***REMOVED***} domainService.searchDomains(query);
+        return ResponseEntity.ok(ApiResponse.success(results));
     }
 }

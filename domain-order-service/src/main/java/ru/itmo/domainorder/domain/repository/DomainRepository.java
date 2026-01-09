@@ -29,4 +29,7 @@ public interface DomainRepository extends JpaRepository<Domain, UUID> {
     @Query("SELECT d FROM Domain d WHERE d.expiresAt BETWEEN :startDate AND :endDate")
     List<Domain> findDomainsExpiringBetween(@Param("startDate") LocalDateTime startDate, 
                                             @Param("endDate") LocalDateTime endDate);
+    
+    @Query("SELECT d.fqdn FROM Domain d WHERE d.fqdn LIKE :pattern")
+    List<String> findFqdnsByPattern(@Param("pattern") String pattern);
 }
