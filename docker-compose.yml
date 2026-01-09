@@ -1,0 +1,50 @@
+services:
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+    depends_on:
+      - redis
+    networks:
+      - domain-registrar-network
+
+  # Redis для rate limiting и кэширования
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - domain-registrar-network
+    command: redis-server --appendonly yes
+
+  # PostgreSQL (для будущих сервисов)
+  # ***REMOVED***:
+  #   image: ***REMOVED***:15-alpine
+  #   container_name: ***REMOVED***
+  #   environment:
+  #     POSTGRES_DB: domain_registrar
+  #     POSTGRES_USER: ***REMOVED***
+  #     POSTGRES_PASSWORD: ***REMOVED***
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - ***REMOVED***-data:/var/lib/***REMOVED***ql/data
+  #   networks:
+  #     - domain-registrar-network
+
+volumes:
+  redis-data:
+  # ***REMOVED***-data:
+
+networks:
+  domain-registrar-network:
+    driver: bridge
