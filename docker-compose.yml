@@ -52,9 +52,38 @@ services:
     networks:
       - domain-registrar-network
 
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: notification-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+    depends_on:
+      - ***REMOVED***-notification
+    networks:
+      - domain-registrar-network
+
+  ***REMOVED***-notification:
+    image: ***REMOVED***:15-alpine
+    container_name: ***REMOVED***-notification
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: ***REMOVED***
+      POSTGRES_PASSWORD: ***REMOVED***
+    ports:
+      - "5433:5432"
+    volumes:
+      - ***REMOVED***-notification-data:/var/lib/***REMOVED***ql/data
+    networks:
+      - domain-registrar-network
+
 volumes:
   redis-data:
   ***REMOVED***-domain-order-data:
+  ***REMOVED***-notification-data:
 
 networks:
   domain-registrar-network:

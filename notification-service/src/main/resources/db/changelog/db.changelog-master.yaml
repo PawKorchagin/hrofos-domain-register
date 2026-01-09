@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/001-create-function.sql
+  - include:
+      file: db/changelog/changes/expiry_email_pref/001-create-table.sql
+  - include:
+      file: db/changelog/changes/expiry_email_pref/002-create-indexes.sql
+  - include:
+      file: db/changelog/changes/expiry_email_pref/003-create-trigger.sql
+  - include:
+      file: db/changelog/changes/domain_expiry_monitoring/001-create-table.sql
+  - include:
+      file: db/changelog/changes/domain_expiry_monitoring/002-create-indexes.sql
+  - include:
+      file: db/changelog/changes/domain_expiry_monitoring/003-create-trigger.sql
