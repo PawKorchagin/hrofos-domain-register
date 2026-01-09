@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:***REMOVED***ql://***REMOVED***-auth:5432/auth_db
+    username: ***REMOVED***
+    password: ***REMOVED***

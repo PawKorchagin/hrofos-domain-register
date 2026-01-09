@@ -52,6 +52,34 @@ services:
     networks:
       - domain-registrar-network
 
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+    depends_on:
+      - ***REMOVED***-auth
+    networks:
+      - domain-registrar-network
+
+  ***REMOVED***-auth:
+    image: ***REMOVED***:15-alpine
+    container_name: ***REMOVED***-auth
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: ***REMOVED***
+      POSTGRES_PASSWORD: ***REMOVED***
+    ports:
+      - "5434:5432"
+    volumes:
+      - ***REMOVED***-auth-data:/var/lib/***REMOVED***ql/data
+    networks:
+      - domain-registrar-network
+
   notification-service:
     build:
       context: .
@@ -87,6 +115,7 @@ services:
 volumes:
   redis-data:
   ***REMOVED***-domain-order-data:
+  ***REMOVED***-auth-data:
   ***REMOVED***-notification-data:
 
 networks:
