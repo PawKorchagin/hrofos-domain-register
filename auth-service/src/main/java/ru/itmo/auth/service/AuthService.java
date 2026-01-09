@@ -21,6 +21,7 @@ import ru.itmo.auth.exception.UserNotFoundException;
 import ru.itmo.auth.repository.RefreshTokenRepository;
 import ru.itmo.auth.repository.UserRepository;
 import ru.itmo.auth.util.JwtUtil;
+import ru.itmo.auth.service.TwoFactorService;
 import ru.itmo.common.notification.NotificationType;
 import ru.itmo.common.notification.SendNotificationRequest;
 
@@ -39,6 +40,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final RestTemplate restTemplate;
+    private final TwoFactorService twoFactorService;
     
     @Value("${services.notification.url}")
     private String notificationServiceUrl;
@@ -149,8 +151,20 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
+        if (twoFactorService.is2FAEnabled(user.getId())) {
+            if (request.getTotpCode() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || request.getTotpCode().isEmpty()) {
+                throw new InvalidCredentialsException("TOTP code is required");
+            }
+
+            if (!twoFactorService.verify2FA(user.getId(), request.getTotpCode())) {
+                throw new InvalidCredentialsException("Invalid TOTP code");
+            }
+        }
+
         String accessToken ${DB_USER:***REMOVED***} jwtUtil.generateAccessToken(user.getId(), user.getEmail(), user.getIsAdmin());
         String refreshTokenString ${DB_USER:***REMOVED***} jwtUtil.generateRefreshToken(user.getId());
+
+        refreshTokenRepository.deleteByUserId(user.getId());
 
         RefreshToken refreshToken ${DB_USER:***REMOVED***} new RefreshToken();
         refreshToken.setUserId(user.getId());

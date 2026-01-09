@@ -20,10 +20,12 @@ dependencies {
     implementation("com.zaxxer:HikariCP")
     implementation(project(":common"))
     
-    // JWT dependencies
     implementation("io.jsonwebtoken:jjwt-api:0.12.3")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    
+    // TOTP for Google Authenticator
+    implementation("dev.samstevens.totp:totp:1.7.1")
     
     runtimeOnly("org.***REMOVED***ql:***REMOVED***ql")
     

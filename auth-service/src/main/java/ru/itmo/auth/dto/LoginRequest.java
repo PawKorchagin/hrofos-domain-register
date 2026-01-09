@@ -18,4 +18,6 @@ public class LoginRequest {
 
     @NotBlank(message ${DB_USER:***REMOVED***} "Password is required")
     private String password;
+
+    private String totpCode;
 }
