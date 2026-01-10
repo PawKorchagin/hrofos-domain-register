@@ -12,6 +12,7 @@ import ru.itmo.domainorder.order.dto.CreateOrderRequest;
 import ru.itmo.domainorder.order.dto.OrderResponse;
 import ru.itmo.domainorder.order.enumeration.OrderStatus;
 import ru.itmo.domainorder.order.service.OrderService;
+import ru.itmo.domainorder.util.SecurityUtil;
 
 import java.util.UUID;
 
@@ -22,23 +23,35 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<OrderResponse>>> getOrders(
-            @RequestHeader("X-User-Id") UUID userId,
-            Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<OrderResponse>>> getOrders(Pageable pageable) {
+        UUID userId ${DB_USER:***REMOVED***} SecurityUtil.getCurrentUserId();
+        if (userId ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(new ru.itmo.common.dto.ApiError("UNAUTHORIZED", "User not authenticated")));
+        }
         Page<OrderResponse> orders ${DB_USER:***REMOVED***} orderService.getOrdersByUserId(userId, pageable);
         return ResponseEntity.ok(ApiResponse.success(orders));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderResponse>> getOrderById(@PathVariable UUID id) {
-        OrderResponse order ${DB_USER:***REMOVED***} orderService.getOrderById(id);
+        UUID userId ${DB_USER:***REMOVED***} SecurityUtil.getCurrentUserId();
+        if (userId ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(new ru.itmo.common.dto.ApiError("UNAUTHORIZED", "User not authenticated")));
+        }
+        OrderResponse order ${DB_USER:***REMOVED***} orderService.getOrderById(id, userId);
         return ResponseEntity.ok(ApiResponse.success(order));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<OrderResponse>> createOrder(
-            @RequestHeader("X-User-Id") UUID userId,
             @Valid @RequestBody CreateOrderRequest request) {
+        UUID userId ${DB_USER:***REMOVED***} SecurityUtil.getCurrentUserId();
+        if (userId ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(new ru.itmo.common.dto.ApiError("UNAUTHORIZED", "User not authenticated")));
+        }
         OrderResponse order ${DB_USER:***REMOVED***} orderService.createOrder(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(order));
     }
