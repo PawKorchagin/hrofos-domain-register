@@ -41,3 +41,13 @@ databaseChangeLog:
       file: db/changelog/changes/reserved_name/002-create-trigger.sql
   - include:
       file: db/changelog/changes/forbidden_name/001-create-table.sql
+  - include:
+      file: db/changelog/changes/dns_record/001-create-table.sql
+  - include:
+      file: db/changelog/changes/dns_record/002-create-indexes.sql
+  - include:
+      file: db/changelog/changes/dns_record/003-create-trigger.sql
+  - include:
+      file: db/changelog/changes/ns_delegation/001-create-table.sql
+  - include:
+      file: db/changelog/changes/ns_delegation/002-create-trigger.sql

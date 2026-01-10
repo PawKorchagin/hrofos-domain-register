@@ -11,3 +11,6 @@ CREATE TYPE order_status AS ENUM ('created','pending_payment','paid','cancelled'
 
 --changeset system:001-create-types-domain-member-role
 CREATE TYPE domain_member_role AS ENUM ('OWNER','USER');
+
+--changeset system:001-create-types-domain-record-type
+CREATE TYPE domain_record_type AS ENUM ('A','AAAA','CNAME','TXT','MX','SRV','CAA');
