@@ -13,6 +13,7 @@ import ru.itmo.domainorder.domain.dto.DomainResponse;
 import ru.itmo.domainorder.domain.dto.DomainSearchResult;
 import ru.itmo.domainorder.domain.dto.UpdateDomainRequest;
 import ru.itmo.domainorder.domain.service.DomainService;
+import ru.itmo.domainorder.util.SecurityUtil;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,8 +44,12 @@ public class DomainController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<DomainResponse>> createDomain(
-            @Valid @RequestBody CreateDomainRequest request,
-            @RequestHeader("X-User-Id") UUID userId) {
+            @Valid @RequestBody CreateDomainRequest request) {
+        UUID userId ${DB_USER:***REMOVED***} SecurityUtil.getCurrentUserId();
+        if (userId ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(new ru.itmo.common.dto.ApiError("UNAUTHORIZED", "User not authenticated")));
+        }
         DomainResponse domain ${DB_USER:***REMOVED***} domainService.createDomain(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(domain));
     }

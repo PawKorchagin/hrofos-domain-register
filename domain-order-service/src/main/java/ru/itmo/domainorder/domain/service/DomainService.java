@@ -65,8 +65,6 @@ public class DomainService {
 
     @Transactional
     public DomainResponse createDomain(CreateDomainRequest request, UUID userId) {
-        validateUserExists(userId);
-        
         if (domainRepository.existsByFqdn(request.getFqdn())) {
             throw new DomainAlreadyExistsException("Domain already exists with fqdn: " + request.getFqdn());
         }
@@ -148,9 +146,5 @@ public class DomainService {
         }
         
         return results;
-    }
-
-    private void validateUserExists(UUID userId) {
-        // TODO: Validate user exists via Auth Service API call
     }
 }
