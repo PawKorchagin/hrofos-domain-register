@@ -25,10 +25,14 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final CartMapper cartMapper;
 
-    @Transactional(readOnly ${DB_USER:***REMOVED***} true)
+    @Transactional
     public CartResponse getCartByUserId(UUID userId) {
         Cart cart ${DB_USER:***REMOVED***} cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new CartNotFoundException("Cart not found for user: " + userId));
+                .orElseGet(() -> {
+                    Cart newCart ${DB_USER:***REMOVED***} new Cart();
+                    newCart.setUserId(userId);
+                    return cartRepository.save(newCart);
+                });
         
         List<CartItem> items ${DB_USER:***REMOVED***} cartItemRepository.findByCartId(cart.getId());
         List<CartItemResponse> itemResponses ${DB_USER:***REMOVED***} cartMapper.toResponseList(items);
