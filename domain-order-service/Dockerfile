@@ -1,11 +1,9 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
-COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY build.gradle.kts settings.gradle.kts ./
 COPY domain-order-service/build.gradle.kts ./domain-order-service/
 COPY common/build.gradle.kts ./common/
-
-RUN gradle :domain-order-service:dependencies --no-daemon
 
 COPY domain-order-service/src ./domain-order-service/src
 COPY common/src ./common/src
