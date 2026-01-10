@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.itmo.common.dto.ApiResponse;
+import ru.itmo.domainorder.util.SecurityUtil;
 import ru.itmo.domainorder.zone.dto.CreateZoneRequest;
 import ru.itmo.domainorder.zone.dto.UpdateZoneRequest;
 import ru.itmo.domainorder.zone.entity.Zone;
@@ -41,6 +42,10 @@ public class ZoneController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<Zone>> createZone(@Valid @RequestBody CreateZoneRequest request) {
+        if (!SecurityUtil.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error(new ru.itmo.common.dto.ApiError("FORBIDDEN", "Admin access required")));
+        }
         Zone zone ${DB_USER:***REMOVED***} zoneService.createZone(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(zone));
     }
@@ -49,12 +54,20 @@ public class ZoneController {
     public ResponseEntity<ApiResponse<Zone>> updateZone(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateZoneRequest request) {
+        if (!SecurityUtil.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error(new ru.itmo.common.dto.ApiError("FORBIDDEN", "Admin access required")));
+        }
         Zone zone ${DB_USER:***REMOVED***} zoneService.updateZone(id, request);
         return ResponseEntity.ok(ApiResponse.success(zone));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteZone(@PathVariable UUID id) {
+        if (!SecurityUtil.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error(new ru.itmo.common.dto.ApiError("FORBIDDEN", "Admin access required")));
+        }
         zoneService.deleteZone(id);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
