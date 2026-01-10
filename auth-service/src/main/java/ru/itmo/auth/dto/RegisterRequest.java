@@ -20,10 +20,4 @@ public class RegisterRequest {
     @NotBlank(message ${DB_USER:***REMOVED***} "Password is required")
     @Size(min ${DB_USER:***REMOVED***} 8, message ${DB_USER:***REMOVED***} "Password must be at least 8 characters")
     private String password;
-
-    @NotBlank(message ${DB_USER:***REMOVED***} "First name is required")
-    private String firstName;
-
-    @NotBlank(message ${DB_USER:***REMOVED***} "Last name is required")
-    private String lastName;
 }

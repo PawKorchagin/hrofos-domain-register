@@ -27,12 +27,6 @@ public class User {
     @Column(name ${DB_USER:***REMOVED***} "password_hash", nullable ${DB_USER:***REMOVED***} false, length ${DB_USER:***REMOVED***} 255)
     private String passwordHash;
 
-    @Column(name ${DB_USER:***REMOVED***} "first_name", nullable ${DB_USER:***REMOVED***} false, length ${DB_USER:***REMOVED***} 100)
-    private String firstName;
-
-    @Column(name ${DB_USER:***REMOVED***} "last_name", nullable ${DB_USER:***REMOVED***} false, length ${DB_USER:***REMOVED***} 100)
-    private String lastName;
-
     @Column(name ${DB_USER:***REMOVED***} "email_verified", nullable ${DB_USER:***REMOVED***} false)
     private Boolean emailVerified ${DB_USER:***REMOVED***} false;
 

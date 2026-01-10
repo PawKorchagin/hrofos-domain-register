@@ -69,8 +69,6 @@ public class AuthService {
         User user ${DB_USER:***REMOVED***} new User();
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
         user.setEmailVerified(false);
         user.setVerificationToken(UUID.randomUUID());
 
@@ -91,7 +89,6 @@ public class AuthService {
             String verificationLink ${DB_USER:***REMOVED***} verificationBaseUrl + "/api/auth/verify-email?token${DB_USER:***REMOVED***}" + user.getVerificationToken();
 
             Map<String, Object> parameters ${DB_USER:***REMOVED***} new HashMap<>();
-            parameters.put("firstName", user.getFirstName());
             parameters.put("verificationLink", verificationLink);
 
             SendNotificationRequest notificationRequest ${DB_USER:***REMOVED***} new SendNotificationRequest();
@@ -241,8 +238,6 @@ public class AuthService {
         UserResponse response ${DB_USER:***REMOVED***} new UserResponse();
         response.setId(user.getId());
         response.setEmail(user.getEmail());
-        response.setFirstName(user.getFirstName());
-        response.setLastName(user.getLastName());
         response.setCreatedAt(user.getCreatedAt());
         response.setUpdatedAt(user.getUpdatedAt());
         return response;
