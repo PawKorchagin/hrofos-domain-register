@@ -47,6 +47,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(error));
     }
 
+    @ExceptionHandler(TOTPRequiredException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTotpRequired(TOTPRequiredException e) {
+        log.error("TOTP required: {}", e.getMessage());
+        ApiError error ${DB_USER:***REMOVED***} new ApiError("TOTP_REQUIRED", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(error));
+    }
+
+    @ExceptionHandler(InvalidTOTPException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidTotp(InvalidTOTPException e) {
+        log.error("Invalid TOTP: {}", e.getMessage());
+        ApiError error ${DB_USER:***REMOVED***} new ApiError("INVALID_TOTP", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(error));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception e) {
         log.error("Unexpected error: ", e);
