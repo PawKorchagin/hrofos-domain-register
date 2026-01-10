@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 import ru.itmo.auth.dto.LoginRequest;
 import ru.itmo.auth.dto.LoginResponse;
@@ -96,9 +100,17 @@ public class AuthService {
             notificationRequest.setSubject("Подтверждение email адреса");
             notificationRequest.setParameters(parameters);
 
+            String jwtToken ${DB_USER:***REMOVED***} jwtUtil.generateAccessToken(user.getId(), user.getEmail(), user.getIsAdmin());
+
+            HttpHeaders headers ${DB_USER:***REMOVED***} new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(jwtToken);
+
+            HttpEntity<SendNotificationRequest> requestEntity ${DB_USER:***REMOVED***} new HttpEntity<>(notificationRequest, headers);
+
             String url ${DB_USER:***REMOVED***} notificationServiceUrl + "/notifications/send";
-            restTemplate.postForObject(url, notificationRequest, Void.class);
-            log.info("Verification email sent to: {}", user.getEmail());
+            restTemplate.exchange(url, HttpMethod.POST, requestEntity, Void.class);
+            log.info("Verification email sent to: {} with JWT token in Authorization header", user.getEmail());
         } catch (Exception e) {
             log.error("Failed to send verification email to: {}", user.getEmail(), e);
         }
