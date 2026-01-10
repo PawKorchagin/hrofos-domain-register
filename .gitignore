@@ -114,3 +114,4 @@ spring-boot-*.log
 report/*.md
 *.md
 scripts/
+exdns/
