@@ -3,11 +3,9 @@ WORKDIR /app
 
 ENV GRADLE_OPTS${DB_USER:***REMOVED***}"-Dhttps.protocols${DB_USER:***REMOVED***}TLSv1.2,TLSv1.3"
 
-COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY build.gradle.kts settings.gradle.kts ./
 COPY auth-service/build.gradle.kts ./auth-service/
 COPY common/build.gradle.kts ./common/
-
-RUN gradle :auth-service:dependencies --no-daemon
 
 COPY auth-service/src ./auth-service/src
 COPY common/src ./common/src

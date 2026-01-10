@@ -1,11 +1,9 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
-COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY build.gradle.kts settings.gradle.kts ./
 COPY notification-service/build.gradle.kts ./notification-service/
 COPY common/build.gradle.kts ./common/
-
-RUN gradle :notification-service:dependencies --no-daemon
 
 COPY notification-service/src ./notification-service/src
 COPY common/src ./common/src

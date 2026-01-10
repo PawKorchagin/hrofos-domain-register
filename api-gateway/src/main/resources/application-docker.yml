@@ -20,42 +20,35 @@ spring:
           predicates:
             - Path${DB_USER:***REMOVED***}/api/auth/**
           filters:
-            - StripPrefix${DB_USER:***REMOVED***}2
+            - StripPrefix${DB_USER:***REMOVED***}1
         
         - id: domain-service
           uri: http://domain-order-service:8082
           predicates:
-            - Path${DB_USER:***REMOVED***}/api/domains/**, /api/orders/**, /api/zones/**, /api/cart/**
+            - Path${DB_USER:***REMOVED***}/api/domains/**, /api/orders/**, /api/zones/**, /api/cart/**, /api/dns/**
           filters:
-            - StripPrefix${DB_USER:***REMOVED***}2
+            - StripPrefix${DB_USER:***REMOVED***}1
         
         - id: payment-service
           uri: http://payment-service:8083
           predicates:
             - Path${DB_USER:***REMOVED***}/api/payments/**
           filters:
-            - StripPrefix${DB_USER:***REMOVED***}2
-        
-        - id: dns-service
-          uri: http://dns-service:8084
-          predicates:
-            - Path${DB_USER:***REMOVED***}/api/dns/**
-          filters:
-            - StripPrefix${DB_USER:***REMOVED***}2
+            - StripPrefix${DB_USER:***REMOVED***}1
         
         - id: notification-service
           uri: http://notification-service:8085
           predicates:
             - Path${DB_USER:***REMOVED***}/api/notifications/**
           filters:
-            - StripPrefix${DB_USER:***REMOVED***}2
+            - StripPrefix${DB_USER:***REMOVED***}1
         
         - id: admin-service
           uri: http://admin-service:8086
           predicates:
             - Path${DB_USER:***REMOVED***}/api/admin/**
           filters:
-            - StripPrefix${DB_USER:***REMOVED***}2
+            - StripPrefix${DB_USER:***REMOVED***}1
 
   data:
     redis:

@@ -44,6 +44,10 @@ management:
 jwt:
   secret: ${JWT_SECRET:your-256-bit-secret-key-must-be-at-least-32-characters-long-for-security}
 
+exdns:
+  url: ${EXDNS_URL:http://localhost:8095}
+  api-token: ${EXDNS_API_TOKEN:changeme}
+
 logging:
     level:
       ru.itmo: INFO
