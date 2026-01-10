@@ -17,7 +17,6 @@ import ru.itmo.domainorder.cart.repository.CartRepository;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +27,6 @@ public class CartService {
 
     @Transactional(readOnly ${DB_USER:***REMOVED***} true)
     public CartResponse getCartByUserId(UUID userId) {
-        validateUserExists(userId);
-        
         Cart cart ${DB_USER:***REMOVED***} cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new CartNotFoundException("Cart not found for user: " + userId));
         
@@ -41,8 +38,6 @@ public class CartService {
 
     @Transactional
     public CartResponse getOrCreateCart(UUID userId) {
-        validateUserExists(userId);
-        
         Cart cart ${DB_USER:***REMOVED***} cartRepository.findByUserId(userId)
                 .orElseGet(() -> {
                     Cart newCart ${DB_USER:***REMOVED***} new Cart();
@@ -97,17 +92,11 @@ public class CartService {
     }
 
     private Cart getOrCreateCartEntity(UUID userId) {
-        validateUserExists(userId);
-        
         return cartRepository.findByUserId(userId)
                 .orElseGet(() -> {
                     Cart newCart ${DB_USER:***REMOVED***} new Cart();
                     newCart.setUserId(userId);
                     return cartRepository.save(newCart);
                 });
-    }
-
-    private void validateUserExists(UUID userId) {
-        // TODO: Validate user exists via Auth Service API call
     }
 }
