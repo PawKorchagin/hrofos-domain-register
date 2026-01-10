@@ -20,7 +20,9 @@ import ru.itmo.auth.entity.RefreshToken;
 import ru.itmo.auth.entity.User;
 import ru.itmo.auth.exception.EmailAlreadyExistsException;
 import ru.itmo.auth.exception.InvalidCredentialsException;
+import ru.itmo.auth.exception.InvalidTOTPException;
 import ru.itmo.auth.exception.InvalidTokenException;
+import ru.itmo.auth.exception.TOTPRequiredException;
 import ru.itmo.auth.exception.UserNotFoundException;
 import ru.itmo.auth.repository.RefreshTokenRepository;
 import ru.itmo.auth.repository.UserRepository;
@@ -162,11 +164,11 @@ public class AuthService {
 
         if (twoFactorService.is2FAEnabled(user.getId())) {
             if (request.getTotpCode() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || request.getTotpCode().isEmpty()) {
-                throw new InvalidCredentialsException("TOTP code is required");
+                throw new TOTPRequiredException("TOTP code is required");
             }
 
             if (!twoFactorService.verify2FA(user.getId(), request.getTotpCode())) {
-                throw new InvalidCredentialsException("Invalid TOTP code");
+                throw new InvalidTOTPException("Invalid TOTP code");
             }
         }
 

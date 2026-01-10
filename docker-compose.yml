@@ -8,6 +8,7 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+      - API_GATEWAY_STRIP_PREFIX${DB_USER:***REMOVED***}${API_GATEWAY_STRIP_PREFIX}
     depends_on:
       - redis
     networks:
