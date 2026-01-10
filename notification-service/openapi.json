@@ -1,0 +1,600 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Notification Service API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/notifications/send": {
+      "post": {
+        "summary": "Send notification",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendNotificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Notification accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Service health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/preferences": {
+      "get": {
+        "summary": "Get notification preferences",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserIdHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Preferences",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseNotificationPreferencesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update notification preferences",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserIdHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNotificationPreferencesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Preferences updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseNotificationPreferencesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/expiry/alerts": {
+      "get": {
+        "summary": "Get expiry alerts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserIdHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expiry alerts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDomainExpiryAlertResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update expiry alerts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserIdHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExpiryAlertsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Expiry alerts updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDomainExpiryAlertResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/expiry/monitoring/domains": {
+      "get": {
+        "summary": "List monitored domains",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserIdHeader"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Monitored domains page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageDomainExpiryMonitoringResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/expiry/monitoring/dashboard": {
+      "get": {
+        "summary": "Monitoring dashboard",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserIdHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Monitoring dashboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMonitoringDashboardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "UserIdHeader": {
+        "name": "X-User-Id",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseVoid": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseString": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseNotificationPreferencesResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/NotificationPreferencesResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseDomainExpiryAlertResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainExpiryAlertResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseMonitoringDashboardResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MonitoringDashboardResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponsePageDomainExpiryMonitoringResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageDomainExpiryMonitoringResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "SendNotificationRequest": {
+        "type": "object",
+        "required": [
+          "userId",
+          "type"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "$ref": "#/components/schemas/NotificationType"
+          },
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "template": {
+            "type": "string",
+            "nullable": true
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          }
+        }
+      },
+      "NotificationType": {
+        "type": "string",
+        "enum": [
+          "ORDER_CREATED",
+          "PAYMENT_APPROVED",
+          "DOMAIN_ACTIVATED",
+          "DOMAIN_EXPIRING_SOON",
+          "DOMAIN_EXPIRED"
+        ]
+      },
+      "DomainExpiryAlertResponse": {
+        "type": "object",
+        "properties": {
+          "alerts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpiryAlertPreference"
+            }
+          }
+        }
+      },
+      "ExpiryAlertPreference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "daysBefore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DomainExpiryMonitoringResponse": {
+        "type": "object",
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fqdn": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "activatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "daysUntilExpiry": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "alertSent": {
+            "type": "boolean"
+          },
+          "lastAlertSentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "MonitoringDashboardResponse": {
+        "type": "object",
+        "properties": {
+          "domainsExpiringIn30Days": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "domainsExpiringIn14Days": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "domainsExpiringIn7Days": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "domainsExpiringIn3Days": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "domainsExpiringIn1Day": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "expiredDomains": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalActiveDomains": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "NotificationPreferencesResponse": {
+        "type": "object",
+        "properties": {
+          "expiryAlerts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpiryAlertPreference"
+            }
+          },
+          "orderNotificationsEnabled": {
+            "type": "boolean"
+          },
+          "paymentNotificationsEnabled": {
+            "type": "boolean"
+          },
+          "domainActivationNotificationsEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateExpiryAlertsRequest": {
+        "type": "object",
+        "properties": {
+          "alerts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpiryAlertPreference"
+            }
+          }
+        }
+      },
+      "UpdateNotificationPreferencesRequest": {
+        "type": "object",
+        "properties": {
+          "expiryAlerts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpiryAlertPreference"
+            }
+          },
+          "orderNotificationsEnabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "paymentNotificationsEnabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "domainActivationNotificationsEnabled": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "PageDomainExpiryMonitoringResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainExpiryMonitoringResponse"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

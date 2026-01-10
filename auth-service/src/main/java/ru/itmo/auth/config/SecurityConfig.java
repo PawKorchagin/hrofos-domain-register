@@ -25,7 +25,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/register", "/auth/login", "/auth/refresh", 
                                 "/auth/verify-email", "/auth/resend-verification",
-                                "/actuator/**", "/health").permitAll()
+                                "/actuator/**", "/health",
+                                "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/auth/2fa/**", "/users/**").authenticated()
                 .anyRequest().permitAll()
             )

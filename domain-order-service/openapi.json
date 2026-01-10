@@ -1,0 +1,2335 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Domain Order Service API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/cart": {
+      "get": {
+        "summary": "Get cart by user",
+        "responses": {
+          "200": {
+            "description": "Cart details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCartResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      },
+      "delete": {
+        "summary": "Clear cart",
+        "responses": {
+          "200": {
+            "description": "Cart cleared",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/items": {
+      "post": {
+        "summary": "Add item to cart",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddCartItemRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCartItemResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/items/{itemId}": {
+      "delete": {
+        "summary": "Remove item from cart",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/domains": {
+      "get": {
+        "summary": "List domains",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domain page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageDomainResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Domains"
+        ]
+      },
+      "post": {
+        "summary": "Create domain",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDomainRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Domain created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDomainResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Domains"
+        ]
+      }
+    },
+    "/domains/{id}": {
+      "get": {
+        "summary": "Get domain by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domain details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDomainResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Domains"
+        ]
+      },
+      "put": {
+        "summary": "Update domain",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDomainRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Domain updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDomainResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Domains"
+        ]
+      },
+      "delete": {
+        "summary": "Delete domain",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domain deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Domains"
+        ]
+      }
+    },
+    "/domains/fqdn/{fqdn}": {
+      "get": {
+        "summary": "Get domain by fqdn",
+        "parameters": [
+          {
+            "name": "fqdn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domain details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDomainResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Domains"
+        ]
+      }
+    },
+    "/domains/{id}/activate": {
+      "post": {
+        "summary": "Activate domain",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domain activated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDomainResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Domains"
+        ]
+      }
+    },
+    "/domains/search": {
+      "get": {
+        "summary": "Search domains",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListDomainSearchResult"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Domains"
+        ]
+      }
+    },
+    "/orders": {
+      "get": {
+        "summary": "List orders by user",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageOrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      },
+      "post": {
+        "summary": "Create order",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "summary": "Get order by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/orders/{id}/status": {
+      "put": {
+        "summary": "Update order status",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/OrderStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/orders/{id}/cancel": {
+      "post": {
+        "summary": "Cancel order",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/zones": {
+      "get": {
+        "summary": "List zones",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zone page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageZone"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Zones"
+        ]
+      },
+      "post": {
+        "summary": "Create zone",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateZoneRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Zone created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseZone"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Zones"
+        ]
+      }
+    },
+    "/zones/{id}": {
+      "get": {
+        "summary": "Get zone by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zone details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseZone"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Zones"
+        ]
+      },
+      "put": {
+        "summary": "Update zone",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateZoneRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Zone updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseZone"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Zones"
+        ]
+      },
+      "delete": {
+        "summary": "Delete zone",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zone deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Zones"
+        ]
+      }
+    },
+    "/zones/name/{name}": {
+      "get": {
+        "summary": "Get zone by name",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zone details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseZone"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Zones"
+        ]
+      }
+    },
+    "/dns/records/domain/{domainId}": {
+      "get": {
+        "summary": "Get DNS records by domain",
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "DNS records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListDnsRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      }
+    },
+    "/dns/records/{recordId}": {
+      "get": {
+        "summary": "Get DNS record by id",
+        "parameters": [
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "DNS record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDnsRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      },
+      "put": {
+        "summary": "Update DNS record",
+        "parameters": [
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDnsRecordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "DNS record updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDnsRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      },
+      "delete": {
+        "summary": "Delete DNS record",
+        "parameters": [
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "DNS record deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      }
+    },
+    "/dns/records/a": {
+      "post": {
+        "summary": "Create A record",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateARecordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "A record created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDnsRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      }
+    },
+    "/dns/records/aaaa": {
+      "post": {
+        "summary": "Create AAAA record",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAaaaRecordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AAAA record created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDnsRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      }
+    },
+    "/dns/records/cname": {
+      "post": {
+        "summary": "Create CNAME record",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCnameRecordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "CNAME record created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDnsRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      }
+    },
+    "/dns/records/txt": {
+      "post": {
+        "summary": "Create TXT record",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTxtRecordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "TXT record created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDnsRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      }
+    },
+    "/dns/records/mx": {
+      "post": {
+        "summary": "Create MX record",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMxRecordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "MX record created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDnsRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      }
+    },
+    "/dns/records/srv": {
+      "post": {
+        "summary": "Create SRV record",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSrvRecordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "SRV record created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDnsRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      }
+    },
+    "/dns/records/caa": {
+      "post": {
+        "summary": "Create CAA record",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCaaRecordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "CAA record created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDnsRecordResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      }
+    },
+    "/dns/records/health": {
+      "get": {
+        "summary": "DNS records health check",
+        "responses": {
+          "200": {
+            "description": "Service health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseString"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Records"
+        ]
+      }
+    },
+    "/dns/delegation/domain/{domainId}": {
+      "get": {
+        "summary": "Get NS delegation",
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NS delegation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseNsDelegationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Delegation"
+        ]
+      },
+      "put": {
+        "summary": "Set NS delegation",
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NsDelegationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "NS delegation updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseNsDelegationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Delegation"
+        ]
+      },
+      "delete": {
+        "summary": "Remove NS delegation",
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NS delegation removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Delegation"
+        ]
+      }
+    },
+    "/dns/delegation/health": {
+      "get": {
+        "summary": "NS delegation health check",
+        "responses": {
+          "200": {
+            "description": "Service health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseString"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "DNS Delegation"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseCartResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CartResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseCartItemResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CartItemResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseVoid": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseDomainResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DomainResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponsePageDomainResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageDomainResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseOrderResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrderResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponsePageOrderResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageOrderResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseZone": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Zone"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponsePageZone": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageZone"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseListDomainSearchResult": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainSearchResult"
+            }
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "AddCartItemRequest": {
+        "type": "object",
+        "required": [
+          "action",
+          "term",
+          "fqdn",
+          "price"
+        ],
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ItemAction"
+          },
+          "term": {
+            "$ref": "#/components/schemas/ItemTerm"
+          },
+          "fqdn": {
+            "type": "string"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        }
+      },
+      "CartItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "$ref": "#/components/schemas/ItemAction"
+          },
+          "term": {
+            "$ref": "#/components/schemas/ItemTerm"
+          },
+          "fqdn": {
+            "type": "string"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CartResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartItemResponse"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateDomainRequest": {
+        "type": "object",
+        "required": [
+          "fqdn",
+          "zoneId",
+          "expiresAt"
+        ],
+        "properties": {
+          "fqdn": {
+            "type": "string"
+          },
+          "zoneId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateDomainRequest": {
+        "type": "object",
+        "properties": {
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "activatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "DomainResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fqdn": {
+            "type": "string"
+          },
+          "zoneId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zoneName": {
+            "type": "string"
+          },
+          "activatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DomainSearchResult": {
+        "type": "object",
+        "properties": {
+          "fqdn": {
+            "type": "string"
+          },
+          "free": {
+            "type": "boolean"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CreateOrderRequest": {
+        "type": "object",
+        "required": [
+          "cartItemIds"
+        ],
+        "properties": {
+          "cartItemIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "OrderItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "$ref": "#/components/schemas/ItemAction"
+          },
+          "term": {
+            "$ref": "#/components/schemas/ItemTerm"
+          },
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OrderResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "totalAmount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemResponse"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateZoneRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "price"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        }
+      },
+      "UpdateZoneRequest": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        }
+      },
+      "Zone": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ItemAction": {
+        "type": "string",
+        "enum": [
+          "register",
+          "renew"
+        ]
+      },
+      "ItemTerm": {
+        "type": "string",
+        "enum": [
+          "monthly",
+          "yearly"
+        ]
+      },
+      "OrderStatus": {
+        "type": "string",
+        "enum": [
+          "created",
+          "pending_payment",
+          "paid",
+          "cancelled",
+          "failed"
+        ]
+      },
+      "PageDomainResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainResponse"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PageOrderResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderResponse"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PageZone": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Zone"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseString": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseDnsRecordResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DnsRecordResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseListDnsRecordResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DnsRecordResponse"
+            }
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseNsDelegationResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/NsDelegationResponse"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError",
+            "nullable": true
+          }
+        }
+      },
+      "CreateARecordRequest": {
+        "type": "object",
+        "required": [
+          "domainId",
+          "name",
+          "ipv4Address",
+          "ttl"
+        ],
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ipv4Address": {
+            "type": "string"
+          },
+          "ttl": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateAaaaRecordRequest": {
+        "type": "object",
+        "required": [
+          "domainId",
+          "name",
+          "ipv6Address",
+          "ttl"
+        ],
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ipv6Address": {
+            "type": "string"
+          },
+          "ttl": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateCnameRecordRequest": {
+        "type": "object",
+        "required": [
+          "domainId",
+          "name",
+          "canonicalName",
+          "ttl"
+        ],
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "canonicalName": {
+            "type": "string"
+          },
+          "ttl": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateTxtRecordRequest": {
+        "type": "object",
+        "required": [
+          "domainId",
+          "name",
+          "textValue",
+          "ttl"
+        ],
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "textValue": {
+            "type": "string"
+          },
+          "ttl": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateMxRecordRequest": {
+        "type": "object",
+        "required": [
+          "domainId",
+          "name",
+          "mailExchange",
+          "priority",
+          "ttl"
+        ],
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mailExchange": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "ttl": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateSrvRecordRequest": {
+        "type": "object",
+        "required": [
+          "domainId",
+          "serviceName",
+          "target",
+          "priority",
+          "weight",
+          "port",
+          "ttl"
+        ],
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "weight": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "port": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "ttl": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateCaaRecordRequest": {
+        "type": "object",
+        "required": [
+          "domainId",
+          "name",
+          "flags",
+          "tag",
+          "value",
+          "ttl"
+        ],
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "flags": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "ttl": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateDnsRecordRequest": {
+        "type": "object",
+        "required": [
+          "value",
+          "ttl"
+        ],
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "ttl": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "weight": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "port": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "flags": {
+            "type": "string",
+            "nullable": true
+          },
+          "tag": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DnsRecordResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recordType": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "ttl": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "weight": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "port": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "flags": {
+            "type": "string",
+            "nullable": true
+          },
+          "tag": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "NsDelegationRequest": {
+        "type": "object",
+        "required": [
+          "nsServers"
+        ],
+        "properties": {
+          "nsServers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 10
+          }
+        }
+      },
+      "NsDelegationResponse": {
+        "type": "object",
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isDelegated": {
+            "type": "boolean"
+          },
+          "nsServers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Cart",
+      "description": "Cart management"
+    },
+    {
+      "name": "Domains",
+      "description": "Domain lifecycle"
+    },
+    {
+      "name": "Orders",
+      "description": "Order management"
+    },
+    {
+      "name": "Zones",
+      "description": "DNS zones"
+    },
+    {
+      "name": "DNS Records",
+      "description": "DNS records management"
+    },
+    {
+      "name": "DNS Delegation",
+      "description": "NS delegation management"
+    }
+  ]
+}
