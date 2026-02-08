@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.itmo.domain.generated.api.DnsRecordApi;
 import ru.itmo.domain.generated.model.DnsRecord;
 import ru.itmo.domain.generated.model.DnsRecordResponse;
+import ru.itmo.domain.service.DnsRecordService;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,9 +14,16 @@ import java.util.List;
 @org.springframework.web.bind.annotation.RequestMapping("${openapi.openAPIDNS.base-path:/api/v1}")
 public class DnsRecordApiController implements DnsRecordApi {
 
+    private final DnsRecordService dnsRecordService;
+
+    public DnsRecordApiController(DnsRecordService dnsRecordService) {
+        this.dnsRecordService ${DB_USER:***REMOVED***} dnsRecordService;
+    }
+
     @Override
     public ResponseEntity<DnsRecordResponse> createDnsRecord(String l2Domain, DnsRecord dnsRecord) {
-        return ResponseEntity.status(201).build();
+        DnsRecordResponse created ${DB_USER:***REMOVED***} dnsRecordService.create(l2Domain, dnsRecord);
+        return ResponseEntity.status(201).body(created);
     }
 
     @Override

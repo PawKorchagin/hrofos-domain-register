@@ -527,6 +527,16 @@ components:
         - $ref: '#/components/schemas/DnsRecordSOA'
       discriminator:
         propertyName: type
+        type:
+          $ref: '#/components/schemas/DnsRecordType'
+        mapping:
+          A: '#/components/schemas/DnsRecordA'
+          AAAA: '#/components/schemas/DnsRecordAAAA'
+          NS: '#/components/schemas/DnsRecordNS'
+          MX: '#/components/schemas/DnsRecordMX'
+          TXT: '#/components/schemas/DnsRecordTXT'
+          CNAME: '#/components/schemas/DnsRecordCNAME'
+          SOA: '#/components/schemas/DnsRecordSOA'
     DnsRecordResponseA:
       allOf:
         - $ref: '#/components/schemas/DnsRecordA'
@@ -594,6 +604,14 @@ components:
         - $ref: '#/components/schemas/DnsRecordResponseSOA'
       discriminator:
         propertyName: type
+        mapping:
+          A: '#/components/schemas/DnsRecordResponseA'
+          AAAA: '#/components/schemas/DnsRecordResponseAAAA'
+          NS: '#/components/schemas/DnsRecordResponseNS'
+          MX: '#/components/schemas/DnsRecordResponseMX'
+          TXT: '#/components/schemas/DnsRecordResponseTXT'
+          CNAME: '#/components/schemas/DnsRecordResponseCNAME'
+          SOA: '#/components/schemas/DnsRecordResponseSOA'
     L2Domain:
       type: object
       required:
