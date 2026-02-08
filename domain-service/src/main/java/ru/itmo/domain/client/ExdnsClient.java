@@ -35,6 +35,26 @@ public class ExdnsClient {
         exchange(l2Domain, HttpMethod.GET, null);
     }
 
+    public JsonNode getZoneBody(String l2Domain) {
+        String url ${DB_USER:***REMOVED***} UriComponentsBuilder.fromHttpUrl(properties.getBaseUrl())
+                .path(ZONES_PATH)
+                .buildAndExpand(l2Domain)
+                .toUriString();
+
+        HttpHeaders headers ${DB_USER:***REMOVED***} new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authentication", "Bearer " + properties.getApiToken());
+
+        try {
+            JsonNode responseBody ${DB_USER:***REMOVED***} restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), JsonNode.class).getBody();
+            failIfError(responseBody);
+            return responseBody;
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            String errorMessage ${DB_USER:***REMOVED***} parseErrorFromBody(e.getResponseBodyAsString());
+            throw new ExdnsClientException(errorMessage, e);
+        }
+    }
+
     public void replaceZone(String l2Domain, JsonNode body) {
         exchange(l2Domain, HttpMethod.PUT, body);
     }
