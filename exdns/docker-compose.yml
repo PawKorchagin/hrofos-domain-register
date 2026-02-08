@@ -1,0 +1,15 @@
+services:
+  exdns:
+    build: .
+    ports:
+      - "5354:5353/udp"
+      - "8000:8000"
+    environment:
+      API_TOKEN: "changeme"
+      DNS_PORT: "5353"
+      HTTP_PORT: "8000"
+      ZONES_FOLDER: "/data/zones"
+      REPLICATION_QUORUM: "0.5"
+      REPLICATION_TIMEOUT_MS: "2000"
+    volumes:
+      - ./zones:/data/zones
