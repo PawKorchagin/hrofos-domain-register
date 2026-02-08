@@ -43,3 +43,4 @@ logging:
   level:
     ru.itmo: INFO
     org.springframework.web: INFO
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: DEBUG
