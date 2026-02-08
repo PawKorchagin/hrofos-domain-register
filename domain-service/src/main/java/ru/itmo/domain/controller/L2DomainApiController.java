@@ -37,6 +37,7 @@ public class L2DomainApiController implements L2DomainApi {
 
     @Override
     public ResponseEntity<Void> deleteL2DomainByName(String l2Domain) {
+        l2DomainService.deleteByName(l2Domain);
         return ResponseEntity.noContent().build();
     }
 }

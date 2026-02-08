@@ -18,4 +18,10 @@ public class DuplicateL2DomainExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(List.of(MESSAGE));
     }
+
+    @ExceptionHandler(L2DomainNotFoundException.class)
+    public ResponseEntity<List<String>> handleL2DomainNotFound(L2DomainNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(List.of(ex.getMessage()));
+    }
 }

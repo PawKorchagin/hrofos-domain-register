@@ -58,6 +58,7 @@ paths:
                 type: array
                 items:
                   type: string
+  /l2Domains/{l2Domain}:
     delete:
       summary: Метод удаления домена второго уровня по идентификатору
       description: Метод предназначен для удаления данных по домену второго уровня. Только для админов.

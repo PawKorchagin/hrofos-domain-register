@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.domain.client.ExdnsClient;
 import ru.itmo.domain.entity.Domain;
 import ru.itmo.domain.exception.DuplicateL2DomainException;
+import ru.itmo.domain.exception.L2DomainNotFoundException;
 import ru.itmo.domain.generated.model.L2Domain;
 import ru.itmo.domain.repository.DomainRepository;
 import ru.itmo.domain.service.L2DomainService;
@@ -44,5 +45,15 @@ public class L2DomainServiceImpl implements L2DomainService {
         exdnsClient.createZone(entity.getDomainPart(), zoneBody);
 
         return new L2Domain().name(entity.getDomainPart());
+    }
+
+    @Override
+    @Transactional
+    public void deleteByName(String l2Domain) {
+        String name ${DB_USER:***REMOVED***} l2Domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? null : l2Domain.trim();
+        Domain entity ${DB_USER:***REMOVED***} domainRepository.findByDomainPartAndParentIsNull(name)
+                .orElseThrow(() -> new L2DomainNotFoundException(name));
+        exdnsClient.deleteZone(entity.getDomainPart());
+        domainRepository.delete(entity);
     }
 }
