@@ -22,6 +22,9 @@ public class Domain {
     @Column(name ${DB_USER:***REMOVED***} "domain_part", nullable ${DB_USER:***REMOVED***} false)
     private String domainPart;
 
+    @Column(name ${DB_USER:***REMOVED***} "domain_version")
+    private Long domainVersion;
+
     @ManyToOne(fetch ${DB_USER:***REMOVED***} FetchType.LAZY)
     @JoinColumn(name ${DB_USER:***REMOVED***} "parent_id")
     private Domain parent;

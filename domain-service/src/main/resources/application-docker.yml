@@ -10,3 +10,8 @@ openapi:
     base-path: /api/v1
   domainService:
     base-path: ""
+
+exdns:
+  client:
+    base-url: http://exdns:8000
+    api-token: ${EXDNS_API_TOKEN:-changeme}

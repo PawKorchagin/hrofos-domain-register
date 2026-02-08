@@ -39,6 +39,11 @@ openapi:
   domainService:
     base-path: /api
 
+exdns:
+  client:
+    base-url: http://localhost:8000
+    api-token: changeme
+
 logging:
   level:
     ru.itmo: INFO

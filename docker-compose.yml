@@ -38,6 +38,7 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+      - EXDNS_API_TOKEN${DB_USER:***REMOVED***}${EXDNS_API_TOKEN:-changeme}
     depends_on:
       - ***REMOVED***-domain
     networks:
