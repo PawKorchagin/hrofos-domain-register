@@ -8,7 +8,6 @@ import ru.itmo.domain.generated.api.L2DomainApi;
 import ru.itmo.domain.generated.model.L2Domain;
 import ru.itmo.domain.service.L2DomainService;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -25,7 +24,7 @@ public class L2DomainApiController implements L2DomainApi {
 
     @Override
     public ResponseEntity<List<L2Domain>> getL2Domains() {
-        return ResponseEntity.ok(Collections.emptyList());
+        return ResponseEntity.ok(l2DomainService.getL2Domains());
     }
 
     @Override

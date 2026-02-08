@@ -12,6 +12,9 @@ import ru.itmo.domain.generated.model.L2Domain;
 import ru.itmo.domain.repository.DomainRepository;
 import ru.itmo.domain.service.L2DomainService;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class L2DomainServiceImpl implements L2DomainService {
 
@@ -23,6 +26,13 @@ public class L2DomainServiceImpl implements L2DomainService {
         this.domainRepository ${DB_USER:***REMOVED***} domainRepository;
         this.exdnsClient ${DB_USER:***REMOVED***} exdnsClient;
         this.objectMapper ${DB_USER:***REMOVED***} objectMapper;
+    }
+
+    @Override
+    public List<L2Domain> getL2Domains() {
+        return domainRepository.findAllByParentIsNull().stream()
+                .map(d -> new L2Domain().name(d.getDomainPart()))
+                .collect(Collectors.toList());
     }
 
     @Override
