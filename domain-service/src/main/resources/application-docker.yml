@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:***REMOVED***ql://***REMOVED***-domain:5432/domain_db
+    username: ***REMOVED***
+    password: ***REMOVED***
+
+# За gateway префикс /api снимается, сервис получает /domains, /health
+openapi:
+  openAPIDNS:
+    base-path: /api/v1
+  domainService:
+    base-path: ""

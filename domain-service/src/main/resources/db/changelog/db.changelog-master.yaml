@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: changes/001-create-domain-and-dns-record.sql
+      relativeToChangelogFile: true

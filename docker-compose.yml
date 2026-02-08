@@ -25,11 +25,11 @@ services:
       - domain-registrar-network
     command: redis-server --appendonly yes
 
-  domain-order-service:
+  domain-service:
     build:
       context: .
-      dockerfile: domain-order-service/Dockerfile
-    container_name: domain-order-service
+      dockerfile: domain-service/Dockerfile
+    container_name: domain-service
     ports:
       - "8082:8082"
     env_file:
@@ -37,21 +37,21 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
     depends_on:
-      - ***REMOVED***-domain-order
+      - ***REMOVED***-domain
     networks:
       - domain-registrar-network
 
-  ***REMOVED***-domain-order:
+  ***REMOVED***-domain:
     image: ***REMOVED***:15-alpine
-    container_name: ***REMOVED***-domain-order
+    container_name: ***REMOVED***-domain
     environment:
-      POSTGRES_DB: domain_order_db
+      POSTGRES_DB: domain_db
       POSTGRES_USER: ***REMOVED***
       POSTGRES_PASSWORD: ***REMOVED***
     ports:
       - "5432:5432"
     volumes:
-      - ***REMOVED***-domain-order-data:/var/lib/***REMOVED***ql/data
+      - ***REMOVED***-domain-data:/var/lib/***REMOVED***ql/data
     networks:
       - domain-registrar-network
 
@@ -121,7 +121,7 @@ services:
 
 volumes:
   redis-data:
-  ***REMOVED***-domain-order-data:
+  ***REMOVED***-domain-data:
   ***REMOVED***-auth-data:
   ***REMOVED***-notification-data:
 

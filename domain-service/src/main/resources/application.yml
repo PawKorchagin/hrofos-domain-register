@@ -1,0 +1,45 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: domain-service
+  datasource:
+    url: jdbc:***REMOVED***ql://localhost:5432/domain_db
+    username: ***REMOVED***
+    password: ***REMOVED***
+    driver-class-name: org.***REMOVED***ql.Driver
+    hikari:
+      pool-name: DomainHikariPool
+      minimum-idle: 5
+      maximum-pool-size: 20
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+openapi:
+  openAPIDNS:
+    base-path: /api/v1
+  domainService:
+    base-path: /api
+
+logging:
+  level:
+    ru.itmo: INFO
+    org.springframework.web: INFO

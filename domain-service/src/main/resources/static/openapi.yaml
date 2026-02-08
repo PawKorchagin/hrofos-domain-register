@@ -1,0 +1,654 @@
+openapi: 3.0.0
+info:
+  title: OpenAPI-спецификация для работы с DNS-сервером
+  description: Спецификация для для работы с DNS-сервером
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.1.0
+  contact:
+    name: ***REMOVED***
+    url: ***REMOVED***
+    email: ***REMOVED***
+servers:
+  - url: http://localhost:8082/api/v1
+    description: Dev server
+
+paths:
+  /l2Domains:
+    get:
+      summary: Метод получения доменов второго уровня
+      description: Метод предназначен для получения списка всех доменов второго уровня. Для всех пользователей.
+      operationId: getL2Domains
+      tags:
+        - L2Domain
+      responses:
+        '200':
+          description: Список зон
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/L2Domain'
+    post:
+      summary: Метод добавления нового домена второго уровня
+      description: Метод предназначен для создания нового домена второго уровня в DNS-сервере. Только для админов.
+      operationId: createL2Domain
+      tags:
+        - L2Domain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/L2Domain'
+      responses:
+        '200':
+          description: Подтверждение успешного сохранения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/L2Domain'
+        '400':
+          description: Некорректные входные данные. Возвращает список атрибутов с ошибками.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+    delete:
+      summary: Метод удаления домена второго уровня по идентификатору
+      description: Метод предназначен для удаления данных по домену второго уровня. Только для админов.
+      operationId: deleteL2DomainByName
+      tags:
+        - L2Domain
+      parameters:
+        - $ref: '#/components/parameters/L2DomainName'
+      responses:
+        '204':
+          description: Успешное удаление
+        '400':
+          description: Некорректные входные данные
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema:
+                type: string
+  /dnsRecords/{l2Domain}:
+    post:
+      summary: Метод добавления новой DNS-записи второго уровня
+      description: Метод предназначен для создания новой DNS-записи второго уровня в DNS-сервере. Только для админов.
+      operationId: createDnsRecord
+      tags:
+        - DnsRecord
+      parameters:
+        - $ref: '#/components/parameters/L2DomainName'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DnsRecord'
+      responses:
+        '201':
+          description: Подтверждение успешного сохранения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DnsRecordResponse'
+        '400':
+          description: Некорректные входные данные. Возвращает список атрибутов с ошибками.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+    get:
+      summary: Метод получения DNS-записей второго уровня
+      description: Метод предназначен для получения списка всех DNS-записей второго уровня. Только для админов.
+      operationId: getDnsRecords
+      tags:
+        - DnsRecord
+      parameters:
+        - $ref: '#/components/parameters/L2DomainName'
+      responses:
+        '200':
+          description: Список зон
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DnsRecordResponse'
+  /dnsRecords/{l2Domain}/{id}:
+    get:
+      summary: Метод для получения DNS-записи второго уровня
+      description: Метод предназначен для получения DNS-записи второго уровня. Только для админов.
+      operationId: getDnsRecordById
+      tags:
+        - DnsRecord
+      parameters:
+        - $ref: '#/components/parameters/L2DomainName'
+        - $ref: '#/components/parameters/Int64Id'
+      responses:
+        '200':
+          description: Список DNS-записей второго уровня
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DnsRecordResponse'
+        '400':
+          description: Некорректные входные данные. Возвращает список атрибутов с ошибками.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema:
+                type: string
+    put:
+      summary: Метод для изменения DNS-записи
+      description: Метод предназначен для изменения DNS-записи. Как для админов, так и для пользователей.
+      operationId: updateDnsRecordById
+      tags:
+        - DnsRecord
+      parameters:
+        - $ref: '#/components/parameters/L2DomainName'
+        - $ref: '#/components/parameters/Int64Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DnsRecord'
+      responses:
+        '200':
+          description: Список DNS-записей второго уровня
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DnsRecordResponse'
+        '400':
+          description: Некорректные входные данные. Возвращает список атрибутов с ошибками.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema:
+                type: string
+    delete:
+      summary: Метод для удаления DNS-записи
+      description: Метод предназначен для удаления DNS-записи. Как для админов, так и для пользователей.
+      operationId: deleteDnsRecordById
+      tags:
+        - DnsRecord
+      parameters:
+        - $ref: '#/components/parameters/L2DomainName'
+        - $ref: '#/components/parameters/Int64Id'
+      responses:
+        '204':
+          description: Список DNS-записей второго уровня
+        '400':
+          description: Некорректные входные данные. Возвращает список атрибутов с ошибками.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema:
+                type: string
+  /l3Domains/{l3Domain}:
+    post:
+      summary: Метод добавления новой DNS-записи для домена третьего уровня
+      description: Метод предназначен для создания новой DNS-записи для домена третьего уровня в DNS-сервере. Для пользователей. Изменение нужно делать через API для DNS-записей. Скорее всего этот метод будет заменён на Kafka consumer.
+      operationId: createL3Domain
+      tags:
+        - L3Domain
+      parameters:
+        - $ref: '#/components/parameters/L2DomainName'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DnsRecord'
+      responses:
+        '201':
+          description: Подтверждение успешного сохранения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DnsRecordResponse'
+        '400':
+          description: Некорректные входные данные. Возвращает список атрибутов с ошибками.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /l3Domains/{name}/free:
+    get:
+      summary: Метод добавления получения свободных доменов третьего уровня
+      description: Метод предназначен для получения свободных доменов третьего уровня в DNS-сервере. Для пользователей.
+      operationId: getFreeL3Domains
+      tags:
+        - L3Domain
+      parameters:
+        - $ref: '#/components/parameters/DomainPart'
+      responses:
+        '200':
+          description: Подтверждение успешно найденных свободных доменов третьего уровня.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DnsRecordResponse'
+        '400':
+          description: Некорректные входные данные. Возвращает список атрибутов с ошибками.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+components:
+  parameters:
+    Int64Id:
+      name: id
+      in: path
+      required: true
+      description: Идентификатор.
+      example: 1
+      schema:
+        $ref: '#/components/schemas/Int64Id'
+    L2DomainName:
+      name: l2Domain
+      in: path
+      required: true
+      description: Имя домена второго уровня.
+      example: example.com
+      schema:
+        $ref: '#/components/schemas/L2DomainName'
+    L3DomainName:
+      name: l3Domain
+      in: path
+      required: true
+      description: Имя домена третьего уровня.
+      example: crazy.example.com
+      schema:
+        $ref: '#/components/schemas/L3DomainName'
+    DomainPart:
+      name: name
+      in: path
+      required: true
+      description: Часть имени домена.
+      example: crazy
+      schema:
+        $ref: '#/components/schemas/DomainPart'
+  schemas:
+    L2DomainName:
+      description: Название домена второго уровня
+      type: string
+      pattern: ^\s*[a-zA-Z0-9-]+\.[a-zA-Z]{2,}\s*$
+      example: example.com
+    L3DomainName:
+      description: Название домена второго уровня
+      type: string
+      pattern: ^\s*([a-zA-Z0-9-]+\.){2}[a-zA-Z]{2,}\s*$
+      example: crazy.example.com
+    DomainPart:
+      description: Название части домена
+      type: string
+      pattern: ^\s*[a-zA-Z0-9-]+\s*$
+      example: crazy
+    Int64Id:
+      description: Уникальный 64-битный идентификатор
+      type: integer
+      format: int64
+      example: 1
+      minimum: 1
+    DnsRecordType:
+      description: Тип DNS-записи
+      type: string
+      enum:
+        - A
+        - AAAA
+        - NS
+        - MX
+        - TXT
+        - CNAME
+        - SOA
+    DnsRecordBase:
+      type: object
+      required:
+        - name
+        - type
+        - ttl
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 253
+          pattern: ^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$
+          description: Полное имя записи (FQDN или относительное)
+          example: hello.test
+        type:
+          $ref: '#/components/schemas/DnsRecordType'
+        ttl:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Time to live в секундах
+          example: 300
+    DnsRecordA:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordBase'
+        - type: object
+          required: [type, data]
+          properties:
+            type:
+              $ref: '#/components/schemas/DnsRecordType'
+            data:
+              type: string
+              format: ipv4
+              description: IPv4-адрес
+              example: "1.2.3.4"
+    DnsRecordAAAA:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordBase'
+        - type: object
+          required: [type, data]
+          properties:
+            type:
+              $ref: '#/components/schemas/DnsRecordType'
+            data:
+              type: string
+              format: ipv6
+              description: IPv6-адрес
+              example: "2001:db8::1"
+    DnsRecordNS:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordBase'
+        - type: object
+          required: [type, data]
+          properties:
+            type:
+              $ref: '#/components/schemas/DnsRecordType'
+            data:
+              type: string
+              minLength: 1
+              maxLength: 253
+              pattern: ^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$
+              description: Имя сервера имён (FQDN)
+              example: ns1.hello.test
+    DnsRecordMX:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordBase'
+        - type: object
+          required: [type, data]
+          properties:
+            type:
+              $ref: '#/components/schemas/DnsRecordType'
+            data:
+              type: object
+              required: [preference, exchange]
+              properties:
+                preference:
+                  type: integer
+                  format: int32
+                  minimum: 0
+                  maximum: 65535
+                  description: Приоритет (0–65535, меньше — выше приоритет)
+                  example: 10
+                exchange:
+                  type: string
+                  minLength: 1
+                  maxLength: 253
+                  pattern: ^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$
+                  description: Имя почтового сервера (FQDN)
+                  example: mx1.hello.test
+    DnsRecordTXT:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordBase'
+        - type: object
+          required: [type, data]
+          properties:
+            type:
+              $ref: '#/components/schemas/DnsRecordType'
+            data:
+              type: string
+              maxLength: 65535
+              description: Текстовая строка (до 65535 байт в одной записи)
+              example: hello
+    DnsRecordCNAME:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordBase'
+        - type: object
+          required: [type, data]
+          properties:
+            type:
+              $ref: '#/components/schemas/DnsRecordType'
+            data:
+              type: string
+              minLength: 1
+              maxLength: 253
+              pattern: ^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$
+              description: Каноническое имя (алиас, FQDN)
+              example: alias.hello.test
+    DnsRecordSOA:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordBase'
+        - type: object
+          required: [type, data]
+          properties:
+            type:
+              $ref: '#/components/schemas/DnsRecordType'
+            data:
+              type: object
+              required: [mname, rname, serial, refresh, retry, expire, minimum]
+              properties:
+                mname:
+                  type: string
+                  minLength: 1
+                  maxLength: 253
+                  pattern: ^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$
+                  description: Primary name server (FQDN)
+                  example: ns1.hello.test
+                rname:
+                  type: string
+                  minLength: 1
+                  maxLength: 253
+                  pattern: ^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$
+                  description: Responsible mail addr (FQDN, обычно hostmaster)
+                  example: hostmaster.hello.test
+                serial:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                  description: Номер версии зоны (Unix timestamp или счётчик)
+                  example: 2024010101
+                refresh:
+                  type: integer
+                  format: int32
+                  minimum: 0
+                  description: Интервал обновления вторичного сервера (сек)
+                  example: 3600
+                retry:
+                  type: integer
+                  format: int32
+                  minimum: 0
+                  description: Интервал повтора при ошибке обновления (сек)
+                  example: 600
+                expire:
+                  type: integer
+                  format: int32
+                  minimum: 0
+                  description: Время истечения кэша при недоступности primary (сек)
+                  example: 1209600
+                minimum:
+                  type: integer
+                  format: int32
+                  minimum: 0
+                  description: Минимальный TTL для отрицательных ответов (сек)
+                  example: 300
+    DnsRecord:
+      oneOf:
+        - $ref: '#/components/schemas/DnsRecordA'
+        - $ref: '#/components/schemas/DnsRecordAAAA'
+        - $ref: '#/components/schemas/DnsRecordNS'
+        - $ref: '#/components/schemas/DnsRecordMX'
+        - $ref: '#/components/schemas/DnsRecordTXT'
+        - $ref: '#/components/schemas/DnsRecordCNAME'
+        - $ref: '#/components/schemas/DnsRecordSOA'
+      discriminator:
+        propertyName: type
+    DnsRecordResponseA:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordA'
+        - type: object
+          required: [id]
+          properties:
+            id:
+              $ref: '#/components/schemas/Int64Id'
+    DnsRecordResponseAAAA:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordAAAA'
+        - type: object
+          required: [id]
+          properties:
+            id:
+              $ref: '#/components/schemas/Int64Id'
+    DnsRecordResponseNS:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordNS'
+        - type: object
+          required: [id]
+          properties:
+            id:
+              $ref: '#/components/schemas/Int64Id'
+    DnsRecordResponseMX:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordMX'
+        - type: object
+          required: [id]
+          properties:
+            id:
+              $ref: '#/components/schemas/Int64Id'
+    DnsRecordResponseTXT:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordTXT'
+        - type: object
+          required: [id]
+          properties:
+            id:
+              $ref: '#/components/schemas/Int64Id'
+    DnsRecordResponseCNAME:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordCNAME'
+        - type: object
+          required: [id]
+          properties:
+            id:
+              $ref: '#/components/schemas/Int64Id'
+    DnsRecordResponseSOA:
+      allOf:
+        - $ref: '#/components/schemas/DnsRecordSOA'
+        - type: object
+          required: [id]
+          properties:
+            id:
+              $ref: '#/components/schemas/Int64Id'
+    DnsRecordResponse:
+      oneOf:
+        - $ref: '#/components/schemas/DnsRecordResponseA'
+        - $ref: '#/components/schemas/DnsRecordResponseAAAA'
+        - $ref: '#/components/schemas/DnsRecordResponseNS'
+        - $ref: '#/components/schemas/DnsRecordResponseMX'
+        - $ref: '#/components/schemas/DnsRecordResponseTXT'
+        - $ref: '#/components/schemas/DnsRecordResponseCNAME'
+        - $ref: '#/components/schemas/DnsRecordResponseSOA'
+      discriminator:
+        propertyName: type
+    L2Domain:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          $ref: '#/components/schemas/L2DomainName'
+    Error:
+      type: object
+      required:
+        - title
+        - detail
+        - request
+        - time
+        - errorTraceId
+      properties:
+        title:
+          description: Краткое описание проблемы, понятное человеку
+          type: string
+          example: Entity not found
+        detail:
+          description: Описание конкретно возникшей ошибки, понятное человеку
+          type: string
+          example: Entity [Post] with id ${DB_USER:***REMOVED***} [123456] not found. You MUST use POST to add entity instead of PUT
+        request:
+          description: Метод и URL запроса
+          type: string
+          example: PUT /posts/123456
+        time:
+          description: Время возникновения ошибки с точностью до миллисекунд
+          type: string
+          example: 1996-12-19T16:39:57.87-08:00
+        errorTraceId:
+          description: Идентификатор конкретного возникновения ошибки
+          type: string
+          example: ce1ff211-b5dd-4397-b8a8-3f640705efa2
+
+        errorCode:
+          description: Код ошибки по бизнес логике приложения
+          type: integer
+          format: int32
+          example: 57
+
+        exception:
+          description: Тип ошибки
+          type: string
+          example: NullPointerException
+        stacktrace:
+          description: Stacktrace в случае возникновения на сервере исключения
+          type: string
+          example: ...
+        causeException:
+          description: Тип первоначального исключения
+          type: string
+          example: ...
+        causeStacktrace:
+          description: Stacktrace первоначального исключения
+          type: string
+          example: ...
