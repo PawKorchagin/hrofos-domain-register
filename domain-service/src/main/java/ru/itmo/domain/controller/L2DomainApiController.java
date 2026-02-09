@@ -12,7 +12,6 @@ import ru.itmo.domain.generated.model.L2Domain;
 import ru.itmo.domain.service.DnsRecordService;
 import ru.itmo.domain.service.L2DomainService;
 
-import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -51,6 +50,6 @@ public class L2DomainApiController implements L2DomainApi {
 
     @Override
     public ResponseEntity<List<DnsRecordResponse>> getDnsRecords(String l2Domain) {
-        return ResponseEntity.ok(Collections.emptyList());
+        return ResponseEntity.ok(dnsRecordService.getDnsRecords(l2Domain));
     }
 }
