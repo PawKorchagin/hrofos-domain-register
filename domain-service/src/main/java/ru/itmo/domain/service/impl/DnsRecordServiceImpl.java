@@ -13,6 +13,7 @@ import ru.itmo.domain.entity.DnsRecord;
 import ru.itmo.domain.entity.Domain;
 import ru.itmo.domain.exception.DnsRecordNameMismatchException;
 import ru.itmo.domain.exception.DnsRecordNotFoundException;
+import ru.itmo.domain.exception.ForbiddenException;
 import ru.itmo.domain.exception.ForbiddenWordException;
 import ru.itmo.domain.exception.L2DomainNotFoundException;
 import ru.itmo.domain.exception.L3DomainNotFoundException;
@@ -21,6 +22,9 @@ import ru.itmo.domain.repository.BadWordRepository;
 import ru.itmo.domain.repository.DomainRepository;
 import ru.itmo.domain.repository.DnsRecordRepository;
 import ru.itmo.domain.service.DnsRecordService;
+import ru.itmo.domain.util.SecurityUtil;
+
+import java.util.UUID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,12 +153,17 @@ public class DnsRecordServiceImpl implements DnsRecordService {
         Domain l2 ${DB_USER:***REMOVED***} domainRepository.findByDomainPartAndParentIsNull(l2Name)
                 .orElseThrow(() -> new L2DomainNotFoundException(l2Name));
 
+        UUID currentUserId ${DB_USER:***REMOVED***} SecurityUtil.getCurrentUserId();
         Domain l3 ${DB_USER:***REMOVED***} domainRepository.findByParentIdAndDomainPart(l2.getId(), l3Part)
                 .orElseGet(() -> {
                     Domain child ${DB_USER:***REMOVED***} new Domain();
                     child.setDomainPart(l3Part);
                     child.setParent(l2);
                     child.setDomainVersion(1L);
+                    // Set userId for user-created L3 domains
+                    if (currentUserId !${DB_USER:***REMOVED***} null && !SecurityUtil.isAdmin()) {
+                        child.setUserId(currentUserId);
+                    }
                     return domainRepository.save(child);
                 });
 
@@ -249,6 +258,17 @@ public class DnsRecordServiceImpl implements DnsRecordService {
         if (domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
             throw new DnsRecordNotFoundException(id);
         }
+        
+        // Check permissions: user can only modify their own domains, admin can modify all
+        UUID currentUserId ${DB_USER:***REMOVED***} SecurityUtil.getCurrentUserId();
+        if (!SecurityUtil.isAdmin()) {
+            // For L3 domains, check the L3 domain's userId; for L2 domains, check the L2 domain's userId
+            Domain domainToCheck ${DB_USER:***REMOVED***} domain.getParent() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? domain : domain;
+            if (domainToCheck.getUserId() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !domainToCheck.getUserId().equals(currentUserId)) {
+                throw new ForbiddenException("You can only modify your own domains");
+            }
+        }
+        
         String expectedName ${DB_USER:***REMOVED***} getFullDomainName(domain);
         JsonNode tree ${DB_USER:***REMOVED***} objectMapper.valueToTree(dnsRecord);
         String bodyName ${DB_USER:***REMOVED***} tree.has("name") && !tree.get("name").isNull() ? tree.get("name").asText().trim() : null;
@@ -275,6 +295,17 @@ public class DnsRecordServiceImpl implements DnsRecordService {
         if (domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
             throw new DnsRecordNotFoundException(id);
         }
+        
+        // Check permissions: user can only delete their own domains, admin can delete all
+        UUID currentUserId ${DB_USER:***REMOVED***} SecurityUtil.getCurrentUserId();
+        if (!SecurityUtil.isAdmin()) {
+            // For L3 domains, check the L3 domain's userId; for L2 domains, check the L2 domain's userId
+            Domain domainToCheck ${DB_USER:***REMOVED***} domain.getParent() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? domain : domain;
+            if (domainToCheck.getUserId() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !domainToCheck.getUserId().equals(currentUserId)) {
+                throw new ForbiddenException("You can only delete your own domains");
+            }
+        }
+        
         dnsRecordRepository.delete(entity);
         if (domain.getParent() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
             syncZoneToExdns(domain.getDomainPart());
