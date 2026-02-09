@@ -1,0 +1,61 @@
+--liquibase formatted sql
+--changeset domain-service:003-create-bad-words-table
+CREATE TABLE bad_word (
+    id              BIGSERIAL PRIMARY KEY,
+    word            TEXT NOT NULL UNIQUE
+);
+
+CREATE INDEX bad_word_word_idx ON bad_word(word);
+
+-- Insert 50 English profanities and offensive words
+INSERT INTO bad_word (word) VALUES
+('fuck'),
+('shit'),
+('asshole'),
+('bitch'),
+('bastard'),
+('damn'),
+('crap'),
+('piss'),
+('dick'),
+('cock'),
+('pussy'),
+('cunt'),
+('fag'),
+('faggot'),
+('nigger'),
+('nigga'),
+('retard'),
+('retarded'),
+('gay'),
+('lesbian'),
+('whore'),
+('slut'),
+('hoe'),
+('douche'),
+('douchebag'),
+('motherfucker'),
+('motherfucking'),
+('fucking'),
+('fucked'),
+('fucker'),
+('bullshit'),
+('ass'),
+('arse'),
+('arsehole'),
+('bloody'),
+('bugger'),
+('chink'),
+('coon'),
+('dyke'),
+('gook'),
+('homo'),
+('kike'),
+('mick'),
+('paki'),
+('queer'),
+('spic'),
+('tard'),
+('tranny'),
+('twat'),
+('wanker');
