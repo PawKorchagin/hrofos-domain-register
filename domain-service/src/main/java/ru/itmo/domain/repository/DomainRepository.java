@@ -1,6 +1,7 @@
 package ru.itmo.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.itmo.domain.entity.Domain;
 
 import java.util.List;
@@ -22,4 +23,10 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
     boolean existsByParentIdAndDomainPart(Long parentId, String domainPart);
 
     List<Domain> findByUserIdAndParentIsNotNull(UUID userId);
+
+    @Query("SELECT COUNT(DISTINCT d.userId) FROM Domain d WHERE d.userId IS NOT NULL")
+    long countDistinctUserIds();
+
+    @Query("SELECT COUNT(d) FROM Domain d WHERE d.parent IS NOT NULL")
+    long countRegisteredDomains();
 }

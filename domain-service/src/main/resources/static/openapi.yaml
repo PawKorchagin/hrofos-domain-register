@@ -417,6 +417,31 @@ paths:
                 type: array
                 items:
                   type: string
+  /stats:
+    get:
+      summary: Статистика по доменам
+      description: Возвращает количество активных пользователей и зарегистрированных доменов. Доступно только админам.
+      operationId: getDomainStats
+      tags:
+        - Stats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Статистика
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainStats'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
 components:
   parameters:
     Int64Id:
@@ -812,3 +837,19 @@ components:
           description: Stacktrace первоначального исключения
           type: string
           example: ...
+    DomainStats:
+      type: object
+      required:
+        - activeUsersCount
+        - registeredDomainsCount
+      properties:
+        activeUsersCount:
+          type: integer
+          format: int64
+          description: Количество активных пользователей (имеющих хотя бы один домен)
+          example: 42
+        registeredDomainsCount:
+          type: integer
+          format: int64
+          description: Количество зарегистрированных доменов третьего уровня
+          example: 150

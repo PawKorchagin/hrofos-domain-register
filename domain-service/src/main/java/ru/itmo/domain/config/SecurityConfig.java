@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/domains/l2Domains/**").hasRole("ADMIN") // createDnsRecord
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/domains/l2Domains/**").hasRole("ADMIN") // getDnsRecords
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/domains/dnsRecords/**").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/domains/stats").hasRole("ADMIN")
                         // Authenticated endpoints (users can modify their own, admins can modify all)
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/domains/userDomains").authenticated()
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/domains/dnsRecords/**").authenticated()
