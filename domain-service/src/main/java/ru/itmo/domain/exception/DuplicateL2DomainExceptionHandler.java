@@ -27,6 +27,11 @@ public class DuplicateL2DomainExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(ex.getMessage()));
     }
 
+    @ExceptionHandler(L3DomainNotFoundException.class)
+    public ResponseEntity<List<String>> handleL3DomainNotFound(L3DomainNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(ex.getMessage()));
+    }
+
     @ExceptionHandler(DnsRecordNotFoundException.class)
     public ResponseEntity<List<String>> handleDnsRecordNotFound(DnsRecordNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(ex.getMessage()));

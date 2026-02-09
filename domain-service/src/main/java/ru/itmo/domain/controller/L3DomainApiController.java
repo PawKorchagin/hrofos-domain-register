@@ -25,6 +25,11 @@ public class L3DomainApiController implements L3DomainApi {
     }
 
     @Override
+    public ResponseEntity<DnsRecordResponse> createL3DomainNsRecord(String l3Domain, DnsRecord dnsRecord) {
+        return ResponseEntity.status(201).body(dnsRecordService.createDnsRecordForL3(l3Domain, dnsRecord));
+    }
+
+    @Override
     public ResponseEntity<List<String>> getFreeL3Domains(String name) {
         return ResponseEntity.ok(dnsRecordService.getFreeL3Domains(name));
     }

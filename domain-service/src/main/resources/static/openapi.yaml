@@ -256,6 +256,44 @@ paths:
                 type: array
                 items:
                   type: string
+  /l3Domains/{l3Domain}/ns:
+    post:
+      summary: Создание DNS-записи для домена третьего уровня
+      description: Создаёт DNS-запись, принадлежащую домену третьего уровня (не второму). Имя записи в теле должно совпадать с l3Domain.
+      operationId: createL3DomainNsRecord
+      tags:
+        - L3Domain
+      parameters:
+        - $ref: '#/components/parameters/L3DomainName'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DnsRecord'
+      responses:
+        '201':
+          description: DNS-запись создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DnsRecordResponse'
+        '400':
+          description: Некорректные входные данные.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '404':
+          description: Домен третьего уровня не найден
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
   /l3Domains/{name}/free:
     get:
       summary: Метод добавления получения свободных доменов третьего уровня
