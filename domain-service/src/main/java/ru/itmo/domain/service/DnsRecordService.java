@@ -7,5 +7,7 @@ public interface DnsRecordService {
 
     DnsRecordResponse create(String l2Domain, DnsRecord dnsRecord);
 
+    DnsRecordResponse getById(Long id);
+
     void syncZoneToExdns(String l2Domain);
 }

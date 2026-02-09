@@ -27,6 +27,11 @@ public class DuplicateL2DomainExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
+    @ExceptionHandler(DnsRecordNotFoundException.class)
+    public ResponseEntity<String> handleDnsRecordNotFound(DnsRecordNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<String>> handleValidation(MethodArgumentNotValidException ex) {
         List<String> errors ${DB_USER:***REMOVED***} ex.getBindingResult().getFieldErrors().stream()

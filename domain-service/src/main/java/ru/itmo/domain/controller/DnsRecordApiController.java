@@ -21,28 +21,7 @@ public class DnsRecordApiController implements DnsRecordApi {
     }
 
     @Override
-    public ResponseEntity<DnsRecordResponse> createDnsRecord(String l2Domain, DnsRecord dnsRecord) {
-        DnsRecordResponse created ${DB_USER:***REMOVED***} dnsRecordService.create(l2Domain, dnsRecord);
-        return ResponseEntity.status(201).body(created);
-    }
-
-    @Override
-    public ResponseEntity<List<DnsRecordResponse>> getDnsRecords(String l2Domain) {
-        return ResponseEntity.ok(Collections.emptyList());
-    }
-
-    @Override
-    public ResponseEntity<DnsRecordResponse> getDnsRecordById(String l2Domain, Long id) {
-        return ResponseEntity.ok().body(null);
-    }
-
-    @Override
-    public ResponseEntity<DnsRecordResponse> updateDnsRecordById(String l2Domain, Long id, DnsRecord dnsRecord) {
-        return ResponseEntity.ok().body(null);
-    }
-
-    @Override
-    public ResponseEntity<Void> deleteDnsRecordById(String l2Domain, Long id) {
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<DnsRecordResponse> getDnsRecordById(Long id) {
+        return ResponseEntity.ok(dnsRecordService.getById(id));
     }
 }

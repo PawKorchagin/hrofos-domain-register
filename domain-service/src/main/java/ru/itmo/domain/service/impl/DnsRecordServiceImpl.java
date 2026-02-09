@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.domain.client.ExdnsClient;
 import ru.itmo.domain.entity.DnsRecord;
 import ru.itmo.domain.entity.Domain;
+import ru.itmo.domain.exception.DnsRecordNotFoundException;
 import ru.itmo.domain.exception.L2DomainNotFoundException;
 import ru.itmo.domain.generated.model.DnsRecordResponse;
 import ru.itmo.domain.repository.DomainRepository;
@@ -62,6 +63,17 @@ public class DnsRecordServiceImpl implements DnsRecordService {
 
         syncZoneToExdns(name);
 
+        return toDnsRecordResponse(recordData, entity.getId());
+    }
+
+    @Override
+    public DnsRecordResponse getById(Long id) {
+        DnsRecord entity ${DB_USER:***REMOVED***} dnsRecordRepository.findById(id)
+                .orElseThrow(() -> new DnsRecordNotFoundException(id));
+        String recordData ${DB_USER:***REMOVED***} entity.getRecordData();
+        if (recordData ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || recordData.isBlank()) {
+            throw new DnsRecordNotFoundException(id);
+        }
         return toDnsRecordResponse(recordData, entity.getId());
     }
 

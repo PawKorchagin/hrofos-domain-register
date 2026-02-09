@@ -82,13 +82,12 @@ paths:
             application/json:
               schema:
                 type: string
-  /dnsRecords/{l2Domain}:
     post:
       summary: Метод добавления новой DNS-записи второго уровня
       description: Метод предназначен для создания новой DNS-записи второго уровня в DNS-сервере. Только для админов.
       operationId: createDnsRecord
       tags:
-        - DnsRecord
+        - L2Domain
       parameters:
         - $ref: '#/components/parameters/L2DomainName'
       requestBody:
@@ -117,7 +116,7 @@ paths:
       description: Метод предназначен для получения списка всех DNS-записей второго уровня. Только для админов.
       operationId: getDnsRecords
       tags:
-        - DnsRecord
+        - L2Domain
       parameters:
         - $ref: '#/components/parameters/L2DomainName'
       responses:
@@ -129,7 +128,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/DnsRecordResponse'
-  /dnsRecords/{l2Domain}/{id}:
+  /dnsRecords/{id}:
     get:
       summary: Метод для получения DNS-записи второго уровня
       description: Метод предназначен для получения DNS-записи второго уровня. Только для админов.
@@ -137,7 +136,6 @@ paths:
       tags:
         - DnsRecord
       parameters:
-        - $ref: '#/components/parameters/L2DomainName'
         - $ref: '#/components/parameters/Int64Id'
       responses:
         '200':
@@ -167,7 +165,6 @@ paths:
       tags:
         - DnsRecord
       parameters:
-        - $ref: '#/components/parameters/L2DomainName'
         - $ref: '#/components/parameters/Int64Id'
       requestBody:
         required: true
@@ -203,7 +200,6 @@ paths:
       tags:
         - DnsRecord
       parameters:
-        - $ref: '#/components/parameters/L2DomainName'
         - $ref: '#/components/parameters/Int64Id'
       responses:
         '204':
