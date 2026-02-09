@@ -22,6 +22,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+  /report:
+    get:
+      summary: Скачать отчёт
+      description: Формирует и возвращает отчёт в формате Markdown (.md). Содержит статистику по пользователям и доменам. Доступно только админам.
+      operationId: downloadReport
+      tags:
+        - Report
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Файл отчёта в формате Markdown
+          content:
+            text/markdown:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещен
 
 components:
   securitySchemes:
