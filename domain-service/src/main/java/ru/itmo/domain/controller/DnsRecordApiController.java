@@ -24,4 +24,10 @@ public class DnsRecordApiController implements DnsRecordApi {
     public ResponseEntity<DnsRecordResponse> getDnsRecordById(Long id) {
         return ResponseEntity.ok(dnsRecordService.getById(id));
     }
+
+    @Override
+    public ResponseEntity<Void> deleteDnsRecordById(Long id) {
+        dnsRecordService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

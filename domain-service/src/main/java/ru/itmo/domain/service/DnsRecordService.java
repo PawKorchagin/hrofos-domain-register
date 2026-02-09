@@ -9,5 +9,7 @@ public interface DnsRecordService {
 
     DnsRecordResponse getById(Long id);
 
+    void deleteById(Long id);
+
     void syncZoneToExdns(String l2Domain);
 }

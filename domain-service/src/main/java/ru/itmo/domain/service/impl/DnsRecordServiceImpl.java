@@ -85,6 +85,20 @@ public class DnsRecordServiceImpl implements DnsRecordService {
 
     @Override
     @Transactional
+    public void deleteById(Long id) {
+        DnsRecord entity ${DB_USER:***REMOVED***} dnsRecordRepository.findById(id)
+                .orElseThrow(() -> new DnsRecordNotFoundException(id));
+        Domain domain ${DB_USER:***REMOVED***} entity.getDomain();
+        if (domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
+            throw new DnsRecordNotFoundException(id);
+        }
+        String l2DomainName ${DB_USER:***REMOVED***} domain.getDomainPart();
+        dnsRecordRepository.delete(entity);
+        syncZoneToExdns(l2DomainName);
+    }
+
+    @Override
+    @Transactional
     public void syncZoneToExdns(String l2Domain) {
         String name ${DB_USER:***REMOVED***} l2Domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? null : l2Domain.trim();
         Domain domain ${DB_USER:***REMOVED***} domainRepository.findByDomainPartAndParentIsNull(name)
