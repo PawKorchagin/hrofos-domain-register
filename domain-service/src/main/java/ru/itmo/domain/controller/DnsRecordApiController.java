@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@org.springframework.web.bind.annotation.RequestMapping("${openapi.openAPIDNS.base-path:/api/v1}")
+@org.springframework.web.bind.annotation.RequestMapping("${openapi.openAPIDNS.base-path:/domains}")
 public class DnsRecordApiController implements DnsRecordApi {
 
     private final DnsRecordService dnsRecordService;

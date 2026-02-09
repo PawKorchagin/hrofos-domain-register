@@ -16,7 +16,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@org.springframework.web.bind.annotation.RequestMapping("${openapi.openAPIDNS.base-path:/api/v1}")
+@org.springframework.web.bind.annotation.RequestMapping("${openapi.openAPIDNS.base-path:/domains}")
 public class L2DomainApiController implements L2DomainApi {
 
     private static final Logger log ${DB_USER:***REMOVED***} LoggerFactory.getLogger(L2DomainApiController.class);

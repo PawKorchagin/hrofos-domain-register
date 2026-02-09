@@ -35,9 +35,9 @@ management:
 
 openapi:
   openAPIDNS:
-    base-path: /api/v1
+    base-path: /domains
   domainService:
-    base-path: /api
+    base-path: /domains
 
 exdns:
   client:

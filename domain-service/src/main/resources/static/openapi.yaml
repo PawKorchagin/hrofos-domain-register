@@ -11,7 +11,7 @@ info:
     url: ***REMOVED***
     email: ***REMOVED***
 servers:
-  - url: http://localhost:8082/api/v1
+  - url: http://localhost:8082/domains
     description: Dev server
 
 paths:

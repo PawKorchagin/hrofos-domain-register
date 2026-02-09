@@ -7,7 +7,7 @@ spring:
 # За gateway префикс /api снимается, сервис получает /domains, /health
 openapi:
   openAPIDNS:
-    base-path: /api/v1
+    base-path: /domains
   domainService:
     base-path: ""
 

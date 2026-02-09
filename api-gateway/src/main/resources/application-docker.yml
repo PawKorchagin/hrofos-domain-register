@@ -25,7 +25,7 @@ spring:
         - id: domain-service
           uri: http://domain-service:8082
           predicates:
-            - Path${DB_USER:***REMOVED***}/api/domains/**, /api/health
+            - Path${DB_USER:***REMOVED***}/api/domains/**
           filters:
             - StripPrefix${DB_USER:***REMOVED***}${API_GATEWAY_STRIP_PREFIX:1}
         

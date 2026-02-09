@@ -10,7 +10,7 @@ import ru.itmo.domain.service.DnsRecordService;
 import java.util.List;
 
 @RestController
-@org.springframework.web.bind.annotation.RequestMapping("${openapi.openAPIDNS.base-path:/api/v1}")
+@org.springframework.web.bind.annotation.RequestMapping("${openapi.openAPIDNS.base-path:/domains}")
 public class L3DomainApiController implements L3DomainApi {
 
     private final DnsRecordService dnsRecordService;
