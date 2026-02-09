@@ -18,7 +18,7 @@ spring:
         - id: auth-service
           uri: http://auth-service:8081
           predicates:
-            - Path${DB_USER:***REMOVED***}/api/auth/**
+            - Path${DB_USER:***REMOVED***}/api/auth/**,/api/users/**
           filters:
             - StripPrefix${DB_USER:***REMOVED***}${API_GATEWAY_STRIP_PREFIX:1}
         
