@@ -1,8 +1,10 @@
 package ru.itmo.order.service.impl;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.order.entity.Cart;
+import ru.itmo.order.generated.model.CartResponse;
 import ru.itmo.order.repository.CartRepository;
 import ru.itmo.order.service.CartService;
 
@@ -14,6 +16,12 @@ import java.util.stream.Collectors;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
+
+    @Value("${domain.monthly-price:200}")
+    private int monthlyPrice;
+
+    @Value("${domain.yearly-discount:0.7}")
+    private double yearlyDiscount;
 
     public CartServiceImpl(CartRepository cartRepository) {
         this.cartRepository ${DB_USER:***REMOVED***} cartRepository;
@@ -36,9 +44,19 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<String> getCartByUserId(UUID userId) {
-        return cartRepository.findByUserIdOrderByL3Domain(userId).stream()
+    public CartResponse getCartByUserId(UUID userId) {
+        List<String> l3Domains ${DB_USER:***REMOVED***} cartRepository.findByUserIdOrderByL3Domain(userId).stream()
                 .map(Cart::getL3Domain)
                 .collect(Collectors.toList());
+
+        int domainCount ${DB_USER:***REMOVED***} l3Domains.size();
+        int totalMonthlyPrice ${DB_USER:***REMOVED***} domainCount * monthlyPrice;
+        int totalYearlyPrice ${DB_USER:***REMOVED***} (int) Math.round(totalMonthlyPrice * 12 * yearlyDiscount);
+
+        CartResponse response ${DB_USER:***REMOVED***} new CartResponse();
+        response.setTotalMonthlyPrice(totalMonthlyPrice);
+        response.setTotalYearlyPrice(totalYearlyPrice);
+        response.setL3Domains(l3Domains);
+        return response;
     }
 }

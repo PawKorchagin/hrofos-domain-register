@@ -4,9 +4,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 import ru.itmo.order.generated.api.CartApi;
+import ru.itmo.order.generated.model.CartResponse;
 import ru.itmo.order.service.CartService;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -20,7 +20,7 @@ public class CartApiController implements CartApi {
     }
 
     @Override
-    public ResponseEntity<List<String>> getCartMe() {
+    public ResponseEntity<CartResponse> getCartMe() {
         Authentication auth ${DB_USER:***REMOVED***} org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         if (auth ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !(auth.getPrincipal() instanceof UUID)) {
             return ResponseEntity.status(401).build();

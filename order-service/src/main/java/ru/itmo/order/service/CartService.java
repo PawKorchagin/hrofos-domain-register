@@ -1,11 +1,11 @@
 package ru.itmo.order.service;
 
-import java.util.List;
+import ru.itmo.order.generated.model.CartResponse;
 import java.util.UUID;
 
 public interface CartService {
 
     void addToCart(UUID userId, String l3Domain);
 
-    List<String> getCartByUserId(UUID userId);
+    CartResponse getCartByUserId(UUID userId);
 }

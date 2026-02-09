@@ -11,7 +11,7 @@ paths:
   /cart/me:
     get:
       summary: Получить мою корзину
-      description: Возвращает список L3-доменов в корзине текущего пользователя. Требуется JWT.
+      description: Возвращает список L3-доменов в корзине текущего пользователя с расчетом цен. Требуется JWT.
       operationId: getCartMe
       tags:
         - Cart
@@ -19,16 +19,19 @@ paths:
         - bearerAuth: []
       responses:
         '200':
-          description: Список L3-доменов в корзине
+          description: Информация о корзине
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+        '401':
+          description: Не авторизован
           content:
             application/json:
               schema:
                 type: array
                 items:
                   type: string
-                example: ["iva.example.com", "flex.example.com"]
-        '401':
-          description: Не авторизован
   /cart/{l3Domain}:
     post:
       summary: Добавить L3-домен в корзину
@@ -51,9 +54,21 @@ paths:
         '201':
           description: Добавлено в корзину
         '400':
-          description: Некорректный l3Domain
+          description: Некорректные входные данные. Возвращает список атрибутов с ошибками.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
         '401':
           description: Не авторизован
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
 
 components:
   securitySchemes:
@@ -61,3 +76,24 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    CartResponse:
+      type: object
+      required:
+        - totalMonthlyPrice
+        - totalYearlyPrice
+        - l3Domains
+      properties:
+        totalMonthlyPrice:
+          type: integer
+          format: int32
+          description: Суммарная цена всех доменов за месяц
+        totalYearlyPrice:
+          type: integer
+          format: int32
+          description: Суммарная цена всех доменов за год (с учетом скидки)
+        l3Domains:
+          type: array
+          items:
+            type: string
+          description: Список L3-доменов в корзине
