@@ -10,5 +10,5 @@ public interface CartService {
 
     CartResponse getCartByUserId(UUID userId);
 
-    List<String> checkout(UUID userId, String jwtToken);
+    List<String> checkout(UUID userId, String period, String jwtToken);
 }

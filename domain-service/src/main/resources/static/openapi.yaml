@@ -378,7 +378,7 @@ paths:
                   example: "crazy.example.com"
     post:
       summary: Метод создания доменов пользователя
-      description: Метод предназначен для создания доменов третьего уровня для текущего пользователя. userId берется из JWT токена.
+      description: Метод предназначен для создания доменов третьего уровня для текущего пользователя. userId берется из JWT токена. Период задаёт срок действия доменов.
       operationId: createUserDomains
       tags:
         - UserDomain
@@ -389,14 +389,7 @@ paths:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                type: string
-                pattern: ^\s*([a-zA-Z0-9-]+\.){2}[a-zA-Z]{2,}\s*$
-                description: Полное имя домена третьего уровня
-                example: "crazy.example.com"
-              minItems: 1
-              description: Список доменов третьего уровня для создания
+              $ref: '#/components/schemas/CreateUserDomainsRequest'
       responses:
         '201':
           description: Домены успешно созданы
@@ -411,6 +404,48 @@ paths:
                 description: Список успешно созданных доменов
         '400':
           description: Некорректные входные данные. Возвращает список атрибутов с ошибками.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /userDomains/renew:
+    post:
+      summary: Продление доменов пользователя
+      description: Продлевает срок действия доменов третьего уровня текущего пользователя. finished_at увеличивается на указанный период.
+      operationId: renewUserDomains
+      tags:
+        - UserDomain
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenewUserDomainsRequest'
+      responses:
+        '200':
+          description: Домены успешно продлены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: Полное имя продлённого домена третьего уровня
+                  example: "crazy.example.com"
+        '400':
+          description: Некорректные входные данные.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '403':
+          description: Домен не принадлежит текущему пользователю.
           content:
             application/json:
               schema:
@@ -837,6 +872,44 @@ components:
           description: Stacktrace первоначального исключения
           type: string
           example: ...
+    DomainPeriod:
+      type: string
+      enum:
+        - MONTH
+        - YEAR
+      description: Период действия домена
+    CreateUserDomainsRequest:
+      type: object
+      required:
+        - l3Domains
+        - period
+      properties:
+        l3Domains:
+          type: array
+          items:
+            type: string
+            pattern: ^\s*([a-zA-Z0-9-]+\.){2}[a-zA-Z]{2,}\s*$
+            example: "crazy.example.com"
+          minItems: 1
+          description: Список доменов третьего уровня для создания
+        period:
+          $ref: '#/components/schemas/DomainPeriod'
+    RenewUserDomainsRequest:
+      type: object
+      required:
+        - l3Domains
+        - period
+      properties:
+        l3Domains:
+          type: array
+          items:
+            type: string
+            pattern: ^\s*([a-zA-Z0-9-]+\.){2}[a-zA-Z]{2,}\s*$
+            example: "crazy.example.com"
+          minItems: 1
+          description: Список доменов третьего уровня для продления
+        period:
+          $ref: '#/components/schemas/DomainPeriod'
     DomainStats:
       type: object
       required:

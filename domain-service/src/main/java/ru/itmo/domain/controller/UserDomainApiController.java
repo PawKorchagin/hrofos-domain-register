@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import ru.itmo.domain.generated.api.UserDomainApi;
+import ru.itmo.domain.generated.model.CreateUserDomainsRequest;
+import ru.itmo.domain.generated.model.RenewUserDomainsRequest;
 import ru.itmo.domain.service.UserDomainService;
 
 import java.util.List;
@@ -22,8 +24,14 @@ public class UserDomainApiController implements UserDomainApi {
     }
 
     @Override
-    public ResponseEntity<List<String>> createUserDomains(List<String> l3Domains) {
-        List<String> createdDomains ${DB_USER:***REMOVED***} userDomainService.createUserDomains(l3Domains);
+    public ResponseEntity<List<String>> createUserDomains(CreateUserDomainsRequest createUserDomainsRequest) {
+        List<String> createdDomains ${DB_USER:***REMOVED***} userDomainService.createUserDomains(createUserDomainsRequest);
         return ResponseEntity.status(201).body(createdDomains);
+    }
+
+    @Override
+    public ResponseEntity<List<String>> renewUserDomains(RenewUserDomainsRequest renewUserDomainsRequest) {
+        List<String> renewedDomains ${DB_USER:***REMOVED***} userDomainService.renewUserDomains(renewUserDomainsRequest);
+        return ResponseEntity.ok(renewedDomains);
     }
 }

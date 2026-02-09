@@ -73,12 +73,18 @@ paths:
   /cart/checkout:
     post:
       summary: Оформить заказ
-      description: Собирает все домены из корзины текущего пользователя, отправляет их в domain-service для регистрации, после успешного ответа очищает корзину. Требуется JWT.
+      description: Собирает все домены из корзины текущего пользователя, отправляет их в domain-service для регистрации с указанным периодом, после успешного ответа очищает корзину. Требуется JWT.
       operationId: checkout
       tags:
         - Cart
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutRequest'
       responses:
         '200':
           description: Заказ успешно оформлен. Возвращает список зарегистрированных доменов.
@@ -107,6 +113,49 @@ paths:
                 items:
                   type: string
 
+  /domains/renew:
+    post:
+      summary: Продлить домены
+      description: Продлевает срок действия указанных доменов третьего уровня на выбранный период. Требуется JWT.
+      operationId: renewDomains
+      tags:
+        - Domain
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenewDomainsRequest'
+      responses:
+        '200':
+          description: Домены успешно продлены.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: Продлённый домен третьего уровня
+                  example: "iva.example.com"
+        '400':
+          description: Некорректные входные данные.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
 components:
   securitySchemes:
     bearerAuth:
@@ -114,6 +163,35 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    DomainPeriod:
+      type: string
+      enum:
+        - MONTH
+        - YEAR
+      description: Период действия домена
+    CheckoutRequest:
+      type: object
+      required:
+        - period
+      properties:
+        period:
+          $ref: '#/components/schemas/DomainPeriod'
+    RenewDomainsRequest:
+      type: object
+      required:
+        - l3Domains
+        - period
+      properties:
+        l3Domains:
+          type: array
+          items:
+            type: string
+            pattern: ^\s*([a-zA-Z0-9-]+\.){2}[a-zA-Z]{2,}\s*$
+            example: "iva.example.com"
+          minItems: 1
+          description: Список доменов третьего уровня для продления
+        period:
+          $ref: '#/components/schemas/DomainPeriod'
     CartResponse:
       type: object
       required:

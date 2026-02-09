@@ -48,7 +48,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public List<String> checkout(UUID userId, String jwtToken) {
+    public List<String> checkout(UUID userId, String period, String jwtToken) {
         List<Cart> cartItems ${DB_USER:***REMOVED***} cartRepository.findByUserIdOrderByL3Domain(userId);
         if (cartItems.isEmpty()) {
             throw new IllegalStateException("Cart is empty");
@@ -58,8 +58,8 @@ public class CartServiceImpl implements CartService {
                 .map(Cart::getL3Domain)
                 .collect(Collectors.toList());
 
-        // Send domains to domain-service for registration
-        List<String> createdDomains ${DB_USER:***REMOVED***} domainClient.createUserDomains(l3Domains, jwtToken);
+        // Send domains to domain-service for registration with period
+        List<String> createdDomains ${DB_USER:***REMOVED***} domainClient.createUserDomains(l3Domains, period, jwtToken);
 
         // Clear cart after successful registration
         cartRepository.deleteByUserId(userId);

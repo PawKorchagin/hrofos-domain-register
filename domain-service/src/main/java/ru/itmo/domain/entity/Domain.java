@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,12 @@ public class Domain {
 
     @Column(name ${DB_USER:***REMOVED***} "user_id")
     private UUID userId;
+
+    @Column(name ${DB_USER:***REMOVED***} "activated_at")
+    private LocalDateTime activatedAt;
+
+    @Column(name ${DB_USER:***REMOVED***} "finished_at")
+    private LocalDateTime finishedAt;
 
     @ManyToOne(fetch ${DB_USER:***REMOVED***} FetchType.LAZY)
     @JoinColumn(name ${DB_USER:***REMOVED***} "parent_id")
