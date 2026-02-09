@@ -294,6 +294,42 @@ paths:
                 type: array
                 items:
                   type: string
+  /l3Domains/{l3Domain}/dnsRecords:
+    get:
+      summary: Метод получения DNS-записей для домена третьего уровня
+      description: Метод предназначен для получения всех DNS-записей домена третьего уровня. Доступен только если домен принадлежит текущему пользователю (userId берется из JWT токена).
+      operationId: getL3DomainDnsRecords
+      tags:
+        - L3Domain
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/L3DomainName'
+      responses:
+        '200':
+          description: Список DNS-записей домена третьего уровня
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DnsRecordResponse'
+        '403':
+          description: Доступ запрещен. Домен не принадлежит текущему пользователю.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '404':
+          description: Домен третьего уровня не найден
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
   /l3Domains/{name}/free:
     get:
       summary: Метод добавления получения свободных доменов третьего уровня

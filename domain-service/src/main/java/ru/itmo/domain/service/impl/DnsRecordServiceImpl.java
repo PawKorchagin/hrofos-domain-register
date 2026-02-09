@@ -239,6 +239,35 @@ public class DnsRecordServiceImpl implements DnsRecordService {
     }
 
     @Override
+    public List<DnsRecordResponse> getL3DomainDnsRecords(String l3Domain) {
+        String l3Name ${DB_USER:***REMOVED***} l3Domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? null : l3Domain.trim();
+        int firstDot ${DB_USER:***REMOVED***} l3Name ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? -1 : l3Name.indexOf('.');
+        if (firstDot <${DB_USER:***REMOVED***} 0 || firstDot ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} l3Name.length() - 1) {
+            throw new L3DomainNotFoundException(l3Name);
+        }
+        String l3Part ${DB_USER:***REMOVED***} l3Name.substring(0, firstDot);
+        String l2Name ${DB_USER:***REMOVED***} l3Name.substring(firstDot + 1);
+
+        Domain l2 ${DB_USER:***REMOVED***} domainRepository.findByDomainPartAndParentIsNull(l2Name)
+                .orElseThrow(() -> new L2DomainNotFoundException(l2Name));
+        Domain l3 ${DB_USER:***REMOVED***} domainRepository.findByParentIdAndDomainPart(l2.getId(), l3Part)
+                .orElseThrow(() -> new L3DomainNotFoundException(l3Name));
+
+        // Check permissions: user can only view DNS records for their own domains, admin can view all
+        UUID currentUserId ${DB_USER:***REMOVED***} SecurityUtil.getCurrentUserId();
+        if (!SecurityUtil.isAdmin()) {
+            if (l3.getUserId() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !l3.getUserId().equals(currentUserId)) {
+                throw new ForbiddenException("You can only view DNS records for your own domains");
+            }
+        }
+
+        return dnsRecordRepository.findByDomainId(l3.getId()).stream()
+                .filter(rec -> rec.getRecordData() !${DB_USER:***REMOVED***} null && !rec.getRecordData().isBlank())
+                .map(rec -> toDnsRecordResponse(rec.getRecordData(), rec.getId()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public DnsRecordResponse getById(Long id) {
         DnsRecord entity ${DB_USER:***REMOVED***} dnsRecordRepository.findById(id)
                 .orElseThrow(() -> new DnsRecordNotFoundException(id));

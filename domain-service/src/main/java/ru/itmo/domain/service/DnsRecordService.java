@@ -17,6 +17,8 @@ public interface DnsRecordService {
 
     List<DnsRecordResponse> getDnsRecords(String l2Domain);
 
+    List<DnsRecordResponse> getL3DomainDnsRecords(String l3Domain);
+
     DnsRecordResponse getById(Long id);
 
     DnsRecordResponse updateById(Long id, DnsRecord dnsRecord);
