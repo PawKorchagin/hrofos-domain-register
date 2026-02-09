@@ -4,9 +4,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.common.audit.AuditClient;
-import ru.itmo.order.client.DomainClient;
+import ru.itmo.order.client.PaymentClient;
+import ru.itmo.order.client.PaymentCreateRequest;
+import ru.itmo.order.client.PaymentCreateResponse;
 import ru.itmo.order.entity.Cart;
 import ru.itmo.order.generated.model.CartResponse;
+import ru.itmo.order.generated.model.PaymentLinkResponse;
 import ru.itmo.order.repository.CartRepository;
 import ru.itmo.order.service.CartService;
 
@@ -18,7 +21,7 @@ import java.util.stream.Collectors;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
-    private final DomainClient domainClient;
+    private final PaymentClient paymentClient;
     private final AuditClient auditClient;
 
     @Value("${domain.monthly-price:200}")
@@ -27,9 +30,9 @@ public class CartServiceImpl implements CartService {
     @Value("${domain.yearly-discount:0.7}")
     private double yearlyDiscount;
 
-    public CartServiceImpl(CartRepository cartRepository, DomainClient domainClient, AuditClient auditClient) {
+    public CartServiceImpl(CartRepository cartRepository, PaymentClient paymentClient, AuditClient auditClient) {
         this.cartRepository ${DB_USER:***REMOVED***} cartRepository;
-        this.domainClient ${DB_USER:***REMOVED***} domainClient;
+        this.paymentClient ${DB_USER:***REMOVED***} paymentClient;
         this.auditClient ${DB_USER:***REMOVED***} auditClient;
     }
 
@@ -51,7 +54,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public List<String> checkout(UUID userId, String period, String jwtToken) {
+    public PaymentLinkResponse checkout(UUID userId, String period, String jwtToken) {
         List<Cart> cartItems ${DB_USER:***REMOVED***} cartRepository.findByUserIdOrderByL3Domain(userId);
         if (cartItems.isEmpty()) {
             throw new IllegalStateException("Cart is empty");
@@ -61,12 +64,36 @@ public class CartServiceImpl implements CartService {
                 .map(Cart::getL3Domain)
                 .collect(Collectors.toList());
 
-        List<String> createdDomains ${DB_USER:***REMOVED***} domainClient.createUserDomains(l3Domains, period, jwtToken);
+        int domainCount ${DB_USER:***REMOVED***} l3Domains.size();
+        int totalMonthlyPrice ${DB_USER:***REMOVED***} domainCount * monthlyPrice;
+        int amountInRubles ${DB_USER:***REMOVED***} "YEAR".equalsIgnoreCase(period)
+                ? (int) Math.round(totalMonthlyPrice * 12 * yearlyDiscount)
+                : totalMonthlyPrice;
+        int amount ${DB_USER:***REMOVED***} amountInRubles * 100;
+
+        PaymentCreateRequest paymentRequest ${DB_USER:***REMOVED***} new PaymentCreateRequest(
+                l3Domains,
+                period,
+                amount,
+                "RUB",
+                "Domain payment"
+        );
+        PaymentCreateResponse paymentResponse ${DB_USER:***REMOVED***} paymentClient.createPayment(paymentRequest, jwtToken);
+        if (paymentResponse ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || paymentResponse.getPaymentUrl() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
+            throw new IllegalStateException("Failed to create payment");
+        }
 
         cartRepository.deleteByUserId(userId);
 
-        auditClient.log("Checkout completed: " + createdDomains.size() + " domains (period${DB_USER:***REMOVED***}" + period + ")", userId);
-        return createdDomains;
+        auditClient.log("Payment initiated: " + paymentResponse.getPaymentId() + " (period${DB_USER:***REMOVED***}" + period + ")", userId);
+
+        PaymentLinkResponse response ${DB_USER:***REMOVED***} new PaymentLinkResponse();
+        response.setPaymentId(paymentResponse.getPaymentId());
+        response.setPaymentUrl(paymentResponse.getPaymentUrl());
+        response.setAmount(paymentResponse.getAmount());
+        response.setCurrency(paymentResponse.getCurrency());
+        response.setStatus(paymentResponse.getStatus());
+        return response;
     }
 
     @Override

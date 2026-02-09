@@ -140,3 +140,5 @@ scripts/
 /exdns/tmp/
 
 /exdns/zones
+
+node_modules

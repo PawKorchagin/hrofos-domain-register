@@ -1,16 +1,16 @@
 server:
-  port: 8084
+  port: 8083
 
 spring:
   application:
-    name: order-service
+    name: payment-service
   datasource:
-    url: jdbc:***REMOVED***ql://localhost:5432/order_db
+    url: jdbc:***REMOVED***ql://localhost:5436/payment_db
     username: ***REMOVED***
     password: ***REMOVED***
     driver-class-name: org.***REMOVED***ql.Driver
     hikari:
-      pool-name: OrderHikariPool
+      pool-name: PaymentHikariPool
       minimum-idle: 2
       maximum-pool-size: 10
   liquibase:
@@ -34,21 +34,22 @@ management:
       show-details: always
 
 openapi:
-  orderService:
-    base-path: /orders
+  paymentService:
+    base-path: /payments
 
 jwt:
   secret: ${JWT_SECRET:your-256-bit-secret-key-must-be-at-least-32-characters-long-for-security}
 
 domain:
-  monthly-price: ${DOMAIN_MONTHLY_PRICE:200}
-  yearly-discount: ${DOMAIN_YEARLY_DISCOUNT:0.7}
   client:
     base-url: ${DOMAIN_SERVICE_URL:http://localhost:8082}
 
-payment:
+yookassa:
   client:
-    base-url: ${PAYMENT_SERVICE_URL:http://localhost:8083}
+    shop-id: ${YOOKASSA_SHOP_ID:}
+    secret-key: ${YOOKASSA_SECRET_KEY:}
+    return-url: ${YOOKASSA_RETURN_URL:http://localhost:3000/payment/return}
+    description-prefix: ${YOOKASSA_DESCRIPTION_PREFIX:Domain payment}
 
 audit:
   client:

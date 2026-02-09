@@ -1,7 +1,8 @@
 package ru.itmo.order.service;
 
 import ru.itmo.order.generated.model.CartResponse;
-import java.util.List;
+import ru.itmo.order.generated.model.PaymentLinkResponse;
+
 import java.util.UUID;
 
 public interface CartService {
@@ -10,5 +11,5 @@ public interface CartService {
 
     CartResponse getCartByUserId(UUID userId);
 
-    List<String> checkout(UUID userId, String period, String jwtToken);
+    PaymentLinkResponse checkout(UUID userId, String period, String jwtToken);
 }

@@ -87,15 +87,11 @@ paths:
               $ref: '#/components/schemas/CheckoutRequest'
       responses:
         '200':
-          description: Заказ успешно оформлен. Возвращает список зарегистрированных доменов.
+          description: Payment link created.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
-                  description: Зарегистрированный домен третьего уровня
-                  example: "iva.example.com"
+                $ref: '#/components/schemas/PaymentLinkResponse'
         '400':
           description: Корзина пуста или произошла ошибка.
           content:
@@ -212,3 +208,21 @@ components:
           items:
             type: string
           description: Список L3-доменов в корзине
+    PaymentLinkResponse:
+      type: object
+      required:
+        - paymentId
+        - paymentUrl
+      properties:
+        paymentId:
+          type: string
+          format: uuid
+        paymentUrl:
+          type: string
+        amount:
+          type: integer
+          format: int32
+        currency:
+          type: string
+        status:
+          type: string

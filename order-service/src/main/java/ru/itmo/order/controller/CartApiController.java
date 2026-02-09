@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.itmo.order.generated.api.CartApi;
 import ru.itmo.order.generated.model.CartResponse;
 import ru.itmo.order.generated.model.CheckoutRequest;
+import ru.itmo.order.generated.model.PaymentLinkResponse;
 import ru.itmo.order.service.CartService;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -46,7 +46,7 @@ public class CartApiController implements CartApi {
     }
 
     @Override
-    public ResponseEntity<List<String>> checkout(CheckoutRequest checkoutRequest) {
+    public ResponseEntity<PaymentLinkResponse> checkout(CheckoutRequest checkoutRequest) {
         Authentication auth ${DB_USER:***REMOVED***} org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         if (auth ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !(auth.getPrincipal() instanceof UUID)) {
             return ResponseEntity.status(401).build();
@@ -60,7 +60,7 @@ public class CartApiController implements CartApi {
         }
 
         String period ${DB_USER:***REMOVED***} checkoutRequest.getPeriod().getValue();
-        List<String> createdDomains ${DB_USER:***REMOVED***} cartService.checkout(userId, period, jwtToken);
-        return ResponseEntity.ok(createdDomains);
+        PaymentLinkResponse response ${DB_USER:***REMOVED***} cartService.checkout(userId, period, jwtToken);
+        return ResponseEntity.ok(response);
     }
 }

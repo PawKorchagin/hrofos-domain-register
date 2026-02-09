@@ -2,7 +2,23 @@ import React, { useState } from 'react';
 import type { DomainResponse } from '../../api/models';
 import { Button, Grid, GridItem, HStack, Text } from '@chakra-ui/react';
 import DateText from '../DateText';
-import { ORDER_AXIOS_INSTANCE } from '~/api/apiClientOrders';
+import Axios from 'axios';
+import { getAccessToken } from '~/utils/authTokens';
+import { PAYMENT_URL } from '~/api/Constants';
+
+const PAYMENT_ID_STORAGE_KEY ${DB_USER:***REMOVED***} 'payment:lastId';
+
+const MONTHLY_PRICE ${DB_USER:***REMOVED***} 200;
+const YEARLY_DISCOUNT ${DB_USER:***REMOVED***} 0.7;
+
+interface PaymentCreateResponse {
+  paymentId: string;
+  paymentUrl: string;
+  operationId?: string;
+  status?: string;
+  amount?: number;
+  currency?: string;
+}
 
 type Props ${DB_USER:***REMOVED***} {
   domains: DomainResponse[];
@@ -16,15 +32,33 @@ const DomainList ${DB_USER:***REMOVED***} (props: Props) ${DB_USER:***REMOVED***
   const handleRenew ${DB_USER:***REMOVED***} async (fqdn: string, period: 'MONTH' | 'YEAR') ${DB_USER:***REMOVED***}> {
     setRenewingFqdn(fqdn);
     try {
-      await ORDER_AXIOS_INSTANCE.post('/domains/renew', {
-        l3Domains: [fqdn],
-        period,
-      });
-      setRenewedFqdns((prev) ${DB_USER:***REMOVED***}> new Set(prev).add(fqdn));
-      props.onRenewed?.();
+      const amountInRubles ${DB_USER:***REMOVED***} period ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} 'YEAR' 
+        ? Math.round(MONTHLY_PRICE * 12 * YEARLY_DISCOUNT)
+        : MONTHLY_PRICE;
+      const amountInKopecks ${DB_USER:***REMOVED***} amountInRubles * 100;
+
+      const token ${DB_USER:***REMOVED***} getAccessToken();
+      const { data } ${DB_USER:***REMOVED***} await Axios.post<PaymentCreateResponse>(
+        `${PAYMENT_URL}/`,
+        {
+          l3Domains: [fqdn],
+          period,
+          amount: amountInKopecks,
+          currency: 'RUB',
+          description: `Продление домена ${fqdn} на ${period ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} 'MONTH' ? '1 месяц' : '1 год'}`,
+        },
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
+
+      if (data?.paymentUrl && data?.paymentId) {
+        localStorage.setItem(PAYMENT_ID_STORAGE_KEY, data.paymentId);
+        window.location.assign(data.paymentUrl);
+      } else {
+        throw new Error('Payment link missing');
+      }
     } catch {
-      // ignore
-    } finally {
       setRenewingFqdn(null);
     }
   };

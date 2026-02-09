@@ -27,6 +27,9 @@ import UsersPage from '~/pages/admin/UsersPage.tsx';
 import SystemEventsPage from '~/pages/admin/SystemEventsPage.tsx';
 import FinancesPage from '~/pages/admin/FinancesPage.tsx';
 import ZonesPage from '~/pages/admin/ZonesPage.tsx';
+import PaymentSuccessPage from '~/pages/payment/PaymentSuccessPage.tsx';
+import PaymentFailPage from '~/pages/payment/PaymentFailPage.tsx';
+import PaymentReturnPage from '~/pages/payment/PaymentReturnPage.tsx';
 
 const Index ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
   return (
@@ -65,6 +68,10 @@ const Index ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
           <Route path${DB_USER:***REMOVED***}{'me'} element${DB_USER:***REMOVED***}{<ProfilePage />} />
           <Route path${DB_USER:***REMOVED***}{'zones'} element${DB_USER:***REMOVED***}{<ZonesPage />} />
         </Route>
+        <Route path${DB_USER:***REMOVED***}{'/payment/return'} element${DB_USER:***REMOVED***}{<PaymentReturnPage />} />
+        <Route path${DB_USER:***REMOVED***}{'/payment/return'} element${DB_USER:***REMOVED***}{<PaymentReturnPage />} />
+        <Route path${DB_USER:***REMOVED***}{'/payment/success'} element${DB_USER:***REMOVED***}{<PaymentSuccessPage />} />
+        <Route path${DB_USER:***REMOVED***}{'/payment/fail'} element${DB_USER:***REMOVED***}{<PaymentFailPage />} />
       </Route>
     </Routes>
   );

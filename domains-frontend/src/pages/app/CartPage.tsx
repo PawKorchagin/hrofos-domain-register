@@ -11,10 +11,20 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { ORDER_AXIOS_INSTANCE } from '~/api/apiClientOrders';
 import { AXIOS_INSTANCE } from '~/api/apiClientDomains';
 
+const PAYMENT_ID_STORAGE_KEY ${DB_USER:***REMOVED***} 'payment:lastId';
+
 interface CartResponse {
   totalMonthlyPrice: number;
   totalYearlyPrice: number;
   l3Domains: string[];
+}
+
+interface PaymentLinkResponse {
+  paymentId: string;
+  paymentUrl: string;
+  amount?: number;
+  currency?: string;
+  status?: string;
 }
 
 interface L2Zone {
@@ -119,10 +129,15 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
       setCheckoutLoading(true);
       setError('');
       try {
-        await ORDER_AXIOS_INSTANCE.post('/cart/checkout', { period });
-        setCartDomains([]);
-        setTotalMonthly(0);
-        setTotalYearly(0);
+        const { data } ${DB_USER:***REMOVED***} await ORDER_AXIOS_INSTANCE.post<PaymentLinkResponse>(
+          '/cart/checkout',
+          { period }
+        );
+        if (!data?.paymentUrl || !data?.paymentId) {
+          throw new Error('Payment link missing');
+        }
+        localStorage.setItem(PAYMENT_ID_STORAGE_KEY, data.paymentId);
+        window.location.assign(data.paymentUrl);
       } catch {
         setError('Не удалось оформить покупку.');
       } finally {
