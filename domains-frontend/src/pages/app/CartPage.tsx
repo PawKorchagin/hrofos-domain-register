@@ -1,4 +1,4 @@
-﻿import {
+import {
   Box,
   Button,
   Field,
@@ -9,79 +9,34 @@
   Text,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import type { DomainQuery } from '~/api/models/DomainQuery';
-import { RecordType, type Zone as ExdnsZone } from '~/api/models/exdns';
-import {
-  AddCartItemRequestAction,
-  AddCartItemRequestTerm,
-} from '~/api/models/domain-order';
-import {
-  addItem,
-  clearCart,
-  createDomain,
-  getCart,
-  getZoneByName,
-  removeItem,
-  searchDomains,
-} from '~/api/services/domain-order';
-import { postZonesDomain } from '~/api/services/exdns';
-import DomainsTable from '~/components/domainsTable/DomainsTable';
+import { ORDER_AXIOS_INSTANCE } from '~/api/apiClientOrders';
+import { AXIOS_INSTANCE } from '~/api/apiClientDomains';
 
-type CartDomain ${DB_USER:***REMOVED***} DomainQuery & { itemId?: string };
+interface CartResponse {
+  totalMonthlyPrice: number;
+  totalYearlyPrice: number;
+  l3Domains: string[];
+}
 
-type DomainSearchItem ${DB_USER:***REMOVED***} {
-  fqdn?: string;
-  price?: number;
-  free?: boolean;
-};
+interface L2Zone {
+  id: number;
+  name: string;
+  monthlyPrice?: number;
+}
 
-type CartItem ${DB_USER:***REMOVED***} {
-  id?: string;
-  fqdn?: string;
-  price?: number;
-};
-
-const mapCartItems ${DB_USER:***REMOVED***} (items: CartItem[]): CartDomain[] ${DB_USER:***REMOVED***}>
-  items.map((item) ${DB_USER:***REMOVED***}> ({
-    itemId: item.id,
-    fqdn: item.fqdn ?? '',
-    price: item.price ?? 0,
-    free: false,
-  }));
-
-const mapSearchItems ${DB_USER:***REMOVED***} (items: DomainSearchItem[]): DomainQuery[] ${DB_USER:***REMOVED***}>
-  items.map((item) ${DB_USER:***REMOVED***}> ({
-    fqdn: item.fqdn ?? '',
-    price: item.price ?? 0,
-    free: Boolean(item.free),
-  }));
-
-const resolveZoneId ${DB_USER:***REMOVED***} async (fqdn: string) ${DB_USER:***REMOVED***}> {
-  const parts ${DB_USER:***REMOVED***} fqdn.split('.').filter(Boolean);
-  if (parts.length <${DB_USER:***REMOVED***} 2) return '';
-
-  const zoneName ${DB_USER:***REMOVED***} `${parts[parts.length - 2]}.${parts[parts.length - 1]}`;
-  const zoneResponse ${DB_USER:***REMOVED***} await getZoneByName(zoneName);
-  return zoneResponse?.data?.id ?? '';
-};
-
-const buildZonePayload ${DB_USER:***REMOVED***} (fqdn: string): ExdnsZone ${DB_USER:***REMOVED***}> ({
-  name: fqdn,
-  version: 1,
-  records: [
-    {
-      name: '@',
-      type: RecordType.A,
-      ttl: 300,
-      data: '127.0.0.1',
-    },
-  ],
-});
+interface DomainSearchResult {
+  fqdn: string;
+  zone: string;
+  free: boolean;
+  monthlyPrice: number;
+}
 
 const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
-  const [query, setQuery] ${DB_USER:***REMOVED***} useState<string>('');
-  const [cartDomains, setCartDomains] ${DB_USER:***REMOVED***} useState<CartDomain[]>([]);
-  const [domains, setDomains] ${DB_USER:***REMOVED***} useState<DomainQuery[]>([]);
+  const [query, setQuery] ${DB_USER:***REMOVED***} useState('');
+  const [cartDomains, setCartDomains] ${DB_USER:***REMOVED***} useState<string[]>([]);
+  const [totalMonthly, setTotalMonthly] ${DB_USER:***REMOVED***} useState(0);
+  const [totalYearly, setTotalYearly] ${DB_USER:***REMOVED***} useState(0);
+  const [searchResults, setSearchResults] ${DB_USER:***REMOVED***} useState<DomainSearchResult[]>([]);
   const [isCartLoading, setIsCartLoading] ${DB_USER:***REMOVED***} useState(false);
   const [isSearchLoading, setIsSearchLoading] ${DB_USER:***REMOVED***} useState(false);
   const [error, setError] ${DB_USER:***REMOVED***} useState('');
@@ -91,13 +46,13 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
   const loadCart ${DB_USER:***REMOVED***} useCallback(async () ${DB_USER:***REMOVED***}> {
     setIsCartLoading(true);
     setError('');
-
     try {
-      const response ${DB_USER:***REMOVED***} await getCart();
-      const items ${DB_USER:***REMOVED***} response?.data?.items ?? [];
-      setCartDomains(mapCartItems(items));
+      const { data } ${DB_USER:***REMOVED***} await ORDER_AXIOS_INSTANCE.get<CartResponse>('/cart/me');
+      setCartDomains(data.l3Domains ?? []);
+      setTotalMonthly(data.totalMonthlyPrice ?? 0);
+      setTotalYearly(data.totalYearlyPrice ?? 0);
     } catch {
-      setError('Не удалось загрузить корзину. Попробуйте еще раз.');
+      setError('Не удалось загрузить корзину.');
     } finally {
       setIsCartLoading(false);
     }
@@ -117,11 +72,27 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
       setError('');
 
       try {
-        const response ${DB_USER:***REMOVED***} await searchDomains({ query: search });
-        const items ${DB_USER:***REMOVED***} response?.data ?? [];
-        setDomains(mapSearchItems(items));
+        const [freeRes, zonesRes] ${DB_USER:***REMOVED***} await Promise.all([
+          AXIOS_INSTANCE.get<string[]>(`/l3Domains/${encodeURIComponent(search)}/free`),
+          AXIOS_INSTANCE.get<L2Zone[]>('/l2Domains'),
+        ]);
+
+        const freeDomains ${DB_USER:***REMOVED***} new Set(freeRes.data ?? []);
+        const zones ${DB_USER:***REMOVED***} zonesRes.data ?? [];
+
+        const results: DomainSearchResult[] ${DB_USER:***REMOVED***} zones.map((zone) ${DB_USER:***REMOVED***}> {
+          const fqdn ${DB_USER:***REMOVED***} `${search}.${zone.name}`;
+          return {
+            fqdn,
+            zone: zone.name,
+            free: freeDomains.has(fqdn),
+            monthlyPrice: zone.monthlyPrice ?? 200,
+          };
+        });
+
+        setSearchResults(results);
       } catch {
-        setError('Не удалось выполнить поиск доменов. Попробуйте еще раз.');
+        setError('Не удалось выполнить поиск доменов.');
       } finally {
         setIsSearchLoading(false);
       }
@@ -129,59 +100,15 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
     [query]
   );
 
-  const handlePurchase ${DB_USER:***REMOVED***} useCallback(async () ${DB_USER:***REMOVED***}> {
-    if (cartDomains.length ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} 0) return;
-
-    setIsCartLoading(true);
-    setError('');
-
-    try {
-      for (const domain of cartDomains) {
-        const fqdn ${DB_USER:***REMOVED***} domain.fqdn.trim();
-        if (!fqdn) continue;
-
-        const zoneId ${DB_USER:***REMOVED***} await resolveZoneId(fqdn);
-        if (!zoneId) {
-          throw new Error('zone');
-        }
-
-        const expiresAt ${DB_USER:***REMOVED***} new Date();
-        expiresAt.setFullYear(expiresAt.getFullYear() + 1);
-
-        await createDomain({
-          fqdn,
-          zoneId,
-          expiresAt: expiresAt.toISOString(),
-        });
-        await postZonesDomain(fqdn, buildZonePayload(fqdn));
-      }
-
-      await clearCart();
-      setCartDomains([]);
-    } catch {
-      setError('Не удалось оформить покупку. Попробуйте еще раз.');
-    } finally {
-      setIsCartLoading(false);
-    }
-  }, [cartDomains]);
-
   const handleAddToCart ${DB_USER:***REMOVED***} useCallback(
-    async (domain: DomainQuery) ${DB_USER:***REMOVED***}> {
-      if (!domain.free) return;
-
+    async (fqdn: string) ${DB_USER:***REMOVED***}> {
       setIsCartLoading(true);
       setError('');
-
       try {
-        await addItem({
-          action: AddCartItemRequestAction.register,
-          term: AddCartItemRequestTerm.yearly,
-          fqdn: domain.fqdn,
-          price: domain.price,
-        });
+        await ORDER_AXIOS_INSTANCE.post(`/cart/${encodeURIComponent(fqdn)}`);
         await loadCart();
       } catch {
-        setError('Не удалось добавить домен в корзину. Попробуйте еще раз.');
+        setError('Не удалось добавить домен в корзину.');
       } finally {
         setIsCartLoading(false);
       }
@@ -189,21 +116,24 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
     [loadCart]
   );
 
-  const handleRemoveFromCart ${DB_USER:***REMOVED***} useCallback(async (domain: CartDomain) ${DB_USER:***REMOVED***}> {
-    if (!domain.itemId) return;
-
-    setIsCartLoading(true);
-    setError('');
-
-    try {
-      await removeItem(domain.itemId);
-      setCartDomains((prev) ${DB_USER:***REMOVED***}> prev.filter((item) ${DB_USER:***REMOVED***}> item.itemId !${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} domain.itemId));
-    } catch {
-      setError('Не удалось удалить домен из корзины. Попробуйте еще раз.');
-    } finally {
-      setIsCartLoading(false);
-    }
-  }, []);
+  const handleCheckout ${DB_USER:***REMOVED***} useCallback(
+    async (period: 'MONTH' | 'YEAR') ${DB_USER:***REMOVED***}> {
+      if (cartDomains.length ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} 0) return;
+      setIsCartLoading(true);
+      setError('');
+      try {
+        await ORDER_AXIOS_INSTANCE.post('/cart/checkout', { period });
+        setCartDomains([]);
+        setTotalMonthly(0);
+        setTotalYearly(0);
+      } catch {
+        setError('Не удалось оформить покупку.');
+      } finally {
+        setIsCartLoading(false);
+      }
+    },
+    [cartDomains]
+  );
 
   return (
     <Stack gap${DB_USER:***REMOVED***}{4}>
@@ -211,22 +141,50 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
         <Heading>Корзина</Heading>
         <HStack>
           <Text>{cartCount} доменов</Text>
-          <Button
-            size${DB_USER:***REMOVED***}{'sm'}
-            colorPalette${DB_USER:***REMOVED***}{'secondary'}
-            onClick${DB_USER:***REMOVED***}{handlePurchase}
-            loading${DB_USER:***REMOVED***}{isCartLoading}
-          >
-            Приобрести
-          </Button>
         </HStack>
       </HStack>
+
+      {/* Cart contents */}
+      {cartDomains.length > 0 && (
+        <Stack bg${DB_USER:***REMOVED***}{'accent.muted'} p${DB_USER:***REMOVED***}{5} borderRadius${DB_USER:***REMOVED***}{'md'} gap${DB_USER:***REMOVED***}{3}>
+          {cartDomains.map((domain) ${DB_USER:***REMOVED***}> (
+            <HStack key${DB_USER:***REMOVED***}{domain} justifyContent${DB_USER:***REMOVED***}{'space-between'}>
+              <Text>{domain}</Text>
+            </HStack>
+          ))}
+          <HStack justifyContent${DB_USER:***REMOVED***}{'space-between'} pt${DB_USER:***REMOVED***}{3} borderTopWidth${DB_USER:***REMOVED***}{1}>
+            <Text fontWeight${DB_USER:***REMOVED***}{'bold'}>
+              Итого: {totalMonthly}₽/мес · {totalYearly}₽/год
+            </Text>
+            <HStack>
+              <Button
+                size${DB_USER:***REMOVED***}{'sm'}
+                colorPalette${DB_USER:***REMOVED***}{'secondary'}
+                onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> handleCheckout('MONTH')}
+                loading${DB_USER:***REMOVED***}{isCartLoading}
+              >
+                Купить на месяц
+              </Button>
+              <Button
+                size${DB_USER:***REMOVED***}{'sm'}
+                colorPalette${DB_USER:***REMOVED***}{'secondary'}
+                onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> handleCheckout('YEAR')}
+                loading${DB_USER:***REMOVED***}{isCartLoading}
+              >
+                Купить на год
+              </Button>
+            </HStack>
+          </HStack>
+        </Stack>
+      )}
+
+      {/* Search */}
       <form onSubmit${DB_USER:***REMOVED***}{handleSubmit}>
         <HStack alignItems${DB_USER:***REMOVED***}{'flex-end'}>
           <Field.Root>
-            <Field.Label>Домен</Field.Label>
+            <Field.Label>Поиск домена</Field.Label>
             <Input
-              placeholder${DB_USER:***REMOVED***}"Введите домен"
+              placeholder${DB_USER:***REMOVED***}"Введите имя домена"
               value${DB_USER:***REMOVED***}{query}
               onChange${DB_USER:***REMOVED***}{(e) ${DB_USER:***REMOVED***}> setQuery(e.target.value)}
             />
@@ -236,43 +194,39 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
           </Button>
         </HStack>
       </form>
+
       {error && (
         <Text color${DB_USER:***REMOVED***}{'fg.error'} fontSize${DB_USER:***REMOVED***}{'sm'}>
           {error}
         </Text>
       )}
-      <DomainsTable
-        domains${DB_USER:***REMOVED***}{cartDomains}
-        buttonsFunction${DB_USER:***REMOVED***}{(domain) ${DB_USER:***REMOVED***}> (
-          <Button
-            size${DB_USER:***REMOVED***}{'sm'}
-            colorPalette${DB_USER:***REMOVED***}{'secondary'}
-            onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> handleRemoveFromCart(domain as CartDomain)}
-            loading${DB_USER:***REMOVED***}{isCartLoading}
-          >
-            Удалить
-          </Button>
-        )}
-      />
-      <Box my${DB_USER:***REMOVED***}{2} />
-      <Text>Доступные домены</Text>
-      <DomainsTable
-        domains${DB_USER:***REMOVED***}{domains}
-        buttonsFunction${DB_USER:***REMOVED***}{(domain) ${DB_USER:***REMOVED***}>
-          domain.free ? (
-            <Button
-              size${DB_USER:***REMOVED***}{'sm'}
-              colorPalette${DB_USER:***REMOVED***}{'secondary'}
-              onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> handleAddToCart(domain)}
-              loading${DB_USER:***REMOVED***}{isCartLoading}
-            >
-              В корзину
-            </Button>
-          ) : (
-            <Text>Недоступен</Text>
-          )
-        }
-      />
+
+      {/* Search results */}
+      {searchResults.length > 0 && (
+        <Stack bg${DB_USER:***REMOVED***}{'accent.muted'} p${DB_USER:***REMOVED***}{5} borderRadius${DB_USER:***REMOVED***}{'md'} gap${DB_USER:***REMOVED***}{2}>
+          <Text fontWeight${DB_USER:***REMOVED***}{'bold'}>Результаты поиска</Text>
+          {searchResults.map((result) ${DB_USER:***REMOVED***}> (
+            <HStack key${DB_USER:***REMOVED***}{result.fqdn} justifyContent${DB_USER:***REMOVED***}{'space-between'}>
+              <Text>{result.fqdn}</Text>
+              <HStack>
+                <Text>{result.monthlyPrice}₽ / месяц</Text>
+                {result.free ? (
+                  <Button
+                    size${DB_USER:***REMOVED***}{'sm'}
+                    colorPalette${DB_USER:***REMOVED***}{'secondary'}
+                    onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> handleAddToCart(result.fqdn)}
+                    loading${DB_USER:***REMOVED***}{isCartLoading}
+                  >
+                    В корзину
+                  </Button>
+                ) : (
+                  <Text color${DB_USER:***REMOVED***}{'fg.muted'}>Занят</Text>
+                )}
+              </HStack>
+            </HStack>
+          ))}
+        </Stack>
+      )}
     </Stack>
   );
 };
