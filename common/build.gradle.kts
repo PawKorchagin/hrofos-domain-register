@@ -19,6 +19,8 @@ dependencies {
     api("io.jsonwebtoken:jjwt-impl:0.12.3")
     api("io.jsonwebtoken:jjwt-jackson:0.12.3")
     
+    api("org.springframework.boot:spring-boot-starter-web")
+    
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 }

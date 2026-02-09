@@ -1,16 +1,16 @@
 server:
-  port: 8084
+  port: 8087
 
 spring:
   application:
-    name: order-service
+    name: audit-service
   datasource:
-    url: jdbc:***REMOVED***ql://localhost:5432/order_db
+    url: jdbc:***REMOVED***ql://localhost:5432/audit_db
     username: ***REMOVED***
     password: ***REMOVED***
     driver-class-name: org.***REMOVED***ql.Driver
     hikari:
-      pool-name: OrderHikariPool
+      pool-name: AuditHikariPool
       minimum-idle: 2
       maximum-pool-size: 10
   liquibase:
@@ -32,23 +32,6 @@ management:
   endpoint:
     health:
       show-details: always
-
-openapi:
-  orderService:
-    base-path: /orders
-
-jwt:
-  secret: ${JWT_SECRET:your-256-bit-secret-key-must-be-at-least-32-characters-long-for-security}
-
-domain:
-  monthly-price: ${DOMAIN_MONTHLY_PRICE:200}
-  yearly-discount: ${DOMAIN_YEARLY_DISCOUNT:0.7}
-  client:
-    base-url: ${DOMAIN_SERVICE_URL:http://localhost:8082}
-
-audit:
-  client:
-    base-url: ${AUDIT_SERVICE_URL:http://localhost:8087}
 
 logging:
   level:

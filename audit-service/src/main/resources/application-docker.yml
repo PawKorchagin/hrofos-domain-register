@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:***REMOVED***ql://***REMOVED***-audit:5432/audit_db
+    username: ***REMOVED***
+    password: ***REMOVED***

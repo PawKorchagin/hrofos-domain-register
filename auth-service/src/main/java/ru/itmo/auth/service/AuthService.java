@@ -28,6 +28,7 @@ import ru.itmo.auth.repository.RefreshTokenRepository;
 import ru.itmo.auth.repository.UserRepository;
 import ru.itmo.auth.util.JwtUtil;
 import ru.itmo.auth.service.TwoFactorService;
+import ru.itmo.common.audit.AuditClient;
 import ru.itmo.common.notification.NotificationType;
 import ru.itmo.common.notification.SendNotificationRequest;
 
@@ -47,6 +48,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final RestTemplate restTemplate;
     private final TwoFactorService twoFactorService;
+    private final AuditClient auditClient;
     
     @Value("${services.notification.url}")
     private String notificationServiceUrl;
@@ -76,6 +78,7 @@ public class AuthService {
 
         user ${DB_USER:***REMOVED***} userRepository.save(user);
         log.info("User created with id: {}", user.getId());
+        auditClient.log("User registered: " + user.getEmail(), user.getId());
 
         return user;
     }
@@ -130,6 +133,7 @@ public class AuthService {
         user.setEmailVerified(true);
         userRepository.save(user);
         log.info("Email verified for user: {}", user.getId());
+        auditClient.log("Email verified", user.getId());
     }
 
     @Transactional
@@ -184,6 +188,7 @@ public class AuthService {
         refreshTokenRepository.save(refreshToken);
 
         log.info("User logged in successfully: {}", user.getId());
+        auditClient.log("User logged in", user.getId());
 
         LoginResponse response ${DB_USER:***REMOVED***} new LoginResponse();
         response.setUserId(user.getId());

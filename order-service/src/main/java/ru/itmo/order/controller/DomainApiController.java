@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
+import ru.itmo.common.audit.AuditClient;
 import ru.itmo.order.client.DomainClient;
 import ru.itmo.order.generated.api.DomainApi;
 import ru.itmo.order.generated.model.RenewDomainsRequest;
@@ -17,10 +18,12 @@ public class DomainApiController implements DomainApi {
 
     private final DomainClient domainClient;
     private final HttpServletRequest httpServletRequest;
+    private final AuditClient auditClient;
 
-    public DomainApiController(DomainClient domainClient, HttpServletRequest httpServletRequest) {
+    public DomainApiController(DomainClient domainClient, HttpServletRequest httpServletRequest, AuditClient auditClient) {
         this.domainClient ${DB_USER:***REMOVED***} domainClient;
         this.httpServletRequest ${DB_USER:***REMOVED***} httpServletRequest;
+        this.auditClient ${DB_USER:***REMOVED***} auditClient;
     }
 
     @Override
@@ -37,8 +40,10 @@ public class DomainApiController implements DomainApi {
         }
 
         String period ${DB_USER:***REMOVED***} renewDomainsRequest.getPeriod().getValue();
+        UUID userId ${DB_USER:***REMOVED***} (UUID) auth.getPrincipal();
         List<String> renewedDomains ${DB_USER:***REMOVED***} domainClient.renewUserDomains(
                 renewDomainsRequest.getL3Domains(), period, jwtToken);
+        auditClient.log("Domain renewal requested: " + renewedDomains.size() + " domains (period${DB_USER:***REMOVED***}" + period + ")", userId);
         return ResponseEntity.ok(renewedDomains);
     }
 }

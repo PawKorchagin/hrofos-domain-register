@@ -2,6 +2,7 @@ package ru.itmo.domain.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.itmo.common.audit.AuditClient;
 import ru.itmo.domain.entity.Domain;
 import ru.itmo.domain.exception.ForbiddenException;
 import ru.itmo.domain.exception.L2DomainNotFoundException;
@@ -21,9 +22,11 @@ import java.util.UUID;
 public class UserDomainServiceImpl implements UserDomainService {
 
     private final DomainRepository domainRepository;
+    private final AuditClient auditClient;
 
-    public UserDomainServiceImpl(DomainRepository domainRepository) {
+    public UserDomainServiceImpl(DomainRepository domainRepository, AuditClient auditClient) {
         this.domainRepository ${DB_USER:***REMOVED***} domainRepository;
+        this.auditClient ${DB_USER:***REMOVED***} auditClient;
     }
 
     @Override
@@ -102,6 +105,7 @@ public class UserDomainServiceImpl implements UserDomainService {
             createdDomains.add(l3Name);
         }
 
+        auditClient.log("Created " + createdDomains.size() + " domains (period${DB_USER:***REMOVED***}" + period + "): " + String.join(", ", createdDomains), userId);
         return createdDomains;
     }
 
@@ -154,6 +158,7 @@ public class UserDomainServiceImpl implements UserDomainService {
             renewedDomains.add(l3Name);
         }
 
+        auditClient.log("Renewed " + renewedDomains.size() + " domains (period${DB_USER:***REMOVED***}" + period + "): " + String.join(", ", renewedDomains), userId);
         return renewedDomains;
     }
 
@@ -163,6 +168,7 @@ public class UserDomainServiceImpl implements UserDomainService {
         List<Domain> expired ${DB_USER:***REMOVED***} domainRepository.findByParentIsNotNullAndFinishedAtBefore(LocalDateTime.now());
         long count ${DB_USER:***REMOVED***} expired.size();
         domainRepository.deleteAll(expired);
+        auditClient.log("Deleted " + count + " expired domains");
         return count;
     }
 

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.itmo.admin.client.AuthClient;
 import ru.itmo.admin.client.DomainStatsClient;
 import ru.itmo.admin.service.ReportService;
+import ru.itmo.common.audit.AuditClient;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +16,7 @@ public class ReportServiceImpl implements ReportService {
 
     private final AuthClient authClient;
     private final DomainStatsClient domainStatsClient;
+    private final AuditClient auditClient;
 
     @Override
     public byte[] generateReport(String jwtToken) {
@@ -36,6 +38,7 @@ public class ReportServiceImpl implements ReportService {
         sb.append("\n---\n\n");
         sb.append("*Отчёт сформирован автоматически сервисом admin-service.*\n");
 
+        auditClient.log("Admin report generated");
         return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
 }

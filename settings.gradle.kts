@@ -11,4 +11,4 @@ pluginManagement {
 
 rootProject.name ${DB_USER:***REMOVED***} "domain-registrar"
 
-include("api-gateway", "common", "domain-service", "notification-service", "auth-service", "order-service", "admin-service")
+include("api-gateway", "common", "domain-service", "notification-service", "auth-service", "order-service", "admin-service", "audit-service")

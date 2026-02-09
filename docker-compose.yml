@@ -167,6 +167,34 @@ services:
     networks:
       - domain-registrar-network
 
+  audit-service:
+    build:
+      context: .
+      dockerfile: audit-service/Dockerfile
+    container_name: audit-service
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+    depends_on:
+      - ***REMOVED***-audit
+    networks:
+      - domain-registrar-network
+
+  ***REMOVED***-audit:
+    image: ***REMOVED***:15-alpine
+    container_name: ***REMOVED***-audit
+    environment:
+      POSTGRES_DB: audit_db
+      POSTGRES_USER: ***REMOVED***
+      POSTGRES_PASSWORD: ***REMOVED***
+    ports:
+      - "5437:5432"
+    volumes:
+      - ***REMOVED***-audit-data:/var/lib/***REMOVED***ql/data
+    networks:
+      - domain-registrar-network
+
   exdns:
     build:
       context: ./exdns
@@ -193,6 +221,7 @@ volumes:
   ***REMOVED***-auth-data:
   ***REMOVED***-notification-data:
   ***REMOVED***-order-data:
+  ***REMOVED***-audit-data:
   exdns-zones-data:
 
 networks:

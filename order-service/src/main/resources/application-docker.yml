@@ -12,3 +12,7 @@ domain:
   yearly-discount: ${DOMAIN_YEARLY_DISCOUNT:0.7}
   client:
     base-url: http://domain-service:8082
+
+audit:
+  client:
+    base-url: http://audit-service:8087

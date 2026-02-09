@@ -58,6 +58,10 @@ jwt:
 app:
   name: Domain Registrar
 
+audit:
+  client:
+    base-url: ${AUDIT_SERVICE_URL:http://localhost:8087}
+
 logging:
   level:
     ru.itmo: INFO

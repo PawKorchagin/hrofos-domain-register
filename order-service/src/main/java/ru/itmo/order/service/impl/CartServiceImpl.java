@@ -3,6 +3,7 @@ package ru.itmo.order.service.impl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.itmo.common.audit.AuditClient;
 import ru.itmo.order.client.DomainClient;
 import ru.itmo.order.entity.Cart;
 import ru.itmo.order.generated.model.CartResponse;
@@ -18,6 +19,7 @@ public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
     private final DomainClient domainClient;
+    private final AuditClient auditClient;
 
     @Value("${domain.monthly-price:200}")
     private int monthlyPrice;
@@ -25,9 +27,10 @@ public class CartServiceImpl implements CartService {
     @Value("${domain.yearly-discount:0.7}")
     private double yearlyDiscount;
 
-    public CartServiceImpl(CartRepository cartRepository, DomainClient domainClient) {
+    public CartServiceImpl(CartRepository cartRepository, DomainClient domainClient, AuditClient auditClient) {
         this.cartRepository ${DB_USER:***REMOVED***} cartRepository;
         this.domainClient ${DB_USER:***REMOVED***} domainClient;
+        this.auditClient ${DB_USER:***REMOVED***} auditClient;
     }
 
     @Override
@@ -64,6 +67,7 @@ public class CartServiceImpl implements CartService {
         // Clear cart after successful registration
         cartRepository.deleteByUserId(userId);
 
+        auditClient.log("Checkout completed: " + createdDomains.size() + " domains (period${DB_USER:***REMOVED***}" + period + ")", userId);
         return createdDomains;
     }
 

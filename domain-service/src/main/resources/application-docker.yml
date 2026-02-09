@@ -15,3 +15,7 @@ exdns:
   client:
     base-url: http://exdns:8000
     api-token: ${EXDNS_API_TOKEN:-changeme}
+
+audit:
+  client:
+    base-url: http://audit-service:8087
