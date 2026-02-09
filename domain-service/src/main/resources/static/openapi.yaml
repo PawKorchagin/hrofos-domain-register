@@ -81,7 +81,9 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: array
+                items:
+                  type: string
     post:
       summary: Метод добавления новой DNS-записи второго уровня
       description: Метод предназначен для создания новой DNS-записи второго уровня в DNS-сервере. Только для админов.
@@ -157,7 +159,9 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: array
+                items:
+                  type: string
     put:
       summary: Метод для изменения DNS-записи
       description: Метод предназначен для изменения DNS-записи. Как для админов, так и для пользователей.
@@ -192,7 +196,9 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: array
+                items:
+                  type: string
     delete:
       summary: Метод для удаления DNS-записи
       description: Метод предназначен для удаления DNS-записи. Как для админов, так и для пользователей.
@@ -217,7 +223,9 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: array
+                items:
+                  type: string
   /l3Domains/{l3Domain}:
     post:
       summary: Метод добавления новой DNS-записи для домена третьего уровня

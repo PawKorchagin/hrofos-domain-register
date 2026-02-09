@@ -23,13 +23,13 @@ public class DuplicateL2DomainExceptionHandler {
     }
 
     @ExceptionHandler(L2DomainNotFoundException.class)
-    public ResponseEntity<String> handleL2DomainNotFound(L2DomainNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<List<String>> handleL2DomainNotFound(L2DomainNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(ex.getMessage()));
     }
 
     @ExceptionHandler(DnsRecordNotFoundException.class)
-    public ResponseEntity<String> handleDnsRecordNotFound(DnsRecordNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<List<String>> handleDnsRecordNotFound(DnsRecordNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(ex.getMessage()));
     }
 
     @ExceptionHandler(DnsRecordNameMismatchException.class)
