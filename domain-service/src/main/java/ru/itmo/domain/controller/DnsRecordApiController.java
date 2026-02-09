@@ -26,6 +26,11 @@ public class DnsRecordApiController implements DnsRecordApi {
     }
 
     @Override
+    public ResponseEntity<DnsRecordResponse> updateDnsRecordById(Long id, DnsRecord dnsRecord) {
+        return ResponseEntity.ok(dnsRecordService.updateById(id, dnsRecord));
+    }
+
+    @Override
     public ResponseEntity<Void> deleteDnsRecordById(Long id) {
         dnsRecordService.deleteById(id);
         return ResponseEntity.noContent().build();
