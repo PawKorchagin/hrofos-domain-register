@@ -27,6 +27,7 @@ public class SecurityConfig {
                                 "/auth/verify-email", "/auth/resend-verification",
                                 "/actuator/**", "/health",
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/auth/stats/**").hasRole("ADMIN")
                 .requestMatchers("/auth/2fa/**", "/users/**").authenticated()
                 .anyRequest().permitAll()
             )
