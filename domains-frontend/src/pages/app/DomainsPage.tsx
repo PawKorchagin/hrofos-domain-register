@@ -1,8 +1,16 @@
 import { Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import type { DomainResponse } from '~/api/models/domain-order';
-import { getAllDomains } from '~/api/services/domain-order';
+import { AXIOS_INSTANCE } from '~/api/apiClientDomains';
 import DomainList from '../../components/dashboard/DomainList';
+
+interface UserDomainDetailed {
+  id?: number;
+  fqdn?: string;
+  zoneName?: string;
+  activatedAt?: string;
+  expiresAt?: string;
+}
 
 const DomainsPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
   const [domains, setDomains] ${DB_USER:***REMOVED***} useState<DomainResponse[]>([]);
@@ -12,14 +20,16 @@ const DomainsPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
 
     const loadDomains ${DB_USER:***REMOVED***} async () ${DB_USER:***REMOVED***}> {
       try {
-        const response ${DB_USER:***REMOVED***} await getAllDomains({
-          pageable: {
-            page: 0,
-            size: 50,
-          },
-        });
+        const { data } ${DB_USER:***REMOVED***} await AXIOS_INSTANCE.get<UserDomainDetailed[]>('/userDomains/detailed');
         if (isMounted) {
-          setDomains(response?.data?.content ?? []);
+          const mapped: DomainResponse[] ${DB_USER:***REMOVED***} (data ?? []).map((d) ${DB_USER:***REMOVED***}> ({
+            id: d.id?.toString(),
+            fqdn: d.fqdn,
+            zoneName: d.zoneName,
+            activatedAt: d.activatedAt,
+            expiresAt: d.expiresAt,
+          }));
+          setDomains(mapped);
         }
       } catch {
         if (isMounted) {
@@ -40,7 +50,7 @@ const DomainsPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
       <HStack justifyContent${DB_USER:***REMOVED***}{'space-between'}>
         <Heading>Мои домены</Heading>
         <HStack>
-          <Text>15 доменов</Text>
+          <Text>{domains.length} доменов</Text>
           <Button colorPalette${DB_USER:***REMOVED***}{'secondary'} size${DB_USER:***REMOVED***}{'sm'}>
             купить новый
           </Button>

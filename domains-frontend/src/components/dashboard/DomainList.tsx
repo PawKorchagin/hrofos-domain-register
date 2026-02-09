@@ -25,9 +25,13 @@ const DomainList ${DB_USER:***REMOVED***} (props: Props) ${DB_USER:***REMOVED***
             <Text>{domain.fqdn}</Text>
           </GridItem>
           <GridItem>
-            <Text>
-              до <DateText as${DB_USER:***REMOVED***}{'span'}>{domain.expiresAt}</DateText>
-            </Text>
+            {domain.expiresAt ? (
+              <Text>
+                до <DateText as${DB_USER:***REMOVED***}{'span'}>{domain.expiresAt}</DateText>
+              </Text>
+            ) : (
+              <Text color${DB_USER:***REMOVED***}"fg.muted">—</Text>
+            )}
           </GridItem>
           <GridItem>
             <HStack justifyContent${DB_USER:***REMOVED***}{'flex-end'}>

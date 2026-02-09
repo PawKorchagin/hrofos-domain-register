@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.common.audit.AuditClient;
 import ru.itmo.domain.client.NotificationClient;
+import ru.itmo.domain.dto.UserDomainDetailedResponse;
 import ru.itmo.domain.entity.Domain;
 import ru.itmo.domain.exception.ForbiddenException;
 import ru.itmo.domain.exception.L2DomainNotFoundException;
@@ -50,6 +51,33 @@ public class UserDomainServiceImpl implements UserDomainService {
             if (l2Domain !${DB_USER:***REMOVED***} null) {
                 String fullDomainName ${DB_USER:***REMOVED***} l3Domain.getDomainPart() + "." + l2Domain.getDomainPart();
                 result.add(fullDomainName);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<UserDomainDetailedResponse> getUserDomainsDetailed() {
+        UUID userId ${DB_USER:***REMOVED***} SecurityUtil.getCurrentUserId();
+        if (userId ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
+            throw new IllegalStateException("User ID not found in security context");
+        }
+
+        List<Domain> l3Domains ${DB_USER:***REMOVED***} domainRepository.findByUserIdAndParentIsNotNull(userId);
+        List<UserDomainDetailedResponse> result ${DB_USER:***REMOVED***} new ArrayList<>();
+
+        for (Domain l3Domain : l3Domains) {
+            Domain l2Domain ${DB_USER:***REMOVED***} l3Domain.getParent();
+            if (l2Domain !${DB_USER:***REMOVED***} null) {
+                String fqdn ${DB_USER:***REMOVED***} l3Domain.getDomainPart() + "." + l2Domain.getDomainPart();
+                result.add(new UserDomainDetailedResponse(
+                        l3Domain.getId(),
+                        fqdn,
+                        l2Domain.getDomainPart(),
+                        l3Domain.getActivatedAt() !${DB_USER:***REMOVED***} null ? l3Domain.getActivatedAt().toString() : null,
+                        l3Domain.getFinishedAt() !${DB_USER:***REMOVED***} null ? l3Domain.getFinishedAt().toString() : null
+                ));
             }
         }
 

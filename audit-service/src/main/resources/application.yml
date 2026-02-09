@@ -24,6 +24,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+jwt:
+  secret: ${JWT_SECRET:D4cFXy68Cmd/vD8tSyRsEDcsMkaTwRH0mjWlxXBNhDE${DB_USER:***REMOVED***}}
+
 management:
   endpoints:
     web:

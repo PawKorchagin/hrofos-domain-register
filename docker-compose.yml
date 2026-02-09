@@ -207,6 +207,7 @@ services:
       - "8087:8087"
     environment:
       - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+    env_file: .env
     depends_on:
       - ***REMOVED***-audit
     networks:

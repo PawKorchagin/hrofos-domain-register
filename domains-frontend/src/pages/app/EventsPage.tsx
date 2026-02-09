@@ -1,22 +1,53 @@
 import { Heading, Stack } from '@chakra-ui/react';
-import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 import EventList from '~/components/dashboard/EventList';
+import Axios from 'axios';
+import { getAccessToken } from '~/utils/authTokens';
+
+interface AuditEventDto {
+  id: number;
+  description: string;
+  eventTime: string;
+}
 
 const EventsPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
-  const events ${DB_USER:***REMOVED***} [
-    {
-      id: 'e9a0b6d3-a82e-412f-861e-a313c4f3d91b',
-      type: 'SYSTEM',
-      message: 'Что-то произошло',
-      at: dayjs(new Date(2026, 2, 12)),
-    },
-    {
-      id: 'e9a0bvd3-a82e-412f-861e-a313c4f3d91b',
-      type: 'USER',
-      message: 'Выполнен вход в систему',
-      at: dayjs(new Date(2026, 2, 12)),
-    },
-  ];
+  const [events, setEvents] ${DB_USER:***REMOVED***} useState<
+    { id: string; type: 'SYSTEM' | 'USER'; message: string; at: string }[]
+  >([]);
+
+  useEffect(() ${DB_USER:***REMOVED***}> {
+    let isMounted ${DB_USER:***REMOVED***} true;
+
+    const loadEvents ${DB_USER:***REMOVED***} async () ${DB_USER:***REMOVED***}> {
+      try {
+        const token ${DB_USER:***REMOVED***} getAccessToken();
+        const { data } ${DB_USER:***REMOVED***} await Axios.get<AuditEventDto[]>(
+          '/api/audit/events/my',
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }
+        );
+        if (isMounted) {
+          setEvents(
+            (data ?? []).map((e) ${DB_USER:***REMOVED***}> ({
+              id: e.id.toString(),
+              type: 'SYSTEM' as const,
+              message: e.description,
+              at: e.eventTime,
+            }))
+          );
+        }
+      } catch {
+        if (isMounted) setEvents([]);
+      }
+    };
+
+    loadEvents();
+
+    return () ${DB_USER:***REMOVED***}> {
+      isMounted ${DB_USER:***REMOVED***} false;
+    };
+  }, []);
 
   return (
     <Stack gap${DB_USER:***REMOVED***}{4}>
