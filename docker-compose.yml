@@ -1,6 +1,19 @@
 name: domain-register
 
 services:
+  frontend:
+    build:
+      context: ./domains-frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+      - exdns
+    networks:
+      - domain-registrar-network
+
   api-gateway:
     build:
       context: .
