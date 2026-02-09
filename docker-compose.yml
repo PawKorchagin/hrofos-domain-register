@@ -122,6 +122,34 @@ services:
     networks:
       - domain-registrar-network
 
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    container_name: order-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+    depends_on:
+      - ***REMOVED***-order
+    networks:
+      - domain-registrar-network
+
+  ***REMOVED***-order:
+    image: ***REMOVED***:15-alpine
+    container_name: ***REMOVED***-order
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: ***REMOVED***
+      POSTGRES_PASSWORD: ***REMOVED***
+    ports:
+      - "5435:5432"
+    volumes:
+      - ***REMOVED***-order-data:/var/lib/***REMOVED***ql/data
+    networks:
+      - domain-registrar-network
+
   exdns:
     build:
       context: ./exdns
@@ -147,6 +175,7 @@ volumes:
   ***REMOVED***-domain-data:
   ***REMOVED***-auth-data:
   ***REMOVED***-notification-data:
+  ***REMOVED***-order-data:
   exdns-zones-data:
 
 networks:
