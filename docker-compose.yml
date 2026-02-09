@@ -129,10 +129,13 @@ services:
     container_name: order-service
     ports:
       - "8084:8084"
+    env_file:
+      - .env
     environment:
       - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
     depends_on:
       - ***REMOVED***-order
+      - domain-service
     networks:
       - domain-registrar-network
 

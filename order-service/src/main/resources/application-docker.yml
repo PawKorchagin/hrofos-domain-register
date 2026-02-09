@@ -10,3 +10,5 @@ jwt:
 domain:
   monthly-price: ${DOMAIN_MONTHLY_PRICE:200}
   yearly-discount: ${DOMAIN_YEARLY_DISCOUNT:0.7}
+  client:
+    base-url: http://domain-service:8082

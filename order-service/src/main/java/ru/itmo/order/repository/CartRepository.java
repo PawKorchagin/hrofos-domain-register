@@ -12,4 +12,6 @@ public interface CartRepository extends JpaRepository<Cart, CartId> {
     boolean existsByUserIdAndL3Domain(UUID userId, String l3Domain);
 
     List<Cart> findByUserIdOrderByL3Domain(UUID userId);
+
+    void deleteByUserId(UUID userId);
 }

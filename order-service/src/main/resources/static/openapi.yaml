@@ -70,6 +70,43 @@ paths:
                 items:
                   type: string
 
+  /cart/checkout:
+    post:
+      summary: Оформить заказ
+      description: Собирает все домены из корзины текущего пользователя, отправляет их в domain-service для регистрации, после успешного ответа очищает корзину. Требуется JWT.
+      operationId: checkout
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Заказ успешно оформлен. Возвращает список зарегистрированных доменов.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: Зарегистрированный домен третьего уровня
+                  example: "iva.example.com"
+        '400':
+          description: Корзина пуста или произошла ошибка.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
 components:
   securitySchemes:
     bearerAuth:

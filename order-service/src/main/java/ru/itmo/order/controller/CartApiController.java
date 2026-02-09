@@ -1,5 +1,6 @@
 package ru.itmo.order.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
@@ -7,6 +8,7 @@ import ru.itmo.order.generated.api.CartApi;
 import ru.itmo.order.generated.model.CartResponse;
 import ru.itmo.order.service.CartService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -14,9 +16,11 @@ import java.util.UUID;
 public class CartApiController implements CartApi {
 
     private final CartService cartService;
+    private final HttpServletRequest httpServletRequest;
 
-    public CartApiController(CartService cartService) {
+    public CartApiController(CartService cartService, HttpServletRequest httpServletRequest) {
         this.cartService ${DB_USER:***REMOVED***} cartService;
+        this.httpServletRequest ${DB_USER:***REMOVED***} httpServletRequest;
     }
 
     @Override
@@ -38,5 +42,24 @@ public class CartApiController implements CartApi {
         UUID userId ${DB_USER:***REMOVED***} (UUID) auth.getPrincipal();
         cartService.addToCart(userId, l3Domain);
         return ResponseEntity.status(201).build();
+    }
+
+    @Override
+    public ResponseEntity<List<String>> checkout() {
+        Authentication auth ${DB_USER:***REMOVED***} org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !(auth.getPrincipal() instanceof UUID)) {
+            return ResponseEntity.status(401).build();
+        }
+        UUID userId ${DB_USER:***REMOVED***} (UUID) auth.getPrincipal();
+
+        // Extract JWT token from request to forward to domain-service
+        String authHeader ${DB_USER:***REMOVED***} httpServletRequest.getHeader("Authorization");
+        String jwtToken ${DB_USER:***REMOVED***} authHeader !${DB_USER:***REMOVED***} null && authHeader.startsWith("Bearer ") ? authHeader.substring(7) : null;
+        if (jwtToken ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        List<String> createdDomains ${DB_USER:***REMOVED***} cartService.checkout(userId, jwtToken);
+        return ResponseEntity.ok(createdDomains);
     }
 }

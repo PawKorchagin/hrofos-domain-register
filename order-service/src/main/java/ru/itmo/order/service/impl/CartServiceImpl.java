@@ -3,6 +3,7 @@ package ru.itmo.order.service.impl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.itmo.order.client.DomainClient;
 import ru.itmo.order.entity.Cart;
 import ru.itmo.order.generated.model.CartResponse;
 import ru.itmo.order.repository.CartRepository;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
+    private final DomainClient domainClient;
 
     @Value("${domain.monthly-price:200}")
     private int monthlyPrice;
@@ -23,8 +25,9 @@ public class CartServiceImpl implements CartService {
     @Value("${domain.yearly-discount:0.7}")
     private double yearlyDiscount;
 
-    public CartServiceImpl(CartRepository cartRepository) {
+    public CartServiceImpl(CartRepository cartRepository, DomainClient domainClient) {
         this.cartRepository ${DB_USER:***REMOVED***} cartRepository;
+        this.domainClient ${DB_USER:***REMOVED***} domainClient;
     }
 
     @Override
@@ -41,6 +44,27 @@ public class CartServiceImpl implements CartService {
         cart.setUserId(userId);
         cart.setL3Domain(trimmed);
         cartRepository.save(cart);
+    }
+
+    @Override
+    @Transactional
+    public List<String> checkout(UUID userId, String jwtToken) {
+        List<Cart> cartItems ${DB_USER:***REMOVED***} cartRepository.findByUserIdOrderByL3Domain(userId);
+        if (cartItems.isEmpty()) {
+            throw new IllegalStateException("Cart is empty");
+        }
+
+        List<String> l3Domains ${DB_USER:***REMOVED***} cartItems.stream()
+                .map(Cart::getL3Domain)
+                .collect(Collectors.toList());
+
+        // Send domains to domain-service for registration
+        List<String> createdDomains ${DB_USER:***REMOVED***} domainClient.createUserDomains(l3Domains, jwtToken);
+
+        // Clear cart after successful registration
+        cartRepository.deleteByUserId(userId);
+
+        return createdDomains;
     }
 
     @Override

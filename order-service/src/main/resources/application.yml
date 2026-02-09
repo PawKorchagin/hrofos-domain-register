@@ -43,6 +43,8 @@ jwt:
 domain:
   monthly-price: ${DOMAIN_MONTHLY_PRICE:200}
   yearly-discount: ${DOMAIN_YEARLY_DISCOUNT:0.7}
+  client:
+    base-url: ${DOMAIN_SERVICE_URL:http://localhost:8082}
 
 logging:
   level:
