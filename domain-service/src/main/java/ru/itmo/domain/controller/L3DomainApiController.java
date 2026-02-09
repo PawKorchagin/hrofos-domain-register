@@ -7,6 +7,8 @@ import ru.itmo.domain.generated.model.DnsRecord;
 import ru.itmo.domain.generated.model.DnsRecordResponse;
 import ru.itmo.domain.service.DnsRecordService;
 
+import java.util.List;
+
 @RestController
 @org.springframework.web.bind.annotation.RequestMapping("${openapi.openAPIDNS.base-path:/api/v1}")
 public class L3DomainApiController implements L3DomainApi {
@@ -23,7 +25,7 @@ public class L3DomainApiController implements L3DomainApi {
     }
 
     @Override
-    public ResponseEntity<DnsRecordResponse> getFreeL3Domains(String name) {
-        return ResponseEntity.ok().body(null);
+    public ResponseEntity<List<String>> getFreeL3Domains(String name) {
+        return ResponseEntity.ok(dnsRecordService.getFreeL3Domains(name));
     }
 }

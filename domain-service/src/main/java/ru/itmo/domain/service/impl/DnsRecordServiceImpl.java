@@ -114,6 +114,18 @@ public class DnsRecordServiceImpl implements DnsRecordService {
     }
 
     @Override
+    public List<String> getFreeL3Domains(String name) {
+        String l3Part ${DB_USER:***REMOVED***} name ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? null : name.trim();
+        if (l3Part ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || l3Part.isBlank()) {
+            return List.of();
+        }
+        return domainRepository.findAllByParentIsNull().stream()
+                .filter(l2 -> !domainRepository.existsByParentIdAndDomainPart(l2.getId(), l3Part))
+                .map(l2 -> l3Part + "." + l2.getDomainPart())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<DnsRecordResponse> getDnsRecords(String l2Domain) {
         String name ${DB_USER:***REMOVED***} l2Domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? null : l2Domain.trim();
         Domain domain ${DB_USER:***REMOVED***} domainRepository.findByDomainPartAndParentIsNull(name)

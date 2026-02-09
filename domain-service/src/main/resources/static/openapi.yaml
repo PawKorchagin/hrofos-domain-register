@@ -271,7 +271,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DnsRecordResponse'
+                type: array
+                items:
+                  type: string
         '400':
           description: Некорректные входные данные. Возвращает список атрибутов с ошибками.
           content:

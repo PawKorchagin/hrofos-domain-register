@@ -11,6 +11,8 @@ public interface DnsRecordService {
 
     DnsRecordResponse createL3Domain(String l3Domain, DnsRecord dnsRecord);
 
+    List<String> getFreeL3Domains(String name);
+
     List<DnsRecordResponse> getDnsRecords(String l2Domain);
 
     DnsRecordResponse getById(Long id);
