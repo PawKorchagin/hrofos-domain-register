@@ -24,6 +24,8 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
 
     List<Domain> findByUserIdAndParentIsNotNull(UUID userId);
 
+    List<Domain> findByParentIsNotNullAndFinishedAtBefore(java.time.LocalDateTime now);
+
     @Query("SELECT COUNT(DISTINCT d.userId) FROM Domain d WHERE d.userId IS NOT NULL")
     long countDistinctUserIds();
 

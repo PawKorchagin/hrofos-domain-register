@@ -452,6 +452,33 @@ paths:
                 type: array
                 items:
                   type: string
+  /userDomains/expired:
+    delete:
+      summary: Удаление просроченных доменов
+      description: Удаляет все L3-домены, у которых finished_at меньше текущего времени. Доступно только админам.
+      operationId: deleteExpiredDomains
+      tags:
+        - UserDomain
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Количество удалённых доменов
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+                description: Количество удалённых просроченных доменов
+                example: 5
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
   /stats:
     get:
       summary: Статистика по доменам

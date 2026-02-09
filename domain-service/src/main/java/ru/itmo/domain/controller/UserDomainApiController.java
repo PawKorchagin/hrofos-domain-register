@@ -34,4 +34,10 @@ public class UserDomainApiController implements UserDomainApi {
         List<String> renewedDomains ${DB_USER:***REMOVED***} userDomainService.renewUserDomains(renewUserDomainsRequest);
         return ResponseEntity.ok(renewedDomains);
     }
+
+    @Override
+    public ResponseEntity<Long> deleteExpiredDomains() {
+        long deleted ${DB_USER:***REMOVED***} userDomainService.deleteExpiredDomains();
+        return ResponseEntity.ok(deleted);
+    }
 }

@@ -12,4 +12,6 @@ public interface UserDomainService {
     List<String> createUserDomains(CreateUserDomainsRequest request);
 
     List<String> renewUserDomains(RenewUserDomainsRequest request);
+
+    long deleteExpiredDomains();
 }
