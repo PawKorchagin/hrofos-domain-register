@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Field,
   Heading,
@@ -37,15 +36,15 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
   const [totalMonthly, setTotalMonthly] ${DB_USER:***REMOVED***} useState(0);
   const [totalYearly, setTotalYearly] ${DB_USER:***REMOVED***} useState(0);
   const [searchResults, setSearchResults] ${DB_USER:***REMOVED***} useState<DomainSearchResult[]>([]);
-  const [isCartLoading, setIsCartLoading] ${DB_USER:***REMOVED***} useState(false);
   const [isSearchLoading, setIsSearchLoading] ${DB_USER:***REMOVED***} useState(false);
+  const [addingFqdn, setAddingFqdn] ${DB_USER:***REMOVED***} useState<string | null>(null);
+  const [checkoutLoading, setCheckoutLoading] ${DB_USER:***REMOVED***} useState(false);
   const [error, setError] ${DB_USER:***REMOVED***} useState('');
 
   const cartCount ${DB_USER:***REMOVED***} useMemo(() ${DB_USER:***REMOVED***}> cartDomains.length, [cartDomains]);
+  const cartSet ${DB_USER:***REMOVED***} useMemo(() ${DB_USER:***REMOVED***}> new Set(cartDomains), [cartDomains]);
 
   const loadCart ${DB_USER:***REMOVED***} useCallback(async () ${DB_USER:***REMOVED***}> {
-    setIsCartLoading(true);
-    setError('');
     try {
       const { data } ${DB_USER:***REMOVED***} await ORDER_AXIOS_INSTANCE.get<CartResponse>('/cart/me');
       setCartDomains(data.l3Domains ?? []);
@@ -53,8 +52,6 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
       setTotalYearly(data.totalYearlyPrice ?? 0);
     } catch {
       setError('Не удалось загрузить корзину.');
-    } finally {
-      setIsCartLoading(false);
     }
   }, []);
 
@@ -102,7 +99,7 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
 
   const handleAddToCart ${DB_USER:***REMOVED***} useCallback(
     async (fqdn: string) ${DB_USER:***REMOVED***}> {
-      setIsCartLoading(true);
+      setAddingFqdn(fqdn);
       setError('');
       try {
         await ORDER_AXIOS_INSTANCE.post(`/cart/${encodeURIComponent(fqdn)}`);
@@ -110,7 +107,7 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
       } catch {
         setError('Не удалось добавить домен в корзину.');
       } finally {
-        setIsCartLoading(false);
+        setAddingFqdn(null);
       }
     },
     [loadCart]
@@ -119,7 +116,7 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
   const handleCheckout ${DB_USER:***REMOVED***} useCallback(
     async (period: 'MONTH' | 'YEAR') ${DB_USER:***REMOVED***}> {
       if (cartDomains.length ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} 0) return;
-      setIsCartLoading(true);
+      setCheckoutLoading(true);
       setError('');
       try {
         await ORDER_AXIOS_INSTANCE.post('/cart/checkout', { period });
@@ -129,7 +126,7 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
       } catch {
         setError('Не удалось оформить покупку.');
       } finally {
-        setIsCartLoading(false);
+        setCheckoutLoading(false);
       }
     },
     [cartDomains]
@@ -161,7 +158,7 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
                 size${DB_USER:***REMOVED***}{'sm'}
                 colorPalette${DB_USER:***REMOVED***}{'secondary'}
                 onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> handleCheckout('MONTH')}
-                loading${DB_USER:***REMOVED***}{isCartLoading}
+                loading${DB_USER:***REMOVED***}{checkoutLoading}
               >
                 Купить на месяц
               </Button>
@@ -169,7 +166,7 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
                 size${DB_USER:***REMOVED***}{'sm'}
                 colorPalette${DB_USER:***REMOVED***}{'secondary'}
                 onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> handleCheckout('YEAR')}
-                loading${DB_USER:***REMOVED***}{isCartLoading}
+                loading${DB_USER:***REMOVED***}{checkoutLoading}
               >
                 Купить на год
               </Button>
@@ -205,26 +202,38 @@ const CartPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
       {searchResults.length > 0 && (
         <Stack bg${DB_USER:***REMOVED***}{'accent.muted'} p${DB_USER:***REMOVED***}{5} borderRadius${DB_USER:***REMOVED***}{'md'} gap${DB_USER:***REMOVED***}{2}>
           <Text fontWeight${DB_USER:***REMOVED***}{'bold'}>Результаты поиска</Text>
-          {searchResults.map((result) ${DB_USER:***REMOVED***}> (
-            <HStack key${DB_USER:***REMOVED***}{result.fqdn} justifyContent${DB_USER:***REMOVED***}{'space-between'}>
-              <Text>{result.fqdn}</Text>
-              <HStack>
-                <Text>{result.monthlyPrice}₽ / месяц</Text>
-                {result.free ? (
-                  <Button
-                    size${DB_USER:***REMOVED***}{'sm'}
-                    colorPalette${DB_USER:***REMOVED***}{'secondary'}
-                    onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> handleAddToCart(result.fqdn)}
-                    loading${DB_USER:***REMOVED***}{isCartLoading}
-                  >
-                    В корзину
-                  </Button>
-                ) : (
-                  <Text color${DB_USER:***REMOVED***}{'fg.muted'}>Занят</Text>
-                )}
+          {searchResults.map((result) ${DB_USER:***REMOVED***}> {
+            const inCart ${DB_USER:***REMOVED***} cartSet.has(result.fqdn);
+            const isAdding ${DB_USER:***REMOVED***} addingFqdn ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} result.fqdn;
+
+            return (
+              <HStack key${DB_USER:***REMOVED***}{result.fqdn} justifyContent${DB_USER:***REMOVED***}{'space-between'}>
+                <Text>{result.fqdn}</Text>
+                <HStack>
+                  <Text>{result.monthlyPrice}₽ / месяц</Text>
+                  {result.free ? (
+                    inCart ? (
+                      <Button size${DB_USER:***REMOVED***}{'sm'} colorPalette${DB_USER:***REMOVED***}{'green'} variant${DB_USER:***REMOVED***}{'solid'} disabled>
+                        В корзине
+                      </Button>
+                    ) : (
+                      <Button
+                        size${DB_USER:***REMOVED***}{'sm'}
+                        colorPalette${DB_USER:***REMOVED***}{'secondary'}
+                        onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> handleAddToCart(result.fqdn)}
+                        loading${DB_USER:***REMOVED***}{isAdding}
+                        disabled${DB_USER:***REMOVED***}{addingFqdn !${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null && !isAdding}
+                      >
+                        В корзину
+                      </Button>
+                    )
+                  ) : (
+                    <Text color${DB_USER:***REMOVED***}{'fg.muted'}>Занят</Text>
+                  )}
+                </HStack>
               </HStack>
-            </HStack>
-          ))}
+            );
+          })}
         </Stack>
       )}
     </Stack>
