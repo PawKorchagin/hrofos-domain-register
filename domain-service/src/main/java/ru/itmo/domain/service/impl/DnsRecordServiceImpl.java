@@ -144,11 +144,11 @@ public class DnsRecordServiceImpl implements DnsRecordService {
         if (domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
             throw new DnsRecordNotFoundException(id);
         }
-        String l2DomainName ${DB_USER:***REMOVED***} domain.getDomainPart();
+        String expectedName ${DB_USER:***REMOVED***} getFullDomainName(domain);
         JsonNode tree ${DB_USER:***REMOVED***} objectMapper.valueToTree(dnsRecord);
         String bodyName ${DB_USER:***REMOVED***} tree.has("name") && !tree.get("name").isNull() ? tree.get("name").asText().trim() : null;
-        if (bodyName ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !l2DomainName.equals(bodyName)) {
-            throw new DnsRecordNameMismatchException(l2DomainName, bodyName);
+        if (bodyName ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !expectedName.equals(bodyName)) {
+            throw new DnsRecordNameMismatchException(expectedName, bodyName);
         }
         String recordData ${DB_USER:***REMOVED***} tree.toString();
         entity.setRecordData(recordData);
@@ -222,6 +222,14 @@ public class DnsRecordServiceImpl implements DnsRecordService {
             root ${DB_USER:***REMOVED***} root.getParent();
         }
         return root.getDomainPart();
+    }
+
+    /** Full DNS name for the domain: L2 ${DB_USER:***REMOVED***} domainPart, L3 ${DB_USER:***REMOVED***} domainPart + "." + L2 name, etc. */
+    private static String getFullDomainName(Domain domain) {
+        if (domain.getParent() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
+            return domain.getDomainPart();
+        }
+        return domain.getDomainPart() + "." + getL2DomainName(domain);
     }
 
     private DnsRecordResponse toDnsRecordResponse(String recordData, Long id) {
