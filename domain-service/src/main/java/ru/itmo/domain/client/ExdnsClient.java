@@ -1,5 +1,6 @@
 package ru.itmo.domain.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpEntity;
@@ -73,8 +74,16 @@ public class ExdnsClient {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authentication", "Bearer " + properties.getApiToken());
 
-        HttpEntity<JsonNode> entity ${DB_USER:***REMOVED***} body !${DB_USER:***REMOVED***} null
-                ? new HttpEntity<>(body, headers)
+        String bodyStr ${DB_USER:***REMOVED***} null;
+        if (body !${DB_USER:***REMOVED***} null) {
+            try {
+                bodyStr ${DB_USER:***REMOVED***} objectMapper.writeValueAsString(body);
+            } catch (JsonProcessingException e) {
+                throw new ExdnsClientException("Failed to serialize request body", e);
+            }
+        }
+        HttpEntity<String> entity ${DB_USER:***REMOVED***} bodyStr !${DB_USER:***REMOVED***} null
+                ? new HttpEntity<>(bodyStr, headers)
                 : new HttpEntity<>(headers);
 
         try {

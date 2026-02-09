@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.domain.client.ExdnsClient;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class DnsRecordServiceImpl implements DnsRecordService {
+
+    private static final Logger log ${DB_USER:***REMOVED***} LoggerFactory.getLogger(DnsRecordServiceImpl.class);
 
     private static final Map<String, String> RECORD_TYPE_TO_RESPONSE_TYPE ${DB_USER:***REMOVED***} Map.of(
             "DnsRecordA", "DnsRecordResponseA",
@@ -56,9 +60,19 @@ public class DnsRecordServiceImpl implements DnsRecordService {
         String name ${DB_USER:***REMOVED***} l2Domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? null : l2Domain.trim();
         JsonNode tree ${DB_USER:***REMOVED***} objectMapper.valueToTree(dnsRecord);
         String bodyName ${DB_USER:***REMOVED***} tree.has("name") && !tree.get("name").isNull() ? tree.get("name").asText().trim() : null;
-        if (bodyName ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !name.equals(bodyName)) {
+        String typeStr ${DB_USER:***REMOVED***} tree.has("type") && !tree.get("type").isNull() ? tree.get("type").asText() : null;
+        boolean isNs ${DB_USER:***REMOVED***} "DnsRecordNS".equals(typeStr) || "NS".equals(typeStr);
+
+        if (bodyName ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || bodyName.isBlank()) {
             throw new DnsRecordNameMismatchException(name, bodyName);
         }
+        boolean nameOk ${DB_USER:***REMOVED***} name.equals(bodyName)
+                || (isNs && bodyName.endsWith("." + name) && bodyName.length() > name.length() + 1
+                && !bodyName.substring(0, bodyName.length() - name.length() - 1).contains("."));
+        if (!nameOk) {
+            throw new DnsRecordNameMismatchException(name, bodyName);
+        }
+
         Domain domain ${DB_USER:***REMOVED***} domainRepository.findByDomainPartAndParentIsNull(name)
                 .orElseThrow(() -> new L2DomainNotFoundException(name));
 
@@ -70,6 +84,41 @@ public class DnsRecordServiceImpl implements DnsRecordService {
         entity ${DB_USER:***REMOVED***} dnsRecordRepository.save(entity);
 
         syncZoneToExdns(name);
+
+        if (isNs) {
+            log.debug("NS record: processing data field for L3 zone and domain, l2Domain${DB_USER:***REMOVED***}{}", name);
+            String dataValue ${DB_USER:***REMOVED***} tree.has("data") && !tree.get("data").isNull() ? tree.get("data").asText().trim() : null;
+            log.debug("NS record: data value from body ${DB_USER:***REMOVED***} {}", dataValue);
+            if (dataValue !${DB_USER:***REMOVED***} null && !dataValue.isBlank()
+                    && dataValue.endsWith("." + name) && dataValue.length() > name.length() + 1
+                    && !dataValue.substring(0, dataValue.length() - name.length() - 1).contains(".")) {
+                String l3Part ${DB_USER:***REMOVED***} dataValue.substring(0, dataValue.length() - name.length() - 1);
+                log.debug("NS record: L3 part extracted ${DB_USER:***REMOVED***} {}, creating or finding domain in table domain", l3Part);
+                Domain l3 ${DB_USER:***REMOVED***} domainRepository.findByParentIdAndDomainPart(domain.getId(), l3Part)
+                        .orElseGet(() -> {
+                            log.debug("NS record: L3 domain not found, creating new Domain parentId${DB_USER:***REMOVED***}{}, domainPart${DB_USER:***REMOVED***}{}", domain.getId(), l3Part);
+                            Domain child ${DB_USER:***REMOVED***} new Domain();
+                            child.setDomainPart(l3Part);
+                            child.setParent(domain);
+                            child.setDomainVersion(1L);
+                            Domain saved ${DB_USER:***REMOVED***} domainRepository.save(child);
+                            log.debug("NS record: L3 domain saved with id${DB_USER:***REMOVED***}{}", saved.getId());
+                            return saved;
+                        });
+                log.debug("NS record: L3 domain id${DB_USER:***REMOVED***}{} for {}", l3.getId(), dataValue);
+
+                log.debug("NS record: building zone body for exdns name${DB_USER:***REMOVED***}{}, version${DB_USER:***REMOVED***}1, records${DB_USER:***REMOVED***}[]", dataValue);
+                ObjectNode zoneBody ${DB_USER:***REMOVED***} objectMapper.createObjectNode();
+                zoneBody.put("name", dataValue);
+                zoneBody.put("version", 1);
+                zoneBody.set("records", objectMapper.createArrayNode());
+                log.debug("NS record: calling exdns createZone for zone name${DB_USER:***REMOVED***}{}", dataValue);
+                exdnsClient.createZone(dataValue, zoneBody);
+                log.debug("NS record: exdns createZone completed for {}", dataValue);
+            } else {
+                log.debug("NS record: data validation failed or skipped (dataValue null/blank or not a single-label subdomain of {}), skipping L3 creation", name);
+            }
+        }
 
         return toDnsRecordResponse(recordData, entity.getId());
     }
