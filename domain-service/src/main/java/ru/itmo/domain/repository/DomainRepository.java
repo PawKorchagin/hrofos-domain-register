@@ -5,6 +5,7 @@ import ru.itmo.domain.entity.Domain;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface DomainRepository extends JpaRepository<Domain, Long> {
 
@@ -19,4 +20,6 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
     Optional<Domain> findByParentIdAndDomainPart(Long parentId, String domainPart);
 
     boolean existsByParentIdAndDomainPart(Long parentId, String domainPart);
+
+    List<Domain> findByUserIdAndParentIsNotNull(UUID userId);
 }

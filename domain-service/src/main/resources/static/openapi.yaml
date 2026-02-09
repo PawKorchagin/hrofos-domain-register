@@ -321,6 +321,25 @@ paths:
                 items:
                   type: string
   /userDomains:
+    get:
+      summary: Метод получения всех доменов пользователя
+      description: Метод предназначен для получения всех доменов третьего уровня текущего пользователя. userId берется из JWT токена.
+      operationId: getUserDomains
+      tags:
+        - UserDomain
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список доменов третьего уровня пользователя
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: Полное имя домена третьего уровня
+                  example: "crazy.example.com"
     post:
       summary: Метод создания доменов пользователя
       description: Метод предназначен для создания доменов третьего уровня для текущего пользователя. userId берется из JWT токена.
