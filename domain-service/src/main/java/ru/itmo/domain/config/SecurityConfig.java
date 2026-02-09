@@ -38,6 +38,7 @@ public class SecurityConfig {
                         // Authenticated endpoints (users can modify their own, admins can modify all)
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/domains/userDomains").authenticated()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/domains/userDomains/renew").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/domains/userDomains/expiring").hasRole("ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/domains/userDomains/expired").hasRole("ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/domains/dnsRecords/**").authenticated()
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/domains/dnsRecords/**").authenticated()

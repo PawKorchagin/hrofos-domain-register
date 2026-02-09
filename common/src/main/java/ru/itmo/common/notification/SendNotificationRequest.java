@@ -23,4 +23,7 @@ public class SendNotificationRequest {
     private String subject;
     private String template;
     private Map<String, Object> parameters;
+
+    /** Если указан — письмо отправляется на этот email (для системных уведомлений). */
+    private String recipientEmail;
 }

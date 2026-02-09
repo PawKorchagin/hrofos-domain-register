@@ -1,0 +1,10 @@
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-must-be-at-least-32-characters-long-for-security}
+
+services:
+  domain:
+    url: http://domain-service:8082
+  auth:
+    url: http://auth-service:8081
+  notification:
+    url: http://notification-service:8085

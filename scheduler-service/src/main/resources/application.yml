@@ -1,0 +1,37 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: scheduler-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-must-be-at-least-32-characters-long-for-security}
+
+services:
+  domain:
+    url: ${DOMAIN_SERVICE_URL:http://localhost:8082}
+  auth:
+    url: ${AUTH_SERVICE_URL:http://localhost:8081}
+  notification:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}
+
+scheduler:
+  expiring-notifications:
+    cron: "0 0 9 * * *"
+    days-before: 30,14,7,3,1
+  expired-cleanup:
+    cron: "0 0 3 * * *"
+
+logging:
+  level:
+    ru.itmo: INFO
