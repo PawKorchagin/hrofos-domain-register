@@ -17,6 +17,7 @@ import ru.itmo.domain.repository.DomainRepository;
 import ru.itmo.domain.repository.DnsRecordRepository;
 import ru.itmo.domain.service.DnsRecordService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,6 +75,45 @@ public class DnsRecordServiceImpl implements DnsRecordService {
     }
 
     @Override
+    @Transactional
+    public DnsRecordResponse createL3Domain(String l3Domain, ru.itmo.domain.generated.model.DnsRecord dnsRecord) {
+        String l3Name ${DB_USER:***REMOVED***} l3Domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? null : l3Domain.trim();
+        int firstDot ${DB_USER:***REMOVED***} l3Name ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? -1 : l3Name.indexOf('.');
+        if (firstDot <${DB_USER:***REMOVED***} 0 || firstDot ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} l3Name.length() - 1) {
+            throw new DnsRecordNameMismatchException(l3Name, l3Name);
+        }
+        String l3Part ${DB_USER:***REMOVED***} l3Name.substring(0, firstDot);
+        String l2Name ${DB_USER:***REMOVED***} l3Name.substring(firstDot + 1);
+
+        JsonNode tree ${DB_USER:***REMOVED***} objectMapper.valueToTree(dnsRecord);
+        String bodyName ${DB_USER:***REMOVED***} tree.has("name") && !tree.get("name").isNull() ? tree.get("name").asText().trim() : null;
+        if (bodyName ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !l3Name.equals(bodyName)) {
+            throw new DnsRecordNameMismatchException(l3Name, bodyName);
+        }
+
+        Domain l2 ${DB_USER:***REMOVED***} domainRepository.findByDomainPartAndParentIsNull(l2Name)
+                .orElseThrow(() -> new L2DomainNotFoundException(l2Name));
+
+        Domain l3 ${DB_USER:***REMOVED***} domainRepository.findByParentIdAndDomainPart(l2.getId(), l3Part)
+                .orElseGet(() -> {
+                    Domain child ${DB_USER:***REMOVED***} new Domain();
+                    child.setDomainPart(l3Part);
+                    child.setParent(l2);
+                    child.setDomainVersion(1L);
+                    return domainRepository.save(child);
+                });
+
+        String recordData ${DB_USER:***REMOVED***} tree.toString();
+        DnsRecord entity ${DB_USER:***REMOVED***} new DnsRecord();
+        entity.setRecordData(recordData);
+        entity.setDomain(l3);
+        entity ${DB_USER:***REMOVED***} dnsRecordRepository.save(entity);
+
+        syncZoneToExdns(l2Name);
+        return toDnsRecordResponse(recordData, entity.getId());
+    }
+
+    @Override
     public List<DnsRecordResponse> getDnsRecords(String l2Domain) {
         String name ${DB_USER:***REMOVED***} l2Domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? null : l2Domain.trim();
         Domain domain ${DB_USER:***REMOVED***} domainRepository.findByDomainPartAndParentIsNull(name)
@@ -113,7 +153,7 @@ public class DnsRecordServiceImpl implements DnsRecordService {
         String recordData ${DB_USER:***REMOVED***} tree.toString();
         entity.setRecordData(recordData);
         entity ${DB_USER:***REMOVED***} dnsRecordRepository.save(entity);
-        syncZoneToExdns(l2DomainName);
+        syncZoneToExdns(getL2DomainName(domain));
         return toDnsRecordResponse(recordData, entity.getId());
     }
 
@@ -126,7 +166,7 @@ public class DnsRecordServiceImpl implements DnsRecordService {
         if (domain ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
             throw new DnsRecordNotFoundException(id);
         }
-        String l2DomainName ${DB_USER:***REMOVED***} domain.getDomainPart();
+        String l2DomainName ${DB_USER:***REMOVED***} getL2DomainName(domain);
         dnsRecordRepository.delete(entity);
         syncZoneToExdns(l2DomainName);
     }
@@ -148,7 +188,12 @@ public class DnsRecordServiceImpl implements DnsRecordService {
             currentVersion ${DB_USER:***REMOVED***} domain.getDomainVersion() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null ? 1L : domain.getDomainVersion();
         }
 
-        List<DnsRecord> records ${DB_USER:***REMOVED***} dnsRecordRepository.findByDomainId(domain.getId());
+        List<Long> zoneDomainIds ${DB_USER:***REMOVED***} new ArrayList<>();
+        zoneDomainIds.add(domain.getId());
+        zoneDomainIds.addAll(domainRepository.findByParentId(domain.getId()).stream()
+                .map(Domain::getId)
+                .collect(Collectors.toList()));
+        List<DnsRecord> records ${DB_USER:***REMOVED***} dnsRecordRepository.findByDomainIdIn(zoneDomainIds);
         ArrayNode recordsArray ${DB_USER:***REMOVED***} objectMapper.createArrayNode();
         for (DnsRecord rec : records) {
             if (rec.getRecordData() !${DB_USER:***REMOVED***} null && !rec.getRecordData().isBlank()) {
@@ -169,6 +214,14 @@ public class DnsRecordServiceImpl implements DnsRecordService {
 
         domain.setDomainVersion(currentVersion + 1);
         domainRepository.save(domain);
+    }
+
+    private static String getL2DomainName(Domain domain) {
+        Domain root ${DB_USER:***REMOVED***} domain;
+        while (root.getParent() !${DB_USER:***REMOVED***} null) {
+            root ${DB_USER:***REMOVED***} root.getParent();
+        }
+        return root.getDomainPart();
     }
 
     private DnsRecordResponse toDnsRecordResponse(String recordData, Long id) {

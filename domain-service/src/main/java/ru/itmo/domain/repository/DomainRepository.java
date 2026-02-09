@@ -13,4 +13,8 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
     Optional<Domain> findByDomainPartAndParentIsNull(String domainPart);
 
     List<Domain> findAllByParentIsNull();
+
+    List<Domain> findByParentId(Long parentId);
+
+    Optional<Domain> findByParentIdAndDomainPart(Long parentId, String domainPart);
 }

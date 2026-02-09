@@ -8,4 +8,6 @@ import java.util.List;
 public interface DnsRecordRepository extends JpaRepository<DnsRecord, Long> {
 
     List<DnsRecord> findByDomainId(Long domainId);
+
+    List<DnsRecord> findByDomainIdIn(List<Long> domainIds);
 }

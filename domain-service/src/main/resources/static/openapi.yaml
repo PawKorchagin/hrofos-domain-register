@@ -234,7 +234,7 @@ paths:
       tags:
         - L3Domain
       parameters:
-        - $ref: '#/components/parameters/L2DomainName'
+        - $ref: '#/components/parameters/L3DomainName'
       requestBody:
         required: true
         content:
