@@ -16,10 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Клиент для отправки уведомлений через notification-service.
- * Получает JWT-токен из текущего HTTP-запроса и пробрасывает его.
- */
 @Slf4j
 @Component
 public class NotificationClient {

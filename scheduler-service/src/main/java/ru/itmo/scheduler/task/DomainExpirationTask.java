@@ -26,10 +26,6 @@ public class DomainExpirationTask {
     @Value("${scheduler.expiring-notifications.days-before:30,14,7,3,1}")
     private String daysBefore;
 
-    /**
-     * Каждый день в 09:00 проверяет домены, истекающие через 30, 14, 7, 3, 1 дней,
-     * и отправляет email-уведомления владельцам.
-     */
     @Scheduled(cron ${DB_USER:***REMOVED***} "${scheduler.expiring-notifications.cron}")
     public void sendExpiringNotifications() {
         log.info("Starting expiring domain notifications check...");
@@ -44,9 +40,6 @@ public class DomainExpirationTask {
         log.info("Expiring domain notifications check completed.");
     }
 
-    /**
-     * Каждый день в 03:00 удаляет просроченные домены.
-     */
     @Scheduled(cron ${DB_USER:***REMOVED***} "${scheduler.expired-cleanup.cron}")
     public void cleanupExpiredDomains() {
         log.info("Starting expired domain cleanup...");
@@ -67,7 +60,6 @@ public class DomainExpirationTask {
 
         log.info("Found {} domains expiring in {} days.", expiringDomains.size(), days);
 
-        // Собираем уникальные userId
         Set<String> userIds ${DB_USER:***REMOVED***} expiringDomains.stream()
                 .map(d -> String.valueOf(d.get("userId")))
                 .filter(id -> id !${DB_USER:***REMOVED***} null && !id.equals("null"))
@@ -77,10 +69,8 @@ public class DomainExpirationTask {
             return;
         }
 
-        // Получаем email-адреса пользователей
         Map<String, String> emailMap ${DB_USER:***REMOVED***} authServiceClient.getEmailsByUserIds(new ArrayList<>(userIds), token);
 
-        // Отправляем уведомления
         for (Map<String, Object> domain : expiringDomains) {
             String userId ${DB_USER:***REMOVED***} String.valueOf(domain.get("userId"));
             String domainName ${DB_USER:***REMOVED***} String.valueOf(domain.get("domainName"));

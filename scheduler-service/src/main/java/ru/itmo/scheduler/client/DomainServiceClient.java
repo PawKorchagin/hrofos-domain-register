@@ -24,10 +24,6 @@ public class DomainServiceClient {
         this.baseUrl ${DB_USER:***REMOVED***} baseUrl;
     }
 
-    /**
-     * Возвращает L3-домены, истекающие через days дней.
-     * Каждый элемент: {userId, domainName, finishedAt}
-     */
     public List<Map<String, Object>> getExpiringDomains(int days, String jwtToken) {
         try {
             String url ${DB_USER:***REMOVED***} baseUrl + "/domains/userDomains/expiring?days${DB_USER:***REMOVED***}" + days;
@@ -46,9 +42,6 @@ public class DomainServiceClient {
         }
     }
 
-    /**
-     * Удаляет просроченные L3-домены. Возвращает количество удалённых.
-     */
     public long deleteExpiredDomains(String jwtToken) {
         try {
             String url ${DB_USER:***REMOVED***} baseUrl + "/domains/userDomains/expired";

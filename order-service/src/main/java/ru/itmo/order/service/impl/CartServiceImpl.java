@@ -61,10 +61,8 @@ public class CartServiceImpl implements CartService {
                 .map(Cart::getL3Domain)
                 .collect(Collectors.toList());
 
-        // Send domains to domain-service for registration with period
         List<String> createdDomains ${DB_USER:***REMOVED***} domainClient.createUserDomains(l3Domains, period, jwtToken);
 
-        // Clear cart after successful registration
         cartRepository.deleteByUserId(userId);
 
         auditClient.log("Checkout completed: " + createdDomains.size() + " domains (period${DB_USER:***REMOVED***}" + period + ")", userId);

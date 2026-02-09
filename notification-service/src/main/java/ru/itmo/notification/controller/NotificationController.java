@@ -24,7 +24,6 @@ public class NotificationController {
             @Valid @RequestBody SendNotificationRequest request) {
         String userEmail;
 
-        // Если recipientEmail указан явно (системные уведомления от scheduler и т.п.)
         if (request.getRecipientEmail() !${DB_USER:***REMOVED***} null && !request.getRecipientEmail().isBlank()) {
             userEmail ${DB_USER:***REMOVED***} request.getRecipientEmail();
         } else {

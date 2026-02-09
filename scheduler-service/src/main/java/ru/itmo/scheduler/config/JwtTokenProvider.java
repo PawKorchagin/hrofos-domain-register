@@ -12,9 +12,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
 
-/**
- * Генерирует системный admin JWT-токен для межсервисного взаимодействия.
- */
 @Component
 public class JwtTokenProvider {
 

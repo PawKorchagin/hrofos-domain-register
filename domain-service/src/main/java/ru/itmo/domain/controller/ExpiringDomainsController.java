@@ -17,10 +17,6 @@ public class ExpiringDomainsController {
 
     private final DomainRepository domainRepository;
 
-    /**
-     * Возвращает L3-домены, у которых finished_at приходится на дату через `days` дней от сегодня.
-     * Доступен только для ADMIN (scheduler использует admin JWT).
-     */
     @GetMapping("/userDomains/expiring")
     public ResponseEntity<List<Map<String, Object>>> getExpiringDomains(@RequestParam int days) {
         LocalDate targetDate ${DB_USER:***REMOVED***} LocalDate.now().plusDays(days);

@@ -87,7 +87,6 @@ public class UserDomainServiceImpl implements UserDomainService {
             Domain l2 ${DB_USER:***REMOVED***} domainRepository.findByDomainPartAndParentIsNull(l2Name)
                     .orElseThrow(() -> new L2DomainNotFoundException(l2Name));
 
-            // Create L3 domain if it doesn't exist
             Domain l3 ${DB_USER:***REMOVED***} domainRepository.findByParentIdAndDomainPart(l2.getId(), l3Part)
                     .orElseGet(() -> {
                         Domain child ${DB_USER:***REMOVED***} new Domain();
@@ -100,7 +99,6 @@ public class UserDomainServiceImpl implements UserDomainService {
                         return domainRepository.save(child);
                     });
 
-            // If domain already exists but doesn't have userId set, update it
             if (l3.getUserId() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null) {
                 l3.setUserId(userId);
                 l3.setActivatedAt(now);
@@ -113,7 +111,6 @@ public class UserDomainServiceImpl implements UserDomainService {
 
         auditClient.log("Created " + createdDomains.size() + " domains (period${DB_USER:***REMOVED***}" + period + "): " + String.join(", ", createdDomains), userId);
 
-        // Отправляем одно email-уведомление со всеми созданными доменами
         if (!createdDomains.isEmpty()) {
             notificationClient.sendDomainsActivated(userId, createdDomains, finishedAt.format(DATE_FMT));
         }
@@ -153,14 +150,12 @@ public class UserDomainServiceImpl implements UserDomainService {
             Domain l3 ${DB_USER:***REMOVED***} domainRepository.findByParentIdAndDomainPart(l2.getId(), l3Part)
                     .orElseThrow(() -> new IllegalArgumentException("Domain not found: " + l3Name));
 
-            // Check ownership
             if (!SecurityUtil.isAdmin()) {
                 if (l3.getUserId() ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || !l3.getUserId().equals(userId)) {
                     throw new ForbiddenException("You can only renew your own domains");
                 }
             }
 
-            // Extend finished_at from current finished_at (or from now if already expired)
             LocalDateTime baseDate ${DB_USER:***REMOVED***} l3.getFinishedAt();
             if (baseDate ${DB_USER:***REMOVED***}${DB_USER:***REMOVED***} null || baseDate.isBefore(LocalDateTime.now())) {
                 baseDate ${DB_USER:***REMOVED***} LocalDateTime.now();

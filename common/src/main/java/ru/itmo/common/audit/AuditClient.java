@@ -10,10 +10,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * HTTP-клиент для отправки событий в audit-service.
- * Все вызовы асинхронные (fire-and-forget) — ошибки логируются, но не пробрасываются.
- */
 public class AuditClient {
 
     private static final Logger log ${DB_USER:***REMOVED***} LoggerFactory.getLogger(AuditClient.class);

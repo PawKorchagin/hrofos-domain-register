@@ -9,9 +9,6 @@ import ru.itmo.auth.repository.UserRepository;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Внутренние endpoints для межсервисного взаимодействия. Доступны только ADMIN.
- */
 @RestController
 @RequestMapping("/auth/internal")
 @RequiredArgsConstructor
@@ -19,9 +16,6 @@ public class InternalController {
 
     private final UserRepository userRepository;
 
-    /**
-     * Возвращает маппинг userId → email для списка userId.
-     */
     @PostMapping("/emails")
     public ResponseEntity<Map<String, String>> getEmailsByUserIds(@RequestBody List<String> userIds) {
         List<UUID> uuids ${DB_USER:***REMOVED***} userIds.stream()

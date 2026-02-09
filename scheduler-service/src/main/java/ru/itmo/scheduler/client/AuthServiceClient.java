@@ -24,9 +24,6 @@ public class AuthServiceClient {
         this.baseUrl ${DB_USER:***REMOVED***} baseUrl;
     }
 
-    /**
-     * Возвращает маппинг userId → email для списка userId.
-     */
     public Map<String, String> getEmailsByUserIds(List<String> userIds, String jwtToken) {
         try {
             String url ${DB_USER:***REMOVED***} baseUrl + "/auth/internal/emails";
