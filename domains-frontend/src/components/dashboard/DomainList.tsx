@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import type { DomainResponse } from '../../api/models';
 import { Button, Grid, GridItem, HStack, Text } from '@chakra-ui/react';
 import DateText from '../DateText';
-import { ArrowRight } from 'lucide-react';
 import { ORDER_AXIOS_INSTANCE } from '~/api/apiClientOrders';
 
 type Props ${DB_USER:***REMOVED***} {
@@ -87,9 +86,6 @@ const DomainList ${DB_USER:***REMOVED***} (props: Props) ${DB_USER:***REMOVED***
                     </Button>
                   </>
                 )}
-                <Button size${DB_USER:***REMOVED***}{'sm'} colorPalette${DB_USER:***REMOVED***}{'secondary'}>
-                  DNS <ArrowRight />
-                </Button>
               </HStack>
             </GridItem>
           </React.Fragment>

@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Grid,
   GridItem,
   Heading,
@@ -12,6 +13,8 @@ import AppLink from '../AppLink';
 import { Outlet, useNavigate } from 'react-router';
 import { refreshToken as apiRefreshToken } from '~/api/services/auth';
 import { getAccessToken, getRefreshToken, setTokens } from '~/utils/authTokens';
+import { isCurrentUserAdmin } from '~/utils/jwtUtils';
+import { ArrowLeft } from 'lucide-react';
 
 const AdminLayout ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
   const navigate ${DB_USER:***REMOVED***} useNavigate();
@@ -25,6 +28,10 @@ const AdminLayout ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
     const ensureAuth ${DB_USER:***REMOVED***} async () ${DB_USER:***REMOVED***}> {
       const accessToken ${DB_USER:***REMOVED***} getAccessToken();
       if (accessToken) {
+        if (!isCurrentUserAdmin()) {
+          navigate('/app');
+          return;
+        }
         setIsAuthReady(true);
         return;
       }
@@ -98,7 +105,16 @@ const AdminLayout ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
           px${DB_USER:***REMOVED***}{5}
           justifyContent${DB_USER:***REMOVED***}{'flex-end'}
           alignItems${DB_USER:***REMOVED***}{'center'}
+          gap${DB_USER:***REMOVED***}{4}
         >
+          <Button
+            size${DB_USER:***REMOVED***}{'sm'}
+            colorPalette${DB_USER:***REMOVED***}{'secondary'}
+            variant${DB_USER:***REMOVED***}{'subtle'}
+            onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> navigate('/app')}
+          >
+            <ArrowLeft size${DB_USER:***REMOVED***}{16} /> К приложению
+          </Button>
           <AppLink to${DB_USER:***REMOVED***}{'/admin/me'}>администратор</AppLink>
         </HStack>
       </GridItem>

@@ -1,4 +1,4 @@
-import { Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+import { Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
 import type { DomainResponse } from '~/api/models/domain-order';
 import { AXIOS_INSTANCE } from '~/api/apiClientDomains';
@@ -39,12 +39,7 @@ const DomainsPage ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
     <Stack gap${DB_USER:***REMOVED***}{5}>
       <HStack justifyContent${DB_USER:***REMOVED***}{'space-between'}>
         <Heading>Мои домены</Heading>
-        <HStack>
-          <Text>{domains.length} доменов</Text>
-          <Button colorPalette${DB_USER:***REMOVED***}{'secondary'} size${DB_USER:***REMOVED***}{'sm'}>
-            купить новый
-          </Button>
-        </HStack>
+        <Text>{domains.length} доменов</Text>
       </HStack>
       <DomainList domains${DB_USER:***REMOVED***}{domains} onRenewed${DB_USER:***REMOVED***}{loadDomains} />
     </Stack>

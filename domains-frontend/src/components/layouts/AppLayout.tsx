@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Grid,
   GridItem,
   Heading,
@@ -14,6 +15,8 @@ import { Outlet, useNavigate } from 'react-router';
 import { getAccessToken, getRefreshToken, setTokens } from '~/utils/authTokens';
 import { refreshToken as apiRefreshToken } from '~/api/services/auth';
 import { useStores } from '~/store';
+import { isCurrentUserAdmin } from '~/utils/jwtUtils';
+import { Shield } from 'lucide-react';
 
 const AppLayout ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
   const navigate ${DB_USER:***REMOVED***} useNavigate();
@@ -94,8 +97,29 @@ const AppLayout ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
           px${DB_USER:***REMOVED***}{5}
           justifyContent${DB_USER:***REMOVED***}{'flex-end'}
           alignItems${DB_USER:***REMOVED***}{'center'}
+          gap${DB_USER:***REMOVED***}{4}
         >
+          {isCurrentUserAdmin() && (
+            <Button
+              size${DB_USER:***REMOVED***}{'sm'}
+              colorPalette${DB_USER:***REMOVED***}{'red'}
+              variant${DB_USER:***REMOVED***}{'subtle'}
+              onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> navigate('/admin')}
+            >
+              <Shield size${DB_USER:***REMOVED***}{16} /> Админ-панель
+            </Button>
+          )}
           <AppLink to${DB_USER:***REMOVED***}{'/app/me'}>пользователь</AppLink>
+          <Button
+            size${DB_USER:***REMOVED***}{'sm'}
+            variant${DB_USER:***REMOVED***}{'ghost'}
+            onClick${DB_USER:***REMOVED***}{() ${DB_USER:***REMOVED***}> {
+              setTokens({ access: '', refresh: '' });
+              navigate('/');
+            }}
+          >
+            Выйти
+          </Button>
         </HStack>
       </GridItem>
       <GridItem>

@@ -1,6 +1,7 @@
 package ru.itmo.audit.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -55,6 +56,25 @@ public class AuditController {
             Map<String, Object> map ${DB_USER:***REMOVED***} new LinkedHashMap<>();
             map.put("id", e.getId());
             map.put("description", e.getDescription());
+            map.put("eventTime", e.getEventTime() !${DB_USER:***REMOVED***} null ? e.getEventTime().toString() : null);
+            result.add(map);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/events/all")
+    public ResponseEntity<List<Map<String, Object>>> getAllEvents(
+            @RequestParam(defaultValue ${DB_USER:***REMOVED***} "100") int limit) {
+        List<AuditEvent> events ${DB_USER:***REMOVED***} auditEventRepository.findAllByOrderByEventTimeDesc(
+                PageRequest.of(0, Math.min(limit, 500)));
+
+        List<Map<String, Object>> result ${DB_USER:***REMOVED***} new ArrayList<>();
+        for (AuditEvent e : events) {
+            Map<String, Object> map ${DB_USER:***REMOVED***} new LinkedHashMap<>();
+            map.put("id", e.getId());
+            map.put("description", e.getDescription());
+            map.put("userId", e.getUserId() !${DB_USER:***REMOVED***} null ? e.getUserId().toString() : null);
             map.put("eventTime", e.getEventTime() !${DB_USER:***REMOVED***} null ? e.getEventTime().toString() : null);
             result.add(map);
         }

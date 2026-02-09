@@ -26,7 +26,7 @@ import UsersDomainsPage from '~/pages/admin/UsersDomainsPage.tsx';
 import UsersPage from '~/pages/admin/UsersPage.tsx';
 import SystemEventsPage from '~/pages/admin/SystemEventsPage.tsx';
 import FinancesPage from '~/pages/admin/FinancesPage.tsx';
-import ZonesPage from '~/pages/auth/ZonesPage.tsx';
+import ZonesPage from '~/pages/admin/ZonesPage.tsx';
 
 const Index ${DB_USER:***REMOVED***} () ${DB_USER:***REMOVED***}> {
   return (
