@@ -2,28 +2,28 @@
 <html xmlns:th${DB_USER:***REMOVED***}"http://www.thymeleaf.org">
 <head>
     <meta charset${DB_USER:***REMOVED***}"UTF-8">
-    <title>Домены активированы</title>
+    <title>Домены продлены</title>
 </head>
 <body>
     <div style${DB_USER:***REMOVED***}"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2>Домены успешно активированы</h2>
+        <h2>Домены успешно продлены</h2>
         <p>Здравствуйте!</p>
-        <p>Ваши домены были успешно активированы и готовы к использованию.</p>
+        <p>Срок действия ваших доменов был успешно продлён.</p>
         <table th:if${DB_USER:***REMOVED***}"${domains}" style${DB_USER:***REMOVED***}"border-collapse: collapse; width: 100%; margin: 16px 0;">
             <thead>
                 <tr style${DB_USER:***REMOVED***}"background-color: #f2f2f2;">
                     <th style${DB_USER:***REMOVED***}"border: 1px solid #ddd; padding: 8px; text-align: left;">Домен</th>
-                    <th style${DB_USER:***REMOVED***}"border: 1px solid #ddd; padding: 8px; text-align: left;">Срок действия до</th>
+                    <th style${DB_USER:***REMOVED***}"border: 1px solid #ddd; padding: 8px; text-align: left;">Новый срок действия до</th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each${DB_USER:***REMOVED***}"d : ${domains}">
-                    <td style${DB_USER:***REMOVED***}"border: 1px solid #ddd; padding: 8px;" th:text${DB_USER:***REMOVED***}"${d}"></td>
-                    <td style${DB_USER:***REMOVED***}"border: 1px solid #ddd; padding: 8px;" th:text${DB_USER:***REMOVED***}"${expiresAt}"></td>
+                <tr th:each${DB_USER:***REMOVED***}"entry : ${domains}">
+                    <td style${DB_USER:***REMOVED***}"border: 1px solid #ddd; padding: 8px;" th:text${DB_USER:***REMOVED***}"${entry.key}"></td>
+                    <td style${DB_USER:***REMOVED***}"border: 1px solid #ddd; padding: 8px;" th:text${DB_USER:***REMOVED***}"${entry.value}"></td>
                 </tr>
             </tbody>
         </table>
-        <p>Теперь вы можете управлять DNS-записями доменов в личном кабинете.</p>
+        <p>Вы можете управлять DNS-записями доменов в личном кабинете.</p>
         <p>С уважением,<br>Команда Domain Registrar</p>
     </div>
 </body>

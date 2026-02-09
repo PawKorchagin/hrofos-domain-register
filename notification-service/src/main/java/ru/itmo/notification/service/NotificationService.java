@@ -38,6 +38,7 @@ public class NotificationService {
             case DOMAIN_ACTIVATED -> "Домен активирован";
             case DOMAIN_EXPIRING_SOON -> "Напоминание: срок действия домена истекает";
             case DOMAIN_EXPIRED -> "Срок действия домена истек";
+            case DOMAIN_RENEWED -> "Домены продлены";
             case EMAIL_VERIFICATION -> "Подтверждение email адреса";
         };
     }

@@ -6,5 +6,6 @@ public enum NotificationType {
     DOMAIN_ACTIVATED,
     DOMAIN_EXPIRING_SOON,
     DOMAIN_EXPIRED,
+    DOMAIN_RENEWED,
     EMAIL_VERIFICATION
 }

@@ -16,6 +16,10 @@ exdns:
     base-url: http://exdns:8000
     api-token: ${EXDNS_API_TOKEN:-changeme}
 
+services:
+  notification:
+    url: http://notification-service:8085
+
 audit:
   client:
     base-url: http://audit-service:8087
