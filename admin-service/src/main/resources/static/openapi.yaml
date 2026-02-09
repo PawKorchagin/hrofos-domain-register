@@ -1,0 +1,38 @@
+openapi: 3.0.0
+info:
+  title: Admin Service API
+  description: API сервиса администрирования
+  version: 0.1.0
+servers:
+  - url: http://localhost:8086/admin
+    description: Dev server
+
+paths:
+  /health:
+    get:
+      summary: Проверка состояния сервиса
+      description: Возвращает статус работоспособности admin-service
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Сервис работает
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "UP"

@@ -153,6 +153,20 @@ services:
     networks:
       - domain-registrar-network
 
+  admin-service:
+    build:
+      context: .
+      dockerfile: admin-service/Dockerfile
+    container_name: admin-service
+    ports:
+      - "8086:8086"
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE${DB_USER:***REMOVED***}docker
+    networks:
+      - domain-registrar-network
+
   exdns:
     build:
       context: ./exdns
