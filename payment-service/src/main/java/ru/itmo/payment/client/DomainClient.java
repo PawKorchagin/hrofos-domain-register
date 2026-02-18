@@ -14,11 +14,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class DomainClient {
 
     private static final String USER_DOMAINS_PATH ${DB_USER:***REMOVED***} "/domains/userDomains";
+    private static final String RESERVATIONS_PATH ${DB_USER:***REMOVED***} "/domains/reservations";
 
     private final RestTemplate restTemplate;
     private final DomainClientProperties properties;
@@ -104,5 +106,77 @@ public class DomainClient {
         } catch (Exception ignored) {
         }
         return responseBody;
+    }
+
+    public List<String> reserveDomains(UUID paymentId, UUID userId, List<String> l3Domains, String period, int ttlMinutes, String jwtToken) {
+        String url ${DB_USER:***REMOVED***} UriComponentsBuilder.fromHttpUrl(properties.getBaseUrl())
+                .path(RESERVATIONS_PATH)
+                .toUriString();
+
+        HttpHeaders headers ${DB_USER:***REMOVED***} new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + jwtToken);
+
+        Map<String, Object> body ${DB_USER:***REMOVED***} Map.of(
+                "paymentId", paymentId.toString(),
+                "userId", userId.toString(),
+                "l3Domains", l3Domains,
+                "period", period,
+                "ttlMinutes", ttlMinutes
+        );
+
+        try {
+            HttpEntity<Map<String, Object>> entity ${DB_USER:***REMOVED***} new HttpEntity<>(body, headers);
+            List<String> response ${DB_USER:***REMOVED***} restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    new ParameterizedTypeReference<List<String>>() {}
+            ).getBody();
+            return response !${DB_USER:***REMOVED***} null ? response : List.of();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            String errorMessage ${DB_USER:***REMOVED***} parseErrorFromBody(e.getResponseBodyAsString());
+            throw new DomainClientException("Failed to reserve domains: " + errorMessage, e);
+        }
+    }
+
+    public void confirmReservation(UUID paymentId, String jwtToken) {
+        String url ${DB_USER:***REMOVED***} UriComponentsBuilder.fromHttpUrl(properties.getBaseUrl())
+                .path(RESERVATIONS_PATH)
+                .path("/")
+                .path(paymentId.toString())
+                .path("/confirm")
+                .toUriString();
+
+        HttpHeaders headers ${DB_USER:***REMOVED***} new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + jwtToken);
+
+        try {
+            HttpEntity<Void> entity ${DB_USER:***REMOVED***} new HttpEntity<>(headers);
+            restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            String errorMessage ${DB_USER:***REMOVED***} parseErrorFromBody(e.getResponseBodyAsString());
+            throw new DomainClientException("Failed to confirm reservation: " + errorMessage, e);
+        }
+    }
+
+    public void cancelReservation(UUID paymentId, String jwtToken) {
+        String url ${DB_USER:***REMOVED***} UriComponentsBuilder.fromHttpUrl(properties.getBaseUrl())
+                .path(RESERVATIONS_PATH)
+                .path("/")
+                .path(paymentId.toString())
+                .toUriString();
+
+        HttpHeaders headers ${DB_USER:***REMOVED***} new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+
+        try {
+            HttpEntity<Void> entity ${DB_USER:***REMOVED***} new HttpEntity<>(headers);
+            restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            String errorMessage ${DB_USER:***REMOVED***} parseErrorFromBody(e.getResponseBodyAsString());
+            throw new DomainClientException("Failed to cancel reservation: " + errorMessage, e);
+        }
     }
 }
