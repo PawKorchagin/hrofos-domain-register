@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/domains/dnsRecords/**").authenticated()
                         // Users can create L3 domains
                         .requestMatchers("/domains/l3Domains/**").authenticated()
+                        .requestMatchers("/domains/reservations/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

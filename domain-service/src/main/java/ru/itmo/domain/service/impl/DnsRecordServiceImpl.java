@@ -22,6 +22,7 @@ import ru.itmo.domain.repository.BadWordRepository;
 import ru.itmo.domain.repository.DomainRepository;
 import ru.itmo.domain.repository.DnsRecordRepository;
 import ru.itmo.domain.service.DnsRecordService;
+import ru.itmo.domain.service.DomainReservationService;
 import ru.itmo.domain.util.SecurityUtil;
 
 import java.util.UUID;
@@ -48,6 +49,7 @@ public class DnsRecordServiceImpl implements DnsRecordService {
 
     private final DomainRepository domainRepository;
     private final DnsRecordRepository dnsRecordRepository;
+    private final DomainReservationService domainReservationService;
     private final BadWordRepository badWordRepository;
     private final ExdnsClient exdnsClient;
     private final ObjectMapper objectMapper;
@@ -56,12 +58,14 @@ public class DnsRecordServiceImpl implements DnsRecordService {
                                 DnsRecordRepository dnsRecordRepository,
                                 BadWordRepository badWordRepository,
                                 ExdnsClient exdnsClient,
-                                ObjectMapper objectMapper) {
+                                ObjectMapper objectMapper,
+                                DomainReservationService domainReservationService) {
         this.domainRepository ${DB_USER:***REMOVED***} domainRepository;
         this.dnsRecordRepository ${DB_USER:***REMOVED***} dnsRecordRepository;
         this.badWordRepository ${DB_USER:***REMOVED***} badWordRepository;
         this.exdnsClient ${DB_USER:***REMOVED***} exdnsClient;
         this.objectMapper ${DB_USER:***REMOVED***} objectMapper;
+        this.domainReservationService ${DB_USER:***REMOVED***} domainReservationService;
     }
 
     @Override
@@ -224,6 +228,7 @@ public class DnsRecordServiceImpl implements DnsRecordService {
         return domainRepository.findAllByParentIsNull().stream()
                 .filter(l2 -> !domainRepository.existsByParentIdAndDomainPart(l2.getId(), l3Part))
                 .map(l2 -> l3Part + "." + l2.getDomainPart())
+                .filter(fqdn -> !domainReservationService.isDomainReserved(fqdn))
                 .collect(Collectors.toList());
     }
 
