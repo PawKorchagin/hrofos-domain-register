@@ -1,6 +1,7 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
+ENV GRADLE_OPTS${DB_USER:***REMOVED***}"-Dhttps.protocols${DB_USER:***REMOVED***}TLSv1.2,TLSv1.3 -Dorg.gradle.jvmargs${DB_USER:***REMOVED***}-Xmx1g"
 COPY build.gradle.kts settings.gradle.kts ./
 COPY api-gateway/build.gradle.kts ./api-gateway/
 COPY common/build.gradle.kts ./common/
