@@ -78,70 +78,70 @@ domain-service/
 
 ## Конфигурация
 
-| Параметр | Описание | По умолчанию |
-|----------|----------|--------------|
-| `server.port` | Порт сервиса | 8082 |
-| `JWT_SECRET` | Ключ для подписи JWT токенов | - |
-| `EXDNS_API_TOKEN` | Токен для внешнего DNS API | changeme |
-| `EXDNS_BASE_URL` | Базовый URL внешнего DNS | http://localhost:8000 |
-| `NOTIFICATION_SERVICE_URL` | Базовый URL notification-service | http://localhost:8085 |
-| `AUDIT_SERVICE_URL` | Базовый URL audit-service | http://localhost:8087 |
-| `DOMAIN_RESERVATION_TTL_MINUTES` | Время жизни бронирования | 15 |
+| Параметр                         | Описание                         | По умолчанию          |
+|----------------------------------|----------------------------------|-----------------------|
+| `server.port`                    | Порт сервиса                     | 8082                  |
+| `JWT_SECRET`                     | Ключ для подписи JWT токенов     | -                     |
+| `EXDNS_API_TOKEN`                | Токен для внешнего DNS API       | changeme              |
+| `EXDNS_BASE_URL`                 | Базовый URL внешнего DNS         | http://localhost:8000 |
+| `NOTIFICATION_SERVICE_URL`       | Базовый URL notification-service | http://localhost:8085 |
+| `AUDIT_SERVICE_URL`              | Базовый URL audit-service        | http://localhost:8087 |
+| `DOMAIN_RESERVATION_TTL_MINUTES` | Время жизни бронирования         | 15                    |
 
 ## API Endpoints
 
 ### L2 Домены
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| GET | `/domains/l2Domains` | Получить все L2 домены | Нет |
-| POST | `/domains/l2Domains` | Создать L2 домен (зону) | ADMIN |
-| DELETE | `/domains/l2Domains/{l2Domain}` | Удалить L2 домен | ADMIN |
-| POST | `/domains/l2Domains/{l2Domain}` | Создать DNS запись для L2 | ADMIN |
-| GET | `/domains/l2Domains/{l2Domain}` | Получить DNS записи L2 домена | ADMIN |
+| Метод  | Эндпоинт                        | Описание                      | Требуется роль |
+|--------|---------------------------------|-------------------------------|----------------|
+| GET    | `/domains/l2Domains`            | Получить все L2 домены        | Нет            |
+| POST   | `/domains/l2Domains`            | Создать L2 домен (зону)       | ADMIN          |
+| DELETE | `/domains/l2Domains/{l2Domain}` | Удалить L2 домен              | ADMIN          |
+| POST   | `/domains/l2Domains/{l2Domain}` | Создать DNS запись для L2     | ADMIN          |
+| GET    | `/domains/l2Domains/{l2Domain}` | Получить DNS записи L2 домена | ADMIN          |
 
 ### L3 Домены
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| POST | `/domains/l3Domains/{l3Domain}` | Создать L3 домен с DNS записью | Authenticated |
-| GET | `/domains/l3Domains/{l3Domain}/dnsRecords` | Получить DNS записи L3 домена | Authenticated (только свои) |
-| POST | `/domains/l3Domains/{l3Domain}/ns` | Создать NS запись для L3 | Authenticated |
-| GET | `/domains/l3Domains/{name}/free` | Получить свободные L3 домены | Нет |
+| Метод | Эндпоинт                                   | Описание                       | Требуется роль              |
+|-------|--------------------------------------------|--------------------------------|-----------------------------|
+| POST  | `/domains/l3Domains/{l3Domain}`            | Создать L3 домен с DNS записью | Authenticated               |
+| GET   | `/domains/l3Domains/{l3Domain}/dnsRecords` | Получить DNS записи L3 домена  | Authenticated (только свои) |
+| POST  | `/domains/l3Domains/{l3Domain}/ns`         | Создать NS запись для L3       | Authenticated               |
+| GET   | `/domains/l3Domains/{name}/free`           | Получить свободные L3 домены   | Нет                         |
 
 ### Домены пользователя
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| GET | `/domains/userDomains` | Получить L3 домены пользователя | Authenticated |
-| POST | `/domains/userDomains` | Создать L3 домены для пользователя | Authenticated |
-| POST | `/domains/userDomains/renew` | Продлить L3 домены | Authenticated |
-| GET | `/domains/userDomains/detailed` | Детальная информация о доменах | Authenticated |
-| DELETE | `/domains/userDomains/expired` | Удалить истёкшие домены | ADMIN |
-| GET | `/domains/userDomains/expiring?days${DB_USER:***REMOVED***}N` | Домены, истекающие через N дней | ADMIN |
+| Метод  | Эндпоинт                                                      | Описание                           | Требуется роль |
+|--------|---------------------------------------------------------------|------------------------------------|----------------|
+| GET    | `/domains/userDomains`                                        | Получить L3 домены пользователя    | Authenticated  |
+| POST   | `/domains/userDomains`                                        | Создать L3 домены для пользователя | Authenticated  |
+| POST   | `/domains/userDomains/renew`                                  | Продлить L3 домены                 | Authenticated  |
+| GET    | `/domains/userDomains/detailed`                               | Детальная информация о доменах     | Authenticated  |
+| DELETE | `/domains/userDomains/expired`                                | Удалить истёкшие домены            | ADMIN          |
+| GET    | `/domains/userDomains/expiring?days${DB_USER:***REMOVED***}N` | Домены, истекающие через N дней    | ADMIN          |
 
 ### DNS Записи
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| GET | `/domains/dnsRecords/{id}` | Получить DNS запись по ID | ADMIN |
-| PUT | `/domains/dnsRecords/{id}` | Обновить DNS запись | Authenticated (только свои) |
-| DELETE | `/domains/dnsRecords/{id}` | Удалить DNS запись | Authenticated (только свои) |
+| Метод  | Эндпоинт                   | Описание                  | Требуется роль              |
+|--------|----------------------------|---------------------------|-----------------------------|
+| GET    | `/domains/dnsRecords/{id}` | Получить DNS запись по ID | ADMIN                       |
+| PUT    | `/domains/dnsRecords/{id}` | Обновить DNS запись       | Authenticated (только свои) |
+| DELETE | `/domains/dnsRecords/{id}` | Удалить DNS запись        | Authenticated (только свои) |
 
 ### Бронирование доменов
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| POST | `/domains/reservations` | Забронировать домены на время оплаты | Authenticated |
-| POST | `/domains/reservations/{paymentId}/confirm` | Подтвердить бронь (после оплаты) | Authenticated |
-| DELETE | `/domains/reservations/{paymentId}` | Отменить бронь | Authenticated |
-| POST | `/domains/reservations/cleanup` | Очистить истёкшие брони | Authenticated |
+| Метод  | Эндпоинт                                    | Описание                             | Требуется роль |
+|--------|---------------------------------------------|--------------------------------------|----------------|
+| POST   | `/domains/reservations`                     | Забронировать домены на время оплаты | Authenticated  |
+| POST   | `/domains/reservations/{paymentId}/confirm` | Подтвердить бронь (после оплаты)     | Authenticated  |
+| DELETE | `/domains/reservations/{paymentId}`         | Отменить бронь                       | Authenticated  |
+| POST   | `/domains/reservations/cleanup`             | Очистить истёкшие брони              | Authenticated  |
 
 ### Статистика
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| GET | `/domains/stats` | Получить статистику доменов | ADMIN |
+| Метод | Эндпоинт         | Описание                    | Требуется роль |
+|-------|------------------|-----------------------------|----------------|
+| GET   | `/domains/stats` | Получить статистику доменов | ADMIN          |
 
 ## Диаграммы
 
@@ -350,36 +350,68 @@ sequenceDiagram
 ### BPMN Diagram — Общий поток регистрации домена
 
 ```mermaid
-flowchart TD
-    Start([Начало]) --> Auth[Проверить JWT токен]
+flowchart TB
+    subgraph UserLane["         Пользователь"]
+        Start([Начало])
+        Return401([401 Unauthorized])
+        Return404([404 Not Found<br/>L2 не найден])
+        Return409([409 Conflict<br/>Домен занят])
+        Return400([400 Bad Request<br/>Запрещённое слово])
+        Return200([200 OK<br/>Домен зарегистрирован])
+        End([Конец])
+    end
 
-    Auth --> IsValid{Токен<br/>валидный?}
-    IsValid -- Нет --> Return401([401 Unauthorized])
-    IsValid -- Да --> ExtractUser[Извлечь userId и роли]
+    subgraph DomainLane["         domain-service"]
+        Auth[Проверить JWT токен]
+        IsValid{Токен<br/>валидный?}
+        ExtractUser[Извлечь userId и роли]
+        ParseDomain[Распарсить L3 домен<br/>выделить L2]
+        FindL2[Найти L2 домен в БД]
+        L2Exists{L2<br/>существует?}
+        CheckDuplicate{Домен уже<br/>занят?}
+        CheckBad{Содержит<br/>запрещённое слово?}
+        CreateL3[Создать L3 домен в БД<br/>userId, activatedAt, finishedAt]
+        SetPeriod[Установить период<br/>MONTH или YEAR]
+        SaveDomain[Сохранить в БД]
+    end
 
-    ExtractUser --> ParseDomain[Распарсить L3 домен<br/>выделить L2]
-    ParseDomain --> FindL2[Найти L2 домен в БД]
+    subgraph AuditLane["         audit-service"]
+        Audit[Лог: домены созданы]
+    end
 
-    FindL2 --> L2Exists{L2<br/>существует?}
-    L2Exists -- Нет --> Return404([404 Not Found<br/>L2 не найден])
-    L2Exists -- Да --> CheckDuplicate{Домен уже<br/>занят?}
+    subgraph NotifLane["         notification-service"]
+        Notif[Уведомление: домены активированы]
+    end
 
-    CheckDuplicate -- Да --> Return409([409 Conflict<br/>Домен занят])
-    CheckDuplicate -- Нет --> CheckBad{Содержит<br/>запрещённое слово?}
+    Start --> Auth
 
-    CheckBad -- Да --> Return400([400 Bad Request<br/>Запрещённое слово])
-    CheckBad -- Нет --> CreateL3[Создать L3 домен в БД<br/>userId, activatedAt, finishedAt]
+    Auth --> IsValid
+    IsValid -- Нет --> Return401
+    IsValid -- Да --> ExtractUser
 
-    CreateL3 --> SetPeriod[Установить период<br/>MONTH или YEAR]
-    SetPeriod --> SaveDomain[Сохранить в БД]
+    ExtractUser --> ParseDomain
+    ParseDomain --> FindL2
 
-    SaveDomain --> Audit[Лог: домены созданы]
-    Audit --> Notif[Уведомление: домены активированы]
+    FindL2 --> L2Exists
+    L2Exists -- Нет --> Return404
+    L2Exists -- Да --> CheckDuplicate
 
-    Notif --> Return200([200 OK<br/>Домен зарегистрирован])
+    CheckDuplicate -- Да --> Return409
+    CheckDuplicate -- Нет --> CheckBad
+
+    CheckBad -- Да --> Return400
+    CheckBad -- Нет --> CreateL3
+
+    CreateL3 --> SetPeriod
+    SetPeriod --> SaveDomain
+
+    SaveDomain --> Audit
+    Audit --> Notif
+
+    Notif --> Return200
 
     Start -.-> Return401
-    Return401 -.-> End([Конец])
+    Return401 -.-> End
     Return404 -.-> End
     Return409 -.-> End
     Return400 -.-> End
@@ -397,29 +429,52 @@ flowchart TD
 ### BPMN Diagram — Процесс синхронизации DNS с внешним сервером
 
 ```mermaid
-flowchart TD
-    Start([Запрос DNS операции]) --> ExtractL2[Получить L2 домен<br/>из L3 или напрямую]
+flowchart TB
+    subgraph DomainLane["         domain-service"]
+        Start([Запрос DNS операции])
+        ExtractL2[Получить L2 домен<br/>из L3 или напрямую]
+        GetZone[Получить текущую зону]
+        GetAllRecords[Получить все записи<br/>из БД]
+        BuildZone[Собрать zoneBody<br/>увеличить версию]
+        UpdateVersion[Обновить версию в БД]
+    end
 
-    ExtractL2 --> GetZone[Получить текущую зону]
-    GetZone --> ZoneExists{Зона существует<br/>в DNS?}
+    subgraph DnsLane["         Внешний DNS"]
+        ZoneExists{Зона существует<br/>в DNS?}
+        CreateZone[Создать новую зону]
+        ReplaceZone[Обновить зону]
+        SyncSuccess{Синхронизация<br/>успешна?}
+    end
 
-    ZoneExists -- Нет --> CreateZone[Создать новую зону]
-    ZoneExists -- Да --> GetAllRecords[Получить все записи<br/>из БД]
+    subgraph ErrorLane["         Ошибки"]
+        Return502([502 Bad Gateway<br/>Ошибка DNS])
+        Return200([200 OK<br/>DNS синхронизирован])
+        End([Конец])
+    end
+
+    Start --> ExtractL2
+
+    ExtractL2 --> GetZone
+    GetZone --> ZoneExists
+
+    ZoneExists -- Нет --> CreateZone
+    ZoneExists -- Да --> GetAllRecords
 
     CreateZone --> GetAllRecords
 
-    GetAllRecords --> BuildZone[Собрать zoneBody<br/>увеличить версию]
+    GetAllRecords --> BuildZone
 
-    BuildZone --> ReplaceZone[Обновить зону]
-    ReplaceZone --> SyncSuccess{Синхронизация<br/>успешна?}
+    BuildZone --> ReplaceZone
 
-    SyncSuccess -- Нет --> Return502([502 Bad Gateway<br/>Ошибка DNS])
-    SyncSuccess -- Да --> UpdateVersion[Обновить версию в БД]
+    ReplaceZone --> SyncSuccess
 
-    UpdateVersion --> Return200([200 OK<br/>DNS синхронизирован])
+    SyncSuccess -- Нет --> Return502
+    SyncSuccess -- Да --> UpdateVersion
+
+    UpdateVersion --> Return200
 
     Start -.-> Return502
-    Return502 -.-> End([Конец])
+    Return502 -.-> End
     Return200 -.-> End
 
     style Start fill:#e1f5e1
@@ -432,26 +487,26 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph Frontend["Frontend"]
+    subgraph FrontendLane["         Frontend"]
         Client[React App]
     end
 
-    subgraph Gateway["API Gateway :8080"]
+    subgraph GatewayLane["         API Gateway"]
         Router[Маршрутизация<br/>StripPrefix 1]
     end
 
-    subgraph Domain["domain-service :8082"]
+    subgraph DomainLane["         domain-service"]
         Filter[JwtAuthenticationFilter]
         Controllers[Controllers]
         Services[Services]
         Repositories[Repositories]
     end
 
-    subgraph External["Внешние сервисы"]
+    subgraph ExternalLane["         Внешние сервисы"]
         DB[(PostgreSQL)]
-        Exdns[exdns :8000]
-        Notif[notification-service :8085]
-        Audit[audit-service :8087]
+        Exdns[exdns]
+        Notif[notification-service]
+        Audit[audit-service]
     end
 
     Client -->|Request: /api/domains/*| Router
@@ -469,49 +524,86 @@ flowchart LR
     Controllers -.-> Router
     Router -.-> Client
 
-    style Gateway fill:#e3f2fd
-    style Domain fill:#4caf50,color:#fff
+    style GatewayLane fill:#e3f2fd
+    style DomainLane fill:#4caf50,color:#fff
     style DB fill:#ff9800,color:#fff
-    style External fill:#fff3e0
+    style ExternalLane fill:#fff3e0
 ```
 
 ### BPMN Diagram — Бронирование и оплата домена
 
 ```mermaid
-flowchart TD
-    Start([Начало оплаты]) --> ReserveRequest[POST /domains/reservations<br/>paymentId, userId, domains]
+flowchart TB
+    subgraph DomainLane["         domain-service"]
+        Start([Начало оплаты])
+        ReserveRequest[POST /domains/reservations<br/>paymentId, userId, domains]
+        CheckL2[Проверить существование L2]
+        L2Valid{Все L2<br/>существуют?}
+        CheckOwned{Домены уже<br/>заняты?}
+        CheckReservation{Есть активные<br/>брони?}
+        CreateReservation[Создать бронь<br/>expiresAt = now + TTL]
+    end
 
-    ReserveRequest --> CheckL2[Проверить существование L2]
-    CheckL2 --> L2Valid{Все L2<br/>существуют?}
-    L2Valid -- Нет --> Return404([404 Not Found<br/>L2 не найден])
+    subgraph PaymentLane["         payment-service"]
+        Payment[Обработка платежа]
+        PaymentResult{Результат<br/>оплаты}
+    end
 
-    L2Valid -- Да --> CheckOwned{Домены уже<br/>заняты?}
-    CheckOwned -- Да --> Return409([409 Conflict<br/>Домен занят])
+    subgraph SuccessLane["         Успех"]
+        Confirm[Подтвердить бронь]
+        DeleteReservation[Удалить бронь]
+        CreateDomains[Создать домены в БД]
+        AuditCreate[Лог: домены созданы]
+        NotifCreate[Уведомление отправлено]
+        PaymentSuccess([Успех<br/>домены созданы])
+    end
 
-    CheckOwned -- Нет --> CheckReservation{Есть активные<br/>брони?}
-    CheckReservation -- Да --> Return409([409 Conflict<br/>Домен забронирован])
+    subgraph CancelLane["         Отмена"]
+        Cancel[Отменить бронь]
+        DeleteReservation2[Удалить бронь]
+        PaymentFailed([Отмена<br/>бронь снята])
+    end
 
-    CheckReservation -- Нет --> CreateReservation[Создать бронь<br/>expiresAt ${DB_USER:***REMOVED***} now + TTL]
+    subgraph ErrorLane["         Ошибки"]
+        Return404([404 Not Found<br/>L2 не найден])
+        Return409([409 Conflict<br/>Домен занят/забронирован])
+        Return202([202 Accepted<br/>Домены забронированы])
+        End([Конец])
+    end
 
-    CreateReservation --> Return202([202 Accepted<br/>Домены забронированы])
+    Start --> ReserveRequest
 
-    Return202 --> Payment[Обработка платежа]
+    ReserveRequest --> CheckL2
+    CheckL2 --> L2Valid
+    L2Valid -- Нет --> Return404
 
-    Payment --> PaymentResult{Результат<br/>оплаты}
+    L2Valid -- Да --> CheckOwned
+    CheckOwned -- Да --> Return409
 
-    PaymentResult -- Успех --> Confirm[Подтвердить бронь]
-    Confirm --> DeleteReservation[Удалить бронь]
-    DeleteReservation --> CreateDomains[Создать домены в БД]
-    CreateDomains --> AuditCreate[Лог: домены созданы]
-    AuditCreate --> NotifCreate[Уведомление отправлено]
-    NotifCreate --> PaymentSuccess([Успех<br/>домены созданы])
+    CheckOwned -- Нет --> CheckReservation
+    CheckReservation -- Да --> Return409
 
-    PaymentResult -- Отмена --> Cancel[Отменить бронь]
-    Cancel --> DeleteReservation2[Удалить бронь]
-    DeleteReservation2 --> PaymentFailed([Отмена<br/>бронь снята])
+    CheckReservation -- Нет --> CreateReservation
+
+    CreateReservation --> Return202
+
+    Return202 --> Payment
+
+    Payment --> PaymentResult
+
+    PaymentResult -- Успех --> Confirm
+    Confirm --> DeleteReservation
+    DeleteReservation --> CreateDomains
+    CreateDomains --> AuditCreate
+    AuditCreate --> NotifCreate
+    NotifCreate --> PaymentSuccess
+
+    PaymentResult -- Отмена --> Cancel
+    Cancel --> DeleteReservation2
+    DeleteReservation2 --> PaymentFailed
 
     Start -.-> Return404
-    Return404 -.-> End([Конец])
+    Return404 -.-> End
     Return409 -.-> End
     PaymentSuccess -.-> End
     PaymentFailed -.-> End

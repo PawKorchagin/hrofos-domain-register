@@ -51,20 +51,20 @@ Hrofos domain register — это распределённая система и
 
 ### Сервисы
 
-| Сервис | Порт | Описание |
-|--------|------|----------|
-| frontend | 3000 | React клиентское приложение |
-| api-gateway | 8080 | Единая точка входа, маршрутизация |
-| auth-service | 8081 | Аутентификация, пользователи, 2FA |
-| domain-service | 8082 | Управление доменами и DNS |
-| payment-service | 8083 | Обработка платежей (YooKassa) |
-| order-service | 8084 | Корзина и оформление заказов |
-| notification-service | 8085 | Отправка email уведомлений |
-| admin-service | 8086 | Административные отчёты |
-| audit-service | 8087 | Аудит действий пользователей |
-| scheduler-service | 8088 | Планировщик задач |
-| exdns (HTTP) | 8000 | HTTP API DNS сервера |
-| exdns (DNS) | 5353 | UDP/TCP DNS сервер |
+| Сервис               | Порт | Описание                          |
+|----------------------|------|-----------------------------------|
+| frontend             | 3000 | React клиентское приложение       |
+| api-gateway          | 8080 | Единая точка входа, маршрутизация |
+| auth-service         | 8081 | Аутентификация, пользователи, 2FA |
+| domain-service       | 8082 | Управление доменами и DNS         |
+| payment-service      | 8083 | Обработка платежей (YooKassa)     |
+| order-service        | 8084 | Корзина и оформление заказов      |
+| notification-service | 8085 | Отправка email уведомлений        |
+| admin-service        | 8086 | Административные отчёты           |
+| audit-service        | 8087 | Аудит действий пользователей      |
+| scheduler-service    | 8088 | Планировщик задач                 |
+| exdns (HTTP)         | 8000 | HTTP API DNS сервера              |
+| exdns (DNS)          | 5353 | UDP/TCP DNS сервер                |
 
 ## Диаграммы
 
@@ -341,46 +341,88 @@ sequenceDiagram
 ### BPMN Diagram — Полный флоу регистрации домена
 
 ```mermaid
-flowchart TD
-    Start([Начало]) --> RegOrLogin{Зарегистрирован?}
+flowchart TB
+    subgraph UserLane["         Пользователь"]
+        Start([Начало])
+        WaitVerify[Ожидание клика в email]
+        AddToCart[Добавить домены в корзину]
+        Checkout[Оформить заказ<br/>Выбор периода]
+        Success([Домен активирован])
+        Fail([Домен не зарегистрирован])
+        End([Конец])
+    end
 
-    RegOrLogin -- Нет --> Register[Зарегистрироваться]
-    Register --> RegSuccess[Пользователь создан]
-    RegSuccess --> VerifyEmail[Подтвердить email]
-    VerifyEmail --> EmailVerified{Email<br/>подтверждён?}
+    subgraph AuthLane["         auth-service"]
+        Register[Зарегистрироваться]
+        RegSuccess[Пользователь создан]
+        VerifyEmail[Подтвердить email]
+        EmailVerified{Email<br/>подтверждён?}
+        Login[Войти в систему]
+        GetToken[Получить JWT токены]
+    end
 
-    EmailVerified -- Нет --> WaitVerify[Ожидание клика в email]
+    subgraph OrderLane["         order-service"]
+        Calculate[Рассчитать стоимость]
+    end
+
+    subgraph PaymentLane["         payment-service"]
+        CreatePayment[Создать платёж]
+        Reserve[Забронировать домены]
+        UserPay{Оплата<br/>успешна?}
+    end
+
+    subgraph DomainLane["         domain-service"]
+        Confirm[Подтвердить бронь]
+        CreateDomains[Создать домены в БД]
+        SyncDNS[Синхронизировать DNS]
+        CancelReserve[Отменить бронь]
+    end
+
+    subgraph NotifLane["         notification-service"]
+        Notify[Отправить уведомления]
+    end
+
+    subgraph AuditLane["         audit-service"]
+        AuditLog[Записать в аудит]
+    end
+
+    Start --> RegOrLogin{Зарегистрирован?}
+
+    RegOrLogin -- Нет --> Register
+    Register --> RegSuccess
+    RegSuccess --> VerifyEmail
+    VerifyEmail --> EmailVerified
+
+    EmailVerified -- Нет --> WaitVerify
     WaitVerify --> EmailVerified
 
-    EmailVerified -- Да --> Login[Войти в систему]
+    EmailVerified -- Да --> Login
     RegOrLogin -- Да --> Login
 
-    Login --> GetToken[Получить JWT токены]
-    GetToken --> AddToCart[Добавить домены в корзину]
+    Login --> GetToken
+    GetToken --> AddToCart
 
-    AddToCart --> Checkout[Оформить заказ<br/>Выбор периода]
+    AddToCart --> Checkout
+    Checkout --> Calculate
+    Calculate --> CreatePayment
+    CreatePayment --> Reserve
 
-    Checkout --> Calculate[Рассчитать стоимость]
-    Calculate --> CreatePayment[Создать платёж]
+    Reserve --> UserPay
 
-    CreatePayment --> Reserve[Забронировать домены]
+    UserPay -- Да --> Confirm
+    Confirm --> CreateDomains
+    CreateDomains --> SyncDNS
 
-    Reserve --> UserPay{Оплата<br/>успешна?}
+    SyncDNS --> Notify
+    Notify --> AuditLog
 
-    UserPay -- Да --> Confirm[Подтвердить бронь]
-    Confirm --> CreateDomains[Создать домены в БД]
-    CreateDomains --> SyncDNS[Синхронизировать DNS]
+    AuditLog --> Success
 
-    SyncDNS --> Notify[Отправить уведомления]
-    Notify --> AuditLog[Записать в аудит]
-
-    AuditLog --> Success([Домен активирован])
-
-    UserPay -- Нет --> CancelReserve[Отменить бронь]
-    CancelReserve --> Fail([Домен не зарегистрирован])
+    UserPay -- Нет --> CancelReserve
+    CancelReserve --> Fail
 
     Start -.-> Fail
-    Fail -.-> End([Конец])
+    Fail -.-> End
     Success -.-> End
 
     style Start fill:#e1f5e1
@@ -393,34 +435,34 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph Frontend["Frontend :3000"]
+    subgraph FrontendLane["         Frontend"]
         Client[React/браузер]
     end
 
-    subgraph Gateway["API Gateway :8080"]
+    subgraph GatewayLane["         API Gateway"]
         Router[Маршрутизатор]
         Cors[CORS фильтр]
         RLim[Ограничение запросов]
     end
 
-    subgraph Services["Микросервисы"]
-        Auth[auth-service :8081<br/>Аутентификация]
-        Domain[domain-service :8082<br/>Домены и DNS]
-        Payment[payment-service :8083<br/>Платежи]
-        Order[order-service :8084<br/>Корзина и заказы]
-        Notif[notification-service :8085<br/>Email уведомления]
-        Admin[admin-service :8086<br/>Отчёты]
-        Audit[audit-service :8087<br/>Аудит логи]
-        Scheduler[scheduler-service :8088<br/>Задачи]
+    subgraph ServicesLane["         Микросервисы"]
+        Auth[auth-service<br/>Аутентификация]
+        Domain[domain-service<br/>Домены и DNS]
+        Payment[payment-service<br/>Платежи]
+        Order[order-service<br/>Корзина и заказы]
+        Notif[notification-service<br/>Email уведомления]
+        Admin[admin-service<br/>Отчёты]
+        Audit[audit-service<br/>Аудит логи]
+        Scheduler[scheduler-service<br/>Задачи]
     end
 
-    subgraph External["Внешние сервисы"]
-        Exdns[exdns :8000<br/>DNS сервер]
+    subgraph ExternalLane["         Внешние сервисы"]
+        Exdns[exdns<br/>DNS сервер]
         SMTP[SMTP<br/>Yandex Postbox]
         YooKassa[YooKassa API]
     end
 
-    subgraph DB["Базы данных PostgreSQL"]
+    subgraph DBLane["         Базы данных PostgreSQL"]
         AuthDB[(auth_db)]
         DomainDB[(domain_db)]
         PaymentDB[(payment_db)]
@@ -472,57 +514,86 @@ flowchart LR
 
     Audit <--> AuditDB
 
-    style Gateway fill:#e3f2fd
-    style Frontend fill:#f5f5f5
-    style External fill:#fff3e0
-    style DB fill:#e8f5e9
+    style GatewayLane fill:#e3f2fd
+    style FrontendLane fill:#f5f5f5
+    style ExternalLane fill:#fff3e0
+    style DBLane fill:#e8f5e9
 ```
 
 ### BPMN Diagram — Аутентификация и авторизация
 
 ```mermaid
-flowchart TD
-    Start([Запрос к API]) --> HasToken{Передан<br/>Authorization<br/>Bearer?}
+flowchart TB
+    subgraph ClientLane["         Клиент"]
+        Start([Запрос к API])
+        Return401([401 Unauthorized])
+        Return403([403 Forbidden])
+        Return200([200 OK])
+        End([Конец])
+    end
 
-    HasToken -- Нет --> Return401([401 Unauthorized])
-    HasToken -- Да --> JwtFilter[JWT фильтр]
+    subgraph SecurityLane["         Безопасность"]
+        HasToken{Передан<br/>Authorization<br/>Bearer?}
+        JwtFilter[JWT фильтр]
+        Validate[Проверить токен]
+        IsValid{Токен<br/>валидный?}
+        ExtractClaims[Извлечь userId,<br/>email, isAdmin]
+        CreateAuth[Создать аутентификацию<br/>ROLE_USER + ROLE_ADMIN?]
+        SecurityCtx[Установить в контекст]
+        IsPublic{Публичный<br/>эндпоинт?}
+        IsAuthenticated{Требуется<br/>аутентификация?}
+        HasAdmin{Требуется<br/>роль ADMIN?}
+        CheckAdmin{Пользователь<br/>ADMIN?}
+        PassFilter[Разрешить доступ]
+    end
 
-    JwtFilter --> Validate[Проверить токен]
-    Validate --> IsValid{Токен<br/>валидный?}
+    subgraph ServiceLane["         Сервис"]
+        Service[Вызвать сервис]
+        GetUserId[Получить userId]
+        BusinessLogic[Выполнить бизнес-логику]
+    end
 
+    subgraph AuditLane["         audit-service"]
+        AuditLog[Записать в аудит]
+    end
+
+    Start --> HasToken
+
+    HasToken -- Нет --> Return401
+    HasToken -- Да --> JwtFilter
+
+    JwtFilter --> Validate
+    Validate --> IsValid
     IsValid -- Нет --> Return401
-    IsValid -- Да --> ExtractClaims[Извлечь userId,<br/>email, isAdmin]
+    IsValid -- Да --> ExtractClaims
 
-    ExtractClaims --> CreateAuth[Создать аутентификацию<br/>ROLE_USER + ROLE_ADMIN?]
+    ExtractClaims --> CreateAuth
+    CreateAuth --> SecurityCtx
 
-    CreateAuth --> SecurityCtx[Установить в контекст]
+    SecurityCtx --> IsPublic
 
-    SecurityCtx --> SecurityConfig[Проверить права доступа]
+    IsPublic -- Да --> PassFilter
+    PassFilter --> Service
 
-    SecurityConfig --> IsPublic{Публичный<br/>эндпоинт?}
-
-    IsPublic -- Да --> PassFilter[Разрешить доступ]
-    PassFilter --> Service[Вызвать сервис]
-
-    IsPublic -- Нет --> IsAuthenticated{Требуется<br/>аутентификация?}
+    IsPublic -- Нет --> IsAuthenticated
 
     IsAuthenticated -- Нет --> Service
-    IsAuthenticated -- Да --> HasAdmin{Требуется<br/>роль ADMIN?}
+    IsAuthenticated -- Да --> HasAdmin
 
     HasAdmin -- Нет --> Service
-    HasAdmin -- Да --> CheckAdmin{Пользователь<br/>ADMIN?}
+    HasAdmin -- Да --> CheckAdmin
 
-    CheckAdmin -- Нет --> Return403([403 Forbidden])
+    CheckAdmin -- Нет --> Return403
     CheckAdmin -- Да --> Service
 
-    Service --> GetUserId[Получить userId]
-    GetUserId --> BusinessLogic[Выполнить бизнес-логику]
-    BusinessLogic --> AuditLog[Записать в аудит]
+    Service --> GetUserId
+    GetUserId --> BusinessLogic
+    BusinessLogic --> AuditLog
 
-    AuditLog --> Return200([200 OK])
+    AuditLog --> Return200
 
     Start -.-> Return401
-    Return401 -.-> End([Конец])
+    Return401 -.-> End
     Return403 -.-> End
     Return200 -.-> End
 
@@ -536,35 +607,70 @@ flowchart TD
 ### BPMN Diagram — Жизненный цикл домена
 
 ```mermaid
-flowchart TD
-    Start([Свободен]) --> InCart[В корзине<br/>order-service]
+flowchart TB
+    subgraph OrderLane["         order-service"]
+        InCart[В корзине]
+        Checkout[Оформление заказа]
+    end
 
-    InCart --> Checkout[Оформление заказа]
-    Checkout --> Reserved[Забронирован<br/>domain-service<br/>TTL: 15 мин]
+    subgraph DomainLane["         domain-service"]
+        Start([Свободен])
+        Cancel[Отмена брони]
+        Active([Активен])
+        Reserved[Забронирован<br/>TTL: 15 мин]
+        Renewed[Продлён<br/>finishedAt + period]
+        Expired[Истёк<br/>finishedAt < now]
+    end
 
-    Reserved --> Payment{Оплата<br/>успешна?}
+    subgraph PaymentLane["         payment-service"]
+        Payment{Оплата<br/>успешна?}
+    end
 
-    Payment -- Да --> Active[Активен<br/>userId, activatedAt,<br/>finishedAt]
-    Payment -- Нет --> Cancel[Отмена брони]
+    subgraph NotifLane["         notification-service"]
+        Reminder[Напоминание]
+    end
+
+    subgraph SchedulerLane["         scheduler-service"]
+        Cleanup[Удалить истёкшие]
+    end
+
+    subgraph UserLane["         Пользователь"]
+    Renew{Пользователь<br/>продлевает?}
+    RenewCheck{Продлён до<br/>истечения?}
+        Delete{Админ<br/>удаляет?}
+        Deleted[Удалён]
+        End([Конец])
+    end
+
+    Start --> InCart
+    InCart --> Checkout
+    Checkout --> Reserved
+
+    Reserved --> Payment
+
+    Payment -- Да --> Active
+    Payment -- Нет --> Cancel
     Cancel --> Start
 
-    Active --> Renew{Пользователь<br/>продлевает?}
-    Renew -- Да --> Renewed[Продлён<br/>finishedAt +${DB_USER:***REMOVED***} period]
+    Active --> Renew
+
+    Renew -- Да --> Renewed
     Renewed --> Active
 
     Active --> Expiring{Истекает<br/>через 7 дней?}
-    Expiring -- Да --> Reminder[Напоминание<br/>notification-service]
-    Reminder --> RenewCheck{Продлён до<br/>истечения?}
+
+    Expiring -- Да --> Reminder
+    Reminder --> RenewCheck
 
     RenewCheck -- Да --> Active
-    RenewCheck -- Нет --> Expired[Истёк<br/>finishedAt < now]
+    RenewCheck -- Нет --> Expired
 
-    Expired --> Cleanup[Удалить<br/>scheduler-service]
+    Expired --> Cleanup
     Cleanup --> Start
 
-    Active --> Delete{Админ<br/>удаляет?}
-    Delete -- Да --> Deleted[Удалён]
-    Deleted --> End([Конец])
+    Active --> Delete
+    Delete -- Да --> Deleted
+    Deleted --> End
 
     Start -.-> End
 
@@ -580,10 +686,10 @@ flowchart TD
 
 ### Типы токенов
 
-| Тип | Срок действия | Хранение | Назначение |
-|-----|---------------|----------|------------|
-| Access Token | 15 минут | Клиент (localStorage/cookie) | Доступ к защищённым эндпоинтам |
-| Refresh Token | 30 дней | База данных (refresh_token) | Получение нового access token |
+| Тип           | Срок действия | Хранение                     | Назначение                     |
+|---------------|---------------|------------------------------|--------------------------------|
+| Access Token  | 15 минут      | Клиент (localStorage/cookie) | Доступ к защищённым эндпоинтам |
+| Refresh Token | 30 дней       | База данных (refresh_token)  | Получение нового access token  |
 
 ### Payload Access Token
 
@@ -602,14 +708,14 @@ flowchart TD
 
 Каждый сервис имеет собственную PostgreSQL базу данных:
 
-| Сервис | База данных |
-|--------|-------------|
-| auth-service | auth_db |
-| domain-service | domain_db |
-| payment-service | payment_db |
-| order-service | order_db |
+| Сервис               | База данных     |
+|----------------------|-----------------|
+| auth-service         | auth_db         |
+| domain-service       | domain_db       |
+| payment-service      | payment_db      |
+| order-service        | order_db        |
 | notification-service | notification_db |
-| audit-service | audit_db |
+| audit-service        | audit_db        |
 
 Миграции управляются через Liquibase и применяются автоматически при запуске.
 
@@ -625,15 +731,15 @@ flowchart TD
 
 ## Типы уведомлений
 
-| Тип | Описание |
-|-----|----------|
-| ORDER_CREATED | Создание заказа |
-| PAYMENT_APPROVED | Успешная оплата |
-| DOMAIN_ACTIVATED | Активация домена |
+| Тип                  | Описание                      |
+|----------------------|-------------------------------|
+| ORDER_CREATED        | Создание заказа               |
+| PAYMENT_APPROVED     | Успешная оплата               |
+| DOMAIN_ACTIVATED     | Активация домена              |
 | DOMAIN_EXPIRING_SOON | Истечение срока (напоминание) |
-| DOMAIN_EXPIRED | Истечение срока |
-| DOMAIN_RENEWED | Продление домена |
-| EMAIL_VERIFICATION | Верификация email |
+| DOMAIN_EXPIRED       | Истечение срока               |
+| DOMAIN_RENEWED       | Продление домена              |
+| EMAIL_VERIFICATION   | Верификация email             |
 
 ## Мониторинг
 

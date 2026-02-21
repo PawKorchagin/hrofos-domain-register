@@ -41,26 +41,26 @@ api-gateway/
 
 ## Конфигурация
 
-| Параметр | Описание | По умолчанию |
-|----------|----------|--------------|
-| `server.port` | Порт сервиса | 8080 |
-| `API_GATEWAY_STRIP_PREFIX` | Количество удаляемых сегментов пути | 1 |
-| `CORS_ALLOWED_ORIGINS` | Разрешённые origins для CORS | * |
-| `spring.data.redis.host` | Хост Redis | localhost / redis |
-| `spring.data.redis.port` | Порт Redis | 6379 |
+| Параметр                   | Описание                            | По умолчанию      |
+|----------------------------|-------------------------------------|-------------------|
+| `server.port`              | Порт сервиса                        | 8080              |
+| `API_GATEWAY_STRIP_PREFIX` | Количество удаляемых сегментов пути | 1                 |
+| `CORS_ALLOWED_ORIGINS`     | Разрешённые origins для CORS        | *                 |
+| `spring.data.redis.host`   | Хост Redis                          | localhost / redis |
+| `spring.data.redis.port`   | Порт Redis                          | 6379              |
 
 ## Маршрутизация
 
-| Path Pattern       | Target Service   | Target Port | Description |
-|--------------------|------------------|-------------|-------------|
-| `/api/auth/**`     | auth-service     | 8081        | Аутентификация, пользователи, 2FA |
-| `/api/users/**`    | auth-service     | 8081        | Управление пользователями |
-| `/api/domains/**`  | domain-service   | 8082        | Регистрация доменов, DNS записи |
-| `/api/payments/**` | payment-service  | 8083        | Обработка платежей |
-| `/api/orders/**`   | order-service    | 8084        | Корзина, заказы, продление |
-| `/api/notifications/**` | notification-service | 8085 | Email уведомления |
-| `/api/admin/**`    | admin-service    | 8086        | Административные отчёты |
-| `/api/audit/**`    | audit-service    | 8087        | Логирование аудита |
+| Path Pattern            | Target Service       | Target Port | Description                       |
+|-------------------------|----------------------|-------------|-----------------------------------|
+| `/api/auth/**`          | auth-service         | 8081        | Аутентификация, пользователи, 2FA |
+| `/api/users/**`         | auth-service         | 8081        | Управление пользователями         |
+| `/api/domains/**`       | domain-service       | 8082        | Регистрация доменов, DNS записи   |
+| `/api/payments/**`      | payment-service      | 8083        | Обработка платежей                |
+| `/api/orders/**`        | order-service        | 8084        | Корзина, заказы, продление        |
+| `/api/notifications/**` | notification-service | 8085        | Email уведомления                 |
+| `/api/admin/**`         | admin-service        | 8086        | Административные отчёты           |
+| `/api/audit/**`         | audit-service        | 8087        | Логирование аудита                |
 
 ## Пример запроса
 
@@ -119,38 +119,75 @@ sequenceDiagram
 ### BPMN Diagram — Процесс обработки запроса
 
 ```mermaid
-flowchart TD
-    Start([Начало]) --> Receive[Получить запрос<br/>от клиента]
-    Receive --> MatchRoute[Найти маршрут<br/>по пути]
+flowchart TB
+    subgraph ClientLane["         Клиент"]
+        Start([Начало])
+        Return404([404 Not Found])
+        Return429([429 Too Many Requests])
+        Return503([503 Service Unavailable<br/>Fallback])
+        Return200([200 OK<br/>ответ клиенту])
+        End([Конец])
+    end
 
-    MatchRoute --> HasRoute{Маршрут<br/>найден?}
-    HasRoute -- Нет --> Return404([404 Not Found])
+    subgraph GatewayLane["         API Gateway"]
+        Receive[Получить запрос<br/>от клиента]
+        MatchRoute[Найти маршрут<br/>по пути]
+        HasRoute{Маршрут<br/>найден?}
+        CheckRate[Проверить ограничение<br/>в Redis]
+        IsRateLimited{Лимит<br/>превышен?}
+        ApplyFilters[Применить фильтры<br/>StripPrefix и др.]
+        CBCheck[Проверить Circuit Breaker]
+        IsCBOpen{CB<br/>открыт?}
+        ForwardRequest[Переслать в<br/>целевой сервис]
+        CheckResponse{Ответ<br/>получен?}
+        CBOnFailure[Отметить FAILURE]
+        CBOnSuccess[Отметить SUCCESS]
+        ProcessResponse[Обработать ответ]
+    end
 
-    HasRoute -- Да --> CheckRate[Проверить ограничение<br/>в Redis]
-    CheckRate --> IsRateLimited{Лимит<br/>превышен?}
+    subgraph RedisLane["         Redis"]
+        RateCheck[Проверить<br/>ограничение запросов]
+    end
 
-    IsRateLimited -- Да --> Return429([429 Too Many Requests])
-    IsRateAllowed -- Нет --> ApplyFilters[Применить фильтры<br/>StripPrefix и др.]
+    subgraph ServiceLane["         Сервис назначения"]
+        TargetService[Обработать<br/>запрос]
+    end
 
-    ApplyFilters --> CBCheck[Проверить Circuit Breaker]
+    Start --> Receive
+    Receive --> MatchRoute
 
-    CBCheck --> IsCBOpen{CB<br/>открыт?}
-    IsCBOpen -- Да --> Return503([503 Service Unavailable<br/>Fallback])
+    MatchRoute --> HasRoute
+    HasRoute -- Нет --> Return404
 
-    IsCBOpen -- Нет --> ForwardRequest[Переслать в<br/>целевой сервис]
+    HasRoute -- Да --> CheckRate
+    CheckRate --> RateCheck
+    RateCheck -.-> CheckRate
 
-    ForwardRequest --> CheckResponse{Ответ<br/>получен?}
+    CheckRate --> IsRateLimited
 
-    CheckResponse -- Ошибка --> CBOnFailure[Отметить FAILURE]
-    CheckResponse -- Успех --> CBOnSuccess[Отметить SUCCESS]
+    IsRateLimited -- Да --> Return429
+    IsRateLimited -- Нет --> ApplyFilters
+
+    ApplyFilters --> CBCheck
+
+    CBCheck --> IsCBOpen
+    IsCBOpen -- Да --> Return503
+
+    IsCBOpen -- Нет --> ForwardRequest
+
+    ForwardRequest --> TargetService
+    TargetService --> CheckResponse
+
+    CheckResponse -- Ошибка --> CBOnFailure
+    CheckResponse -- Успех --> CBOnSuccess
 
     CBOnFailure --> ReturnError[Ошибка проксирования]
-    CBOnSuccess --> ProcessResponse[Обработать ответ]
+    CBOnSuccess --> ProcessResponse
 
-    ProcessResponse --> Return200([200 OK<br/>ответ клиенту])
+    ProcessResponse --> Return200
 
     Start -.-> Return404
-    Return404 -.-> End([Конец])
+    Return404 -.-> End
     Return429 -.-> End
     Return503 -.-> End
     ReturnError -.-> End
@@ -168,29 +205,29 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph Frontend["Frontend :3000"]
+    subgraph FrontendLane["         Frontend :3000"]
         Client[React App]
     end
 
-    subgraph Gateway["API Gateway :8080"]
+    subgraph GatewayLane["         API Gateway"]
         Router[Поиск маршрута]
         Stripper[Убрать префикс]
         RLim[Ограничение запросов]
         CB[Circuit Breaker]
     end
 
-    subgraph Backend["Backend Services"]
-        AuthS["auth-service :8081"]
-        DomainS["domain-service :8082"]
-        PaymentS["payment-service :8083"]
-        OrderS["order-service :8084"]
-        NotifS["notification-service :8085"]
-        AdminS["admin-service :8086"]
-        AuditS["audit-service :8087"]
+    subgraph BackendLane["         Backend Services"]
+        AuthS["auth-service"]
+        DomainS["domain-service"]
+        PaymentS["payment-service"]
+        OrderS["order-service"]
+        NotifS["notification-service"]
+        AdminS["admin-service"]
+        AuditS["audit-service"]
     end
 
-    subgraph Infra["Infrastructure"]
-        Redis["Redis :6379"]
+    subgraph InfraLane["         Infrastructure"]
+        Redis["Redis"]
     end
 
     Client --> Router
@@ -219,7 +256,7 @@ flowchart LR
 
     CB -.-> Client
 
-    style Gateway fill:#e3f2fd
-    style Backend fill:#f3e5f5
-    style Infra fill:#fff3e0
+    style GatewayLane fill:#e3f2fd
+    style BackendLane fill:#f3e5f5
+    style InfraLane fill:#fff3e0
 ```

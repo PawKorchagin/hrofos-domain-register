@@ -68,28 +68,28 @@ payment-service/
 
 ### Таблица `payment`
 
-| Колонка | Тип | Nullable | Описание |
-|---------|-----|----------|----------|
-| `id` | UUID | NO | Первичный ключ |
-| `user_id` | UUID | NO | ID пользователя |
-| `period` | VARCHAR(16) | NO | Период подписки (MONTH/YEAR) |
-| `amount` | INTEGER | NO | Сумма в минимальных единицах (копейках) |
-| `currency` | VARCHAR(8) | NO | Код валюты (RUB) |
-| `status` | VARCHAR(32) | NO | Статус платежа |
-| `operation_id` | VARCHAR(128) | YES | ID платежа в YooKassa |
-| `payment_url` | VARCHAR(1024) | YES | Ссылка на оплату |
-| `operation_status` | VARCHAR(64) | YES | Исходный статус YooKassa |
-| `domains_created` | BOOLEAN | NO | Созданы ли домены (по умолчанию false) |
-| `created_at` | TIMESTAMPTZ | NO | Время создания |
-| `updated_at` | TIMESTAMPTZ | YES | Время обновления |
-| `paid_at` | TIMESTAMPTZ | YES | Время оплаты |
+| Колонка            | Тип           | Nullable | Описание                                |
+|--------------------|---------------|----------|-----------------------------------------|
+| `id`               | UUID          | NO       | Первичный ключ                          |
+| `user_id`          | UUID          | NO       | ID пользователя                         |
+| `period`           | VARCHAR(16)   | NO       | Период подписки (MONTH/YEAR)            |
+| `amount`           | INTEGER       | NO       | Сумма в минимальных единицах (копейках) |
+| `currency`         | VARCHAR(8)    | NO       | Код валюты (RUB)                        |
+| `status`           | VARCHAR(32)   | NO       | Статус платежа                          |
+| `operation_id`     | VARCHAR(128)  | YES      | ID платежа в YooKassa                   |
+| `payment_url`      | VARCHAR(1024) | YES      | Ссылка на оплату                        |
+| `operation_status` | VARCHAR(64)   | YES      | Исходный статус YooKassa                |
+| `domains_created`  | BOOLEAN       | NO       | Созданы ли домены (по умолчанию false)  |
+| `created_at`       | TIMESTAMPTZ   | NO       | Время создания                          |
+| `updated_at`       | TIMESTAMPTZ   | YES      | Время обновления                        |
+| `paid_at`          | TIMESTAMPTZ   | YES      | Время оплаты                            |
 
 ### Таблица `payment_domains`
 
-| Колонка | Тип | Описание |
-|---------|-----|----------|
-| `payment_id` | UUID (FK) | ID платежа |
-| `l3_domain` | VARCHAR(255) | L3 домен |
+| Колонка      | Тип          | Описание   |
+|--------------|--------------|------------|
+| `payment_id` | UUID (FK)    | ID платежа |
+| `l3_domain`  | VARCHAR(255) | L3 домен   |
 
 **Индексы:**
 - `idx_payment_user_id` — для поиска платежей пользователя
@@ -97,11 +97,11 @@ payment-service/
 
 ## API Endpoints
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| POST | `/payments` | Создание платежа | Аутентификация |
-| POST | `/payments/{paymentId}/check` | Проверка статуса платежа | Аутентификация (только свои) |
-| POST | `/payments/webhook` | Вебхук от YooKassa | Нет |
+| Метод | Эндпоинт                      | Описание                 | Требуется роль               |
+|-------|-------------------------------|--------------------------|------------------------------|
+| POST  | `/payments`                   | Создание платежа         | Аутентификация               |
+| POST  | `/payments/{paymentId}/check` | Проверка статуса платежа | Аутентификация (только свои) |
+| POST  | `/payments/webhook`           | Вебхук от YooKassa       | Нет                          |
 
 ### Создание платежа
 
@@ -156,12 +156,12 @@ Authorization: Bearer <jwt-token>
 
 ## Статусы платежа
 
-| Статус | Описание |
-|--------|----------|
-| `CREATED` | Платёж создан |
+| Статус    | Описание       |
+|-----------|----------------|
+| `CREATED` | Платёж создан  |
 | `PENDING` | Ожидает оплаты |
-| `PAID` | Оплачено |
-| `FAILED` | Ошибка оплаты |
+| `PAID`    | Оплачено       |
+| `FAILED`  | Ошибка оплаты  |
 
 ## Диаграммы
 
@@ -321,39 +321,69 @@ sequenceDiagram
 ### BPMN Diagram — Процесс создания платежа
 
 ```mermaid
-flowchart TD
-    Start([Начало]) --> CheckAuth[Проверить JWT]
+flowchart TB
+    subgraph UserLane["         Пользователь"]
+        Start([Начало])
+        Return401([401 Unauthorized])
+        Return400([400 Bad Request])
+        Return502([502 Bad Gateway<br/>Ошибка domain-service])
+        Return500([500 Internal Server Error<br/>Ошибка YooKassa])
+        Return201([201 Created<br/>paymentUrl])
+        End([Конец])
+    end
+
+    subgraph PaymentLane["         payment-service"]
+        CheckAuth[Проверить JWT]
+        Validate[Проверить подпись JWT]
+        GetUserId[Извлечь userId]
+        ValidateRequest[Валидировать запрос<br/>domains не пустые, amount > 0]
+        ValidReq{Данные<br/>валидны?}
+        CreatePayment[Создать платёж в БД<br/>status=CREATED]
+        UpdatePayment[Обновить платёж:<br/>operation_id, payment_url, status=PENDING]
+        LogAudit[Записать в аудит<br/>Payment created]
+    end
+
+    subgraph DomainLane["         domain-service"]
+        Reserve[Забронировать домены<br/>TTL 10 мин]
+        Reserved{Бронь<br/>создана?}
+    end
+
+    subgraph YooKassaLane["         YooKassa API"]
+        CreateYooKassa[Создать платёж YooKassa<br/>idempotenceKey = paymentId]
+        YooKassaCreated{Платёж<br/>создан?}
+    end
+
+    Start --> CheckAuth
 
     CheckAuth --> HasToken{Есть токен?}
-    HasToken -- Нет --> Return401([401 Unauthorized])
-    HasToken -- Да --> Validate[Проверить подпись JWT]
+    HasToken -- Нет --> Return401
+    HasToken -- Да --> Validate
 
     Validate --> IsValid{Валидный?}
-    IsValid -- Нет --> Return401([401 Unauthorized])
-    IsValid -- Да --> GetUserId[Извлечь userId]
+    IsValid -- Нет --> Return401
+    IsValid -- Да --> GetUserId
 
-    GetUserId --> ValidateRequest[Валидировать запрос<br/>domains не пустые, amount > 0]
+    GetUserId --> ValidateRequest
 
-    ValidateRequest --> ValidReq{Данные<br/>валидны?}
-    ValidReq -- Нет --> Return400([400 Bad Request])
-    ValidReq -- Да --> CreatePayment[Создать платёж в БД<br/>status${DB_USER:***REMOVED***}CREATED]
+    ValidateRequest --> ValidReq
+    ValidReq -- Нет --> Return400
+    ValidReq -- Да --> CreatePayment
 
-    CreatePayment --> Reserve[Забронировать домены<br/>TTL 10 мин]
+    CreatePayment --> Reserve
+    Reserve --> Reserved
+    Reserved -- Нет --> Return502
+    Reserved -- Да --> CreateYooKassa
 
-    Reserve --> Reserved{Бронь<br/>создана?}
-    Reserved -- Нет --> Return502([502 Bad Gateway<br/>Ошибка domain-service])
-    Reserved -- Да --> CreateYooKassa[Создать платёж YooKassa<br/>idempotenceKey ${DB_USER:***REMOVED***} paymentId]
+    CreateYooKassa --> YooKassaCreated
+    YooKassaCreated -- Нет --> Return500
+    YooKassaCreated -- Да --> UpdatePayment
 
-    CreateYooKassa --> YooKassaCreated{Платёж<br/>создан?}
-    YooKassaCreated -- Нет --> Return500([500 Internal Server Error<br/>Ошибка YooKassa])
-    YooKassaCreated -- Да --> UpdatePayment[Обновить платёж:<br/>operation_id, payment_url, status${DB_USER:***REMOVED***}PENDING]
+    UpdatePayment --> LogAudit
 
-    UpdatePayment --> LogAudit[Записать в аудит<br/>Payment created]
-
-    LogAudit --> Return201([201 Created<br/>paymentUrl])
+    LogAudit --> Return201
 
     Start -.-> Return401
-    Return401 -.-> End([Конец])
+    Return401 -.-> End
     Return400 -.-> End
     Return502 -.-> End
     Return500 -.-> End
@@ -371,38 +401,69 @@ flowchart TD
 ### BPMN Diagram — Процесс обработки успешной оплаты
 
 ```mermaid
-flowchart TD
-    Start([Платёж оплачен<br/>YooKassa webhook]) --> FindPayment[Найти платёж по operation_id]
+flowchart TB
+    subgraph YooKassaLane["         YooKassa"]
+        Start([Платёж оплачен<br/>YooKassa webhook])
+    end
 
-    FindPayment --> PaymentFound{Платёж<br/>найден?}
-    PaymentFound -- Нет --> Return404([404 Not Found])
-    PaymentFound -- Да --> AlreadyProcessed{Статус<br/>PAID?}
+    subgraph PaymentLane["         payment-service"]
+        FindPayment[Найти платёж по operation_id]
+        PaymentFound{Платёж<br/>найден?}
+        AlreadyProcessed{Статус<br/>PAID?}
+        CheckDomains{Domains<br/>created?}
+        Return200([200 OK<br/>Уже обработано])
+        UpdateStatus[UPDATE payment<br/>status=PAID, paid_at=now]
+        LogSuccess[Лог: платёж успешен]
+        Return200_2([200 OK])
+    end
 
-    AlreadyProcessed -- Да --> CheckDomains{Domains<br/>created?}
-    CheckDomains -- Да --> Return200([200 OK<br/>Уже обработано])
+    subgraph DomainLane["         domain-service"]
+        CancelReservation[Отменить бронь]
+        TryRenew[Попытка продления<br/>POST /domains/userDomains/renew]
+        RenewSuccess{Продление<br/>успешно?}
+        LogRenew[Лог: продлено]
+        CreateDomains[Создать домены]
+        DomainsCreated{Создано<br/>успешно?}
+        LogCreate[Лог: создано]
+    end
 
-    AlreadyProcessed -- Нет --> CancelReservation[Отменить бронь]
+    subgraph ErrorLane["         Ошибки"]
+        Return404([404 Not Found])
+        Return500([500 Internal Server Error])
+        End([Конец])
+    end
 
-    CancelReservation --> TryRenew[Попытка продления<br/>POST /domains/userDomains/renew]
+    Start --> FindPayment
 
-    TryRenew --> RenewSuccess{Продление<br/>успешно?}
-    RenewSuccess -- Да --> LogRenew[Лог: продлено]
-    RenewSuccess -- Нет --> CreateDomains[Создать домены]
+    FindPayment --> PaymentFound
+    PaymentFound -- Нет --> Return404
+    PaymentFound -- Да --> AlreadyProcessed
 
-    LogRenew --> UpdateStatus[UPDATE payment<br/>status${DB_USER:***REMOVED***}PAID, paid_at${DB_USER:***REMOVED***}now]
-    CreateDomains --> DomainsCreated{Создано<br/>успешно?}
+    AlreadyProcessed -- Да --> CheckDomains
+    CheckDomains -- Да --> Return200
 
-    DomainsCreated -- Да --> LogCreate[Лог: создано]
-    DomainsCreated -- Нет --> Return500([500 Internal Server Error])
+    AlreadyProcessed -- Нет --> CancelReservation
+
+    CancelReservation --> TryRenew
+
+    TryRenew --> RenewSuccess
+    RenewSuccess -- Да --> LogRenew
+    RenewSuccess -- Нет --> CreateDomains
+
+    LogRenew --> UpdateStatus
+
+    CreateDomains --> DomainsCreated
+    DomainsCreated -- Да --> LogCreate
+    DomainsCreated -- Нет --> Return500
 
     LogCreate --> UpdateStatus
 
-    UpdateStatus --> LogSuccess[Лог: платёж успешен]
+    UpdateStatus --> LogSuccess
 
-    LogSuccess --> Return200_2([200 OK])
+    LogSuccess --> Return200_2
 
     Start -.-> Return404
-    Return404 -.-> End([Конец])
+    Return404 -.-> End
     CheckDomains --> Return200
     Return500 -.-> End
     Return200 -.-> End
@@ -418,37 +479,70 @@ flowchart TD
 ### BPMN Diagram — Жизненный цикл платежа
 
 ```mermaid
-stateDiagram-v2
-    [*] --> CREATED: Создание платежа
-    CREATED --> CREATED: Ошибка бронирования
-    CREATED --> PENDING: Платёж создан в YooKassa
+flowchart TB
+    subgraph UserLane["         Пользователь"]
+        Start([Начало])
+        PaymentUrl([Платёжная ссылка<br/>YooKassa])
+        UserPay{Оплата<br/>успешна?}
+    end
 
-    PENDING --> PENDING: Ожидание оплаты
-    PENDING --> PAID: Успешная оплата
-    PENDING --> FAILED: Отмена/ошибка
+    subgraph PaymentLane["         payment-service"]
+        Created([CREATED<br/>status=CREATED])
+        Reserve[Забронировать домены<br/>TTL 10 мин]
+        ReserveError{Бронь<br/>создана?}
+        CreateYooKassa[Создать платёж в YooKassa]
+        Pending([PENDING<br/>status=PENDING])
+        Paid([PAID<br/>status=PAID<br/>paid_at=now])
+        Failed([FAILED<br/>status=FAILED])
+    end
 
-    PAID --> COMPLETED: Домены созданы/продлены
-    PAID --> FAILED: Ошибка создания доменов
+    subgraph DomainLane["         domain-service"]
+        Cancel[Отменить бронь]
+        TryRenew[Попытаться продлить]
+        RenewSuccess{Продление<br/>успешно?}
+        CreateDomains[Создать домены]
+        DomainsOK{Домены<br/>успешно?}
+    end
 
-    COMPLETED --> [*]
+    subgraph EndLane["         Завершение"]
+        Completed([COMPLETED<br/>domains_created=true])
+        Error([Конец])
+    end
 
-    FAILED --> [*]
+    Start --> Created
 
-    note right of PENDING
-        Бронь доменов активна
-        TTL: 10 минут
-    end note
+    Created --> Reserve
 
-    note right of PAID
-        paid_at установлено
-        domains_created ${DB_USER:***REMOVED***} false
-    end note
+    Reserve --> ReserveError
+    ReserveError -- Нет --> Error
+    ReserveError -- Да --> CreateYooKassa
 
-    note right of COMPLETED
-        payments.domains_created ${DB_USER:***REMOVED***} true
-        Бронь удалена
-        Домены активны
-    end note
+    CreateYooKassa --> Pending
+    Pending --> PaymentUrl
+
+    PaymentUrl --> UserPay
+
+    UserPay -- Да --> Paid
+    UserPay -- Нет --> Cancel --> Failed --> Error
+
+    Paid --> TryRenew
+
+    TryRenew --> RenewSuccess
+    RenewSuccess -- Да --> Completed
+    RenewSuccess -- Нет --> CreateDomains
+
+    CreateDomains --> DomainsOK
+    DomainsOK -- Да --> Completed
+    DomainsOK -- Нет --> Failed --> Error
+
+
+    style Start fill:#e1f5e1
+    style Created fill:#fff3e0
+    style Pending fill:#fff9c4
+    style Paid fill:#a5d6a7
+    style Failed fill:#ef9a9a
+    style Completed fill:#4caf50
+    style Error fill:#b0bec5
 ```
 
 ## Зависимости между сервисами
@@ -492,10 +586,10 @@ graph LR
 
 Платёжный шлюз YooKassa требует следующие параметры:
 
-| Параметр | Описание |
-|----------|----------|
-| `YOOKASSA_CLIENT_SHOP_ID` | ID магазина в YooKassa |
-| `YOOKASSA_CLIENT_SECRET_KEY` | Секретный ключ магазина |
+| Параметр                     | Описание                  |
+|------------------------------|---------------------------|
+| `YOOKASSA_CLIENT_SHOP_ID`    | ID магазина в YooKassa    |
+| `YOOKASSA_CLIENT_SECRET_KEY` | Секретный ключ магазина   |
 | `YOOKASSA_CLIENT_RETURN_URL` | URL возврата после оплаты |
 
 ### Характеристики платёжной ссылки
@@ -553,12 +647,12 @@ Actuator эндпоинты:
 
 Сервис обрабатывает следующие ошибки:
 
-| Ошибка | HTTP статус | Обработка |
-|--------|-------------|-----------|
-| Отсутствует JWT | 401 | Возврат ошибки |
-| Невалидный JWT | 401 | Возврат ошибки |
-| Нет прав на платёж | 403 | Возврат ошибки |
-| Валидация данных | 400 | Возврат ошибки |
-| Domain service недоступен | 502 | Отмена брони |
-| YooKassa ошибка | 500 | Отмена брони |
-| Платёж не найден | 404 | Возврат ошибки |
+| Ошибка                    | HTTP статус | Обработка      |
+|---------------------------|-------------|----------------|
+| Отсутствует JWT           | 401         | Возврат ошибки |
+| Невалидный JWT            | 401         | Возврат ошибки |
+| Нет прав на платёж        | 403         | Возврат ошибки |
+| Валидация данных          | 400         | Возврат ошибки |
+| Domain service недоступен | 502         | Отмена брони   |
+| YooKassa ошибка           | 500         | Отмена брони   |
+| Платёж не найден          | 404         | Возврат ошибки |

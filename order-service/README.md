@@ -67,36 +67,14 @@ order-service/
     └── application.yml         # Конфигурация приложения
 ```
 
-## Конфигурация
-
-| Параметр | Описание | По умолчанию |
-|----------|----------|--------------|
-| `server.port` | Порт сервиса | 8084 |
-| `JWT_SECRET` | Ключ для подписи JWT токенов | - |
-| `DOMAIN_MONTHLY_PRICE` | Базовая цена домена за месяц (руб.) | 200 |
-| `DOMAIN_YEARLY_DISCOUNT` | Коэффициент скидки за год | 0.7 |
-| `DOMAIN_SERVICE_URL` | Базовый URL domain-service | http://localhost:8082 |
-| `PAYMENT_SERVICE_URL` | Базовый URL payment-service | http://localhost:8083 |
-| `AUDIT_SERVICE_URL` | Базовый URL audit-service | http://localhost:8087 |
-
-### База данных
-
-| Параметр | Описание | По умолчанию |
-|----------|----------|--------------|
-| `spring.datasource.url` | URL подключения к PostgreSQL | jdbc:***REMOVED***ql://localhost:5432/order_db |
-| `spring.datasource.username` | Имя пользователя БД | ***REMOVED*** |
-| `spring.datasource.password` | Пароль БД | ***REMOVED*** |
-| `spring.datasource.hikari.minimum-idle` | Мин. размер пула соединений | 2 |
-| `spring.datasource.hikari.maximum-pool-size` | Макс. размер пула соединений | 10 |
-
 ## API Endpoints
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| GET | `/orders/cart/me` | Получить корзину текущего пользователя | Аутентификация |
-| POST | `/orders/cart/{l3Domain}` | Добавить домен в корзину | Аутентификация |
-| POST | `/orders/cart/checkout` | Оформить заказ (создать платёж) | Аутентификация |
-| POST | `/orders/domains/renew` | Продлить домены | Аутентификация |
+| Метод | Эндпоинт                  | Описание                               | Требуется роль |
+|-------|---------------------------|----------------------------------------|----------------|
+| GET   | `/orders/cart/me`         | Получить корзину текущего пользователя | Аутентификация |
+| POST  | `/orders/cart/{l3Domain}` | Добавить домен в корзину               | Аутентификация |
+| POST  | `/orders/cart/checkout`   | Оформить заказ (создать платёж)        | Аутентификация |
+| POST  | `/orders/domains/renew`   | Продлить домены                        | Аутентификация |
 
 ### Получение корзины
 
@@ -274,35 +252,60 @@ sequenceDiagram
 ### BPMN Diagram — Процесс оформления заказа
 
 ```mermaid
-flowchart TD
-    Start([Начало]) --> CheckAuth[Проверить JWT]
+flowchart TB
+    subgraph UserLane["         Пользователь"]
+        Start([Начало])
+        Return401([401 Unauthorized])
+        Return400([400 Bad Request<br/>Корзина пуста])
+        Return500([500 Internal Server Error])
+        Return200([200 OK<br/>PaymentLinkResponse])
+        End([Конец])
+    end
+
+    subgraph OrderLane["         order-service"]
+        CheckAuth[Проверить JWT]
+        Validate[Проверить подпись JWT]
+        GetUserId[Извлечь userId из токена]
+        FetchCart[Получить корзину из БД]
+        CartEmpty{Корзина<br/>пуста?}
+        CalcPrice[Рассчитать стоимость:<br/>кол-во * цена * множитель]
+        ClearCart[Очистить корзину в БД]
+        LogAudit[Записать в аудит]
+    end
+
+    subgraph PaymentLane["         payment-service"]
+        CreatePayment[Создать платёж<br/>через payment-service]
+        PaymentSuccess{Платёж<br/>создан?}
+    end
+
+    Start --> CheckAuth
 
     CheckAuth --> HasToken{Есть токен?}
-    HasToken -- Нет --> Return401([401 Unauthorized])
-    HasToken -- Да --> Validate[Проверить подпись JWT]
+    HasToken -- Нет --> Return401
+    HasToken -- Да --> Validate
 
     Validate --> IsValid{Валидный?}
-    IsValid -- Нет --> Return401([401 Unauthorized])
-    IsValid -- Да --> GetUserId[Извлечь userId из токена]
+    IsValid -- Нет --> Return401
+    IsValid -- Да --> GetUserId
 
-    GetUserId --> FetchCart[Получить корзину из БД]
+    GetUserId --> FetchCart
 
-    FetchCart --> CartEmpty{Корзина<br/>пуста?}
-    CartEmpty -- Да --> Return400([400 Bad Request<br/>Корзина пуста])
-    CartEmpty -- Нет --> CalcPrice[Рассчитать стоимость:<br/>кол-во * цена * множитель]
+    FetchCart --> CartEmpty
+    CartEmpty -- Да --> Return400
+    CartEmpty -- Нет --> CalcPrice
 
-    CalcPrice --> CreatePayment[Создать платёж<br/>через payment-service]
+    CalcPrice --> CreatePayment
 
-    CreatePayment --> PaymentSuccess{Платёж<br/>создан?}
-    PaymentSuccess -- Нет --> Return500([500 Internal Server Error])
-    PaymentSuccess -- Да --> ClearCart[Очистить корзину в БД]
+    CreatePayment --> PaymentSuccess
+    PaymentSuccess -- Нет --> Return500
+    PaymentSuccess -- Да --> ClearCart
 
-    ClearCart --> LogAudit[Записать в аудит]
+    ClearCart --> LogAudit
 
-    LogAudit --> Return200([200 OK<br/>PaymentLinkResponse])
+    LogAudit --> Return200
 
     Start -.-> Return401
-    Return401 -.-> End([Конец])
+    Return401 -.-> End
     Return400 -.-> End
     Return500 -.-> End
     Return200 -.-> End
@@ -318,31 +321,51 @@ flowchart TD
 ### BPMN Diagram — Добавление домена в корзину
 
 ```mermaid
-flowchart TD
-    Start([Начало]) --> CheckAuth[Проверить JWT]
+flowchart TB
+    subgraph UserLane["         Пользователь"]
+        Start([Начало])
+        Return401([401 Unauthorized])
+        Return400([400 Bad Request])
+        Return201([201 Created])
+        Return201_2([201 Created])
+        End([Конец])
+    end
+
+    subgraph OrderLane["         order-service"]
+        CheckAuth[Проверить JWT]
+        Validate[Проверить подпись JWT]
+        GetUserId[Извлечь userId]
+        ValidateDomain[Проверить l3Domain:<br/>не пустой]
+        DomainValid{Валидный<br/>домен?}
+        CheckExists[Проверить: домен<br/>в корзине?]
+        AlreadyExists{Уже<br/>в корзине?}
+        AddToCart[Добавить домен в БД]
+    end
+
+    Start --> CheckAuth
 
     CheckAuth --> HasToken{Есть токен?}
-    HasToken -- Нет --> Return401([401 Unauthorized])
-    HasToken -- Да --> Validate[Проверить подпись JWT]
+    HasToken -- Нет --> Return401
+    HasToken -- Да --> Validate
 
     Validate --> IsValid{Валидный?}
-    IsValid -- Нет --> Return401([401 Unauthorized])
-    IsValid -- Да --> GetUserId[Извлечь userId]
+    IsValid -- Нет --> Return401
+    IsValid -- Да --> GetUserId
 
-    GetUserId --> ValidateDomain[Проверить l3Domain:<br/>не пустой]
+    GetUserId --> ValidateDomain
 
-    ValidateDomain --> DomainValid{Валидный<br/>домен?}
-    DomainValid -- Нет --> Return400([400 Bad Request])
-    DomainValid -- Да --> CheckExists[Проверить: домен<br/>в корзине?]
+    ValidateDomain --> DomainValid
+    DomainValid -- Нет --> Return400
+    DomainValid -- Да --> CheckExists
 
-    CheckExists --> AlreadyExists{Уже<br/>в корзине?}
-    AlreadyExists -- Да --> Return201([201 Created])
-    AlreadyExists -- Нет --> AddToCart[Добавить домен в БД]
+    CheckExists --> AlreadyExists
+    AlreadyExists -- Да --> Return201
+    AlreadyExists -- Нет --> AddToCart
 
-    AddToCart --> Return201_2([201 Created])
+    AddToCart --> Return201_2
 
     Start -.-> Return401
-    Return401 -.-> End([Конец])
+    Return401 -.-> End
     Return400 -.-> End
     Return201 -.-> End
     Return201_2 -.-> End
@@ -358,15 +381,15 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph Frontend["Frontend"]
+    subgraph FrontendLane["         Frontend"]
         Client[React App]
     end
 
-    subgraph Gateway["API Gateway :8080"]
+    subgraph GatewayLane["         API Gateway"]
         Router[Маршрутизация<br/>StripPrefix 1]
     end
 
-    subgraph Order["order-service :8084"]
+    subgraph OrderLane["         order-service"]
         Filter[JwtAuthenticationFilter]
         CartCtrl[CartApiController]
         DomainCtrl[DomainApiController]
@@ -376,14 +399,14 @@ flowchart LR
         PayC[PaymentClient]
     end
 
-    subgraph DB["PostgreSQL :5432"]
+    subgraph DBLane["         PostgreSQL"]
         Cart[Таблица cart]
     end
 
-    subgraph Services["Внешние сервисы"]
-        PayS["payment-service :8083"]
-        AuditS["audit-service :8087"]
-        DomainS["domain-service :8082"]
+    subgraph ServicesLane["         Внешние сервисы"]
+        PayS["payment-service"]
+        AuditS["audit-service"]
+        DomainS["domain-service"]
     end
 
     Client -->|POST /api/orders/cart/checkout| Router
@@ -402,37 +425,56 @@ flowchart LR
     DomainCtrl -.-> DomC
     DomC -.-> DomainS
 
-    style Gateway fill:#e3f2fd
-    style Order fill:#4caf50
-    style DB fill:#607d8b
-    style Services fill:#ff9800
+    style GatewayLane fill:#e3f2fd
+    style OrderLane fill:#4caf50
+    style DBLane fill:#607d8b
+    style ServicesLane fill:#ff9800
 ```
 
 ### BPMN Diagram — Расчёт стоимости заказа
 
 ```mermaid
-flowchart TD
-    Start([Получены данные корзины]) --> CountDomain[Подсчитать домены]
+flowchart TB
+    subgraph OrderLane["         order-service"]
+        Start([Получены данные корзины])
+        CountDomain[Подсчитать домены]
+        monthlyPrice[Читать конфигурацию:<br/>DOMAIN_MONTHLY_PRICE]
+        yearlyDiscount[Читать конфигурацию:<br/>DOMAIN_YEARLY_DISCOUNT]
+        GetPeriod[Получить период из запроса]
+        CreateRequest[Создать запрос на платёж:<br/>l3Domains, period, amount, RUB]
+    end
 
-    CountDomain --> monthlyPrice[Читать конфигурацию:<br/>DOMAIN_MONTHLY_PRICE]
+    subgraph CalcLane["         Расчёт"]
+        CheckPeriod{Период?}
+        CalcMonthly[amount  count * monthlyPrice * 100]
+        CalcYearlyStep1[yearlyFull  count * monthlyPrice * 12]
+        CalcYearly[amount  yearlyFull * yearlyDiscount * 100]
+    end
 
-    monthlyPrice --> yearlyDiscount[Читать конфигурацию:<br/>DOMAIN_YEARLY_DISCOUNT]
+    subgraph PaymentLane["         payment-service"]
+        PaymentClient[Вызвать paymentClient.createPayment]
+    end
 
-    yearlyDiscount --> GetPeriod[Получить период из запроса]
+    subgraph UserLane["         Пользователь"]
+        End1([Отправить запрос в payment-service])
+    end
 
-    GetPeriod --> CheckPeriod{Период?}
+    Start --> CountDomain
+    CountDomain --> monthlyPrice
+    monthlyPrice --> yearlyDiscount
+    yearlyDiscount --> GetPeriod
 
-    CheckPeriod -- MONTH --> CalcMonthly[amount ${DB_USER:***REMOVED***} count * monthlyPrice * 100]
+    GetPeriod --> CheckPeriod
 
-    CheckPeriod -- YEAR --> CalcYearlyStep1[yearlyFull ${DB_USER:***REMOVED***} count * monthlyPrice * 12]
-    CalcYearlyStep1 --> CalcYearly[amount ${DB_USER:***REMOVED***} yearlyFull * yearlyDiscount * 100]
+    CheckPeriod -- MONTH --> CalcMonthly
+    CheckPeriod -- YEAR --> CalcYearlyStep1
+    CalcYearlyStep1 --> CalcYearly
 
-    CalcMonthly --> CreateRequest[Создать запрос на платёж:<br/>l3Domains, period, amount, RUB]
+    CalcMonthly --> CreateRequest
     CalcYearly --> CreateRequest
 
-    CreateRequest --> PaymentClient[Вызвать paymentClient.createPayment]
-
-    PaymentClient --> End1([Отправить запрос в payment-service])
+    CreateRequest --> PaymentClient
+    PaymentClient --> End1
 
 
     style Start fill:#e1f5e1

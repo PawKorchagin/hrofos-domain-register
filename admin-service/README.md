@@ -49,20 +49,20 @@ admin-service/
 
 ## Конфигурация
 
-| Параметр | Описание | По умолчанию |
-|----------|----------|--------------|
-| `server.port` | Порт сервиса | 8086 |
-| `JWT_SECRET` | Ключ для подписи JWT токенов | - |
-| `AUTH_SERVICE_URL` | Базовый URL auth-service | http://localhost:8081 |
-| `DOMAIN_SERVICE_URL` | Базовый URL domain-service | http://localhost:8082 |
-| `AUDIT_SERVICE_URL` | Базовый URL audit-service | http://localhost:8087 |
+| Параметр             | Описание                     | По умолчанию          |
+|----------------------|------------------------------|-----------------------|
+| `server.port`        | Порт сервиса                 | 8086                  |
+| `JWT_SECRET`         | Ключ для подписи JWT токенов | -                     |
+| `AUTH_SERVICE_URL`   | Базовый URL auth-service     | http://localhost:8081 |
+| `DOMAIN_SERVICE_URL` | Базовый URL domain-service   | http://localhost:8082 |
+| `AUDIT_SERVICE_URL`  | Базовый URL audit-service    | http://localhost:8087 |
 
 ## API Endpoints
 
-| Метод | Эндпоинт | Описание                     | Требуется роль |
-|-------|----------|------------------------------|----------------|
-| GET | `/admin/health` | Проверка здоровья сервиса    | Нет |
-| GET | `/admin/report` | Скачивание отчёта (Markdown) | ADMIN |
+| Метод | Эндпоинт        | Описание                     | Требуется роль |
+|-------|-----------------|------------------------------|----------------|
+| GET   | `/admin/health` | Проверка здоровья сервиса    | Нет            |
+| GET   | `/admin/report` | Скачивание отчёта (Markdown) | ADMIN          |
 
 ### Получение отчёта
 
@@ -134,34 +134,61 @@ sequenceDiagram
 ### BPMN Diagram — Процесс генерации отчёта
 
 ```mermaid
-flowchart TD
-    Start([Начало]) --> CheckAuth[Проверить JWT]
+flowchart TB
+    subgraph AdminLane["         Администратор"]
+        Start([Начало])
+        Return401([401 Unauthorized])
+        Return403([403 Forbidden])
+        ReturnError([500 Internal Server Error])
+        Return200([200 OK<br/>report.md])
+        End([Конец])
+    end
+
+    subgraph AdminServiceLane["         admin-service"]
+        CheckAuth[Проверить JWT]
+        Validate[Проверить подпись JWT]
+        CheckRole{Роль: ADMIN?}
+        CheckUsers{Ответ успешен?}
+        CheckStats{Ответ успешен?}
+        Generate[Сформировать отчёт в Markdown]
+        Log[Записать в аудит]
+    end
+
+    subgraph AuthLane["         auth-service"]
+        GetUsers[Запрос в auth-service<br/>/auth/stats/users-count]
+    end
+
+    subgraph DomainLane["         domain-service"]
+        GetDomains[Запрос в domain-service<br/>/domains/stats]
+    end
+
+    Start --> CheckAuth
 
     CheckAuth --> HasToken{Есть токен?}
-    HasToken -- Нет --> Return401([401 Unauthorized])
-    HasToken -- Да --> Validate[Проверить подпись JWT]
+    HasToken -- Нет --> Return401
+    HasToken -- Да --> Validate
 
     Validate --> IsValid{Валидный?}
-    IsValid -- Нет --> Return401([401 Unauthorized])
-    IsValid -- Да --> CheckRole{Роль: ADMIN?}
+    IsValid -- Нет --> Return401
+    IsValid -- Да --> CheckRole
 
-    CheckRole -- Нет --> Return403([403 Forbidden])
-    CheckRole -- Да --> GetUsers[Запрос в auth-service<br/>/auth/stats/users-count]
+    CheckRole -- Нет --> Return403
+    CheckRole -- Да --> GetUsers
 
-    GetUsers --> CheckUsers{Ответ успешен?}
-    CheckUsers -- Нет --> ReturnError([500 Internal Server Error])
-    CheckUsers -- Да --> GetDomains[Запрос в domain-service<br/>/domains/stats]
+    GetUsers --> CheckUsers
+    CheckUsers -- Нет --> ReturnError
+    CheckUsers -- Да --> GetDomains
 
-    GetDomains --> CheckStats{Ответ успешен?}
-    CheckStats -- Нет --> ReturnError([500 Internal Server Error])
-    CheckStats -- Да --> Generate[Сформировать отчёт в Markdown]
+    GetDomains --> CheckStats
+    CheckStats -- Нет --> ReturnError
+    CheckStats -- Да --> Generate
 
-    Generate --> Log[Записать в аудит]
+    Generate --> Log
 
-    Log --> Return200([200 OK<br/>report.md])
+    Log --> Return200
 
     Start -.-> Return401
-    Return401 -.-> End([Конец])
+    Return401 -.-> End
     Return403 -.-> End
     ReturnError -.-> End
     Return200 -.-> End
@@ -178,15 +205,15 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph Frontend["Frontend"]
+    subgraph FrontendLane["         Frontend"]
         Client[React App]
     end
 
-    subgraph Gateway["API Gateway :8080"]
+    subgraph GatewayLane["         API Gateway"]
         Router[Маршрутизация<br/>StripPrefix 1]
     end
 
-    subgraph Admin["admin-service :8086"]
+    subgraph AdminLane["         admin-service"]
         Filter[JwtAuthenticationFilter]
         Controller[ReportApiController]
         Service[ReportServiceImpl]
@@ -194,10 +221,10 @@ flowchart LR
         DomainC[DomainStatsClient]
     end
 
-    subgraph Services["Внешние сервисы"]
-        AuthS["auth-service :8081"]
-        DomainS["domain-service :8082"]
-        AuditS["audit-service :8087"]
+    subgraph ServicesLane["         Внешние сервисы"]
+        AuthS["auth-service"]
+        DomainS["domain-service"]
+        AuditS["audit-service"]
     end
 
     Client -->|GET /api/admin/report| Router
@@ -213,9 +240,9 @@ flowchart LR
     Controller -.-> Router
     Router -.-> Client
 
-    style Gateway fill:#e3f2fd
-    style Admin fill:#f3e5f5
-    style Services fill:#fff3e0
+    style GatewayLane fill:#e3f2fd
+    style AdminLane fill:#f3e5f5
+    style ServicesLane fill:#fff3e0
 ```
 
 ## Зависимости между сервисами
@@ -252,7 +279,7 @@ graph LR
 
 ## Мониторинг
 
-Актuator эндпоинты:
+Actuator эндпоинты:
 - `/actuator/health` — состояние сервиса
 - `/actuator/info` — информация о сервисе
 - `/actuator/metrics` — метрики приложения

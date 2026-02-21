@@ -72,16 +72,16 @@ notification-service/
 
 ## API Endpoints
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| POST | `/notifications/send` | Отправить уведомление | USER |
-| GET | `/notifications/health` | Проверка здоровья сервиса | Нет |
-| GET | `/notifications/preferences` | Получить настройки уведомлений | USER (TODO) |
-| PUT | `/notifications/preferences` | Обновить настройки уведомлений | USER (TODO) |
-| GET | `/notifications/expiry/alerts` | Получить настройки предупреждений | USER (TODO) |
-| PUT | `/notifications/expiry/alerts` | Обновить настройки предупреждений | USER (TODO) |
-| GET | `/notifications/expiry/monitoring/domains` | Список отслеживаемых доменов | USER (TODO) |
-| GET | `/notifications/expiry/monitoring/dashboard` | Статистика мониторинга | USER (TODO) |
+| Метод | Эндпоинт                                     | Описание                          | Требуется роль |
+|-------|----------------------------------------------|-----------------------------------|----------------|
+| POST  | `/notifications/send`                        | Отправить уведомление             | USER           |
+| GET   | `/notifications/health`                      | Проверка здоровья сервиса         | Нет            |
+| GET   | `/notifications/preferences`                 | Получить настройки уведомлений    | USER (TODO)    |
+| PUT   | `/notifications/preferences`                 | Обновить настройки уведомлений    | USER (TODO)    |
+| GET   | `/notifications/expiry/alerts`               | Получить настройки предупреждений | USER (TODO)    |
+| PUT   | `/notifications/expiry/alerts`               | Обновить настройки предупреждений | USER (TODO)    |
+| GET   | `/notifications/expiry/monitoring/domains`   | Список отслеживаемых доменов      | USER (TODO)    |
+| GET   | `/notifications/expiry/monitoring/dashboard` | Статистика мониторинга            | USER (TODO)    |
 
 ### Отправка уведомления
 
@@ -116,15 +116,15 @@ HTTP/1.1 202 ACCEPTED
 
 ## Типы уведомлений
 
-| Тип | Шаблон | Тема по умолчанию |
-|-----|--------|-------------------|
-| `ORDER_CREATED` | `order-created` | "Заказ создан" |
-| `PAYMENT_APPROVED` | `payment-approved` | "Платёж успешно обработан" |
-| `DOMAIN_ACTIVATED` | `domain-activated` | "Домен активирован" |
+| Тип                    | Шаблон                 | Тема по умолчанию                            |
+|------------------------|------------------------|----------------------------------------------|
+| `ORDER_CREATED`        | `order-created`        | "Заказ создан"                               |
+| `PAYMENT_APPROVED`     | `payment-approved`     | "Платёж успешно обработан"                   |
+| `DOMAIN_ACTIVATED`     | `domain-activated`     | "Домен активирован"                          |
 | `DOMAIN_EXPIRING_SOON` | `domain-expiring-soon` | "Напоминание: срок действия домена истекает" |
-| `DOMAIN_EXPIRED` | `domain-expired` | "Срок действия домена истёк" |
-| `DOMAIN_RENEWED` | `domain-renewed` | "Домены продлены" |
-| `EMAIL_VERIFICATION` | `email-verification` | "Подтверждение email адреса" |
+| `DOMAIN_EXPIRED`       | `domain-expired`       | "Срок действия домена истёк"                 |
+| `DOMAIN_RENEWED`       | `domain-renewed`       | "Домены продлены"                            |
+| `EMAIL_VERIFICATION`   | `email-verification`   | "Подтверждение email адреса"                 |
 
 ## База данных
 
@@ -132,26 +132,26 @@ HTTP/1.1 202 ACCEPTED
 
 #### `expiry_email_pref` — Настройки предупреждений о сроке действия
 
-| Колонка | Тип | Описание |
-|---------|-----|----------|
-| `id` | UUID | Первичный ключ |
-| `user_id` | UUID | ID пользователя |
-| `days_before` | INTEGER | За сколько дней предупреждать |
-| `enabled` | BOOLEAN | Включено ли предупреждение |
-| `created_at` | TIMESTAMPTZ | Время создания |
-| `updated_at` | TIMESTAMPTZ | Время обновления |
+| Колонка       | Тип         | Описание                      |
+|---------------|-------------|-------------------------------|
+| `id`          | UUID        | Первичный ключ                |
+| `user_id`     | UUID        | ID пользователя               |
+| `days_before` | INTEGER     | За сколько дней предупреждать |
+| `enabled`     | BOOLEAN     | Включено ли предупреждение    |
+| `created_at`  | TIMESTAMPTZ | Время создания                |
+| `updated_at`  | TIMESTAMPTZ | Время обновления              |
 
 #### `domain_expiry_monitoring` — Отслеживание доменов
 
-| Колонка | Тип | Описание |
-|---------|-----|----------|
-| `id` | UUID | Первичный ключ |
-| `user_id` | UUID | ID владельца домена |
-| `domain_id` | UUID | ID домена |
-| `alert_days` | INTEGER | Период предупреждения в днях |
+| Колонка       | Тип         | Описание                     |
+|---------------|-------------|------------------------------|
+| `id`          | UUID        | Первичный ключ               |
+| `user_id`     | UUID        | ID владельца домена          |
+| `domain_id`   | UUID        | ID домена                    |
+| `alert_days`  | INTEGER     | Период предупреждения в днях |
 | `notified_at` | TIMESTAMPTZ | Время последнего уведомления |
-| `created_at` | TIMESTAMPTZ | Время создания |
-| `updated_at` | TIMESTAMPTZ | Время обновления |
+| `created_at`  | TIMESTAMPTZ | Время создания               |
+| `updated_at`  | TIMESTAMPTZ | Время обновления             |
 
 ## Диаграммы
 
@@ -195,35 +195,60 @@ sequenceDiagram
 ### BPMN Diagram — Процесс отправки уведомления
 
 ```mermaid
-flowchart TD
-    Start([Начало]) --> ReceiveRequest[Получить POST /notifications/send]
+flowchart TB
+    subgraph UserLane["         Пользователь"]
+        Start([Начало])
+        Return401([401 Unauthorized])
+        Return400([400 Bad Request])
+        Return500([500 Internal Server Error])
+        Return202([202 Accepted])
+        End([Конец])
+    end
 
-    ReceiveRequest --> CheckAuth{Проверить JWT}
-    CheckAuth -- Нет токена --> Return401([401 Unauthorized])
-    CheckAuth -- Токен есть --> ValidateToken[Проверить подпись JWT]
+    subgraph NotificationLane["         notification-service"]
+        ReceiveRequest[Получить POST /notifications/send]
+        CheckAuth{Проверить JWT}
+        ValidateToken[Проверить подпись JWT]
+        ExtractUser[Извлечь userId/email из токена]
+        ValidateRequest[Валидировать запрос]
+        HasType{Указан тип?}
+        GetTemplate[Получить шаблон<br/>по типу]
+        ProcessTemplate[Обработать шаблон<br/>с параметрами]
+        CreateEmail[Создать email<br/>HTML + UTF-8]
+    end
+
+    subgraph SmtplLane["         SMTP сервер"]
+        SendSMTP[Отправить через SMTP]
+        IsSuccess{Успешно?}
+    end
+
+    Start --> ReceiveRequest
+    ReceiveRequest --> CheckAuth
+    CheckAuth -- Нет токена --> Return401
+    CheckAuth -- Токен есть --> ValidateToken
 
     ValidateToken --> IsValid{Валидный?}
-    IsValid -- Нет --> Return401([401 Unauthorized])
-    IsValid -- Да --> ExtractUser[Извлечь userId/email из токена]
+    IsValid -- Нет --> Return401
+    IsValid -- Да --> ExtractUser
 
-    ExtractUser --> ValidateRequest[Валидировать запрос]
+    ExtractUser --> ValidateRequest
 
-    ValidateRequest --> HasType{Указан тип?}
-    HasType -- Нет --> Return400([400 Bad Request])
-    HasType -- Да --> GetTemplate[Получить шаблон<br/>по типу]
+    ValidateRequest --> HasType
+    HasType -- Нет --> Return400
+    HasType -- Да --> GetTemplate
 
-    GetTemplate --> ProcessTemplate[Обработать шаблон<br/>с параметрами]
+    GetTemplate --> ProcessTemplate
 
-    ProcessTemplate --> CreateEmail[Создать email<br/>HTML + UTF-8]
+    ProcessTemplate --> CreateEmail
 
-    CreateEmail --> SendSMTP[Отправить через SMTP]
+    CreateEmail --> SendSMTP
 
-    SendSMTP --> IsSuccess{Успешно?}
-    IsSuccess -- Нет --> Return500([500 Internal Server Error])
-    IsSuccess -- Да --> Return202([202 Accepted])
+    SendSMTP --> IsSuccess
+    IsSuccess -- Нет --> Return500
+    IsSuccess -- Да --> Return202
 
     Start -.-> Return401
-    Return401 -.-> End([Конец])
+    Return401 -.-> End
     Return400 -.-> End
     Return500 -.-> End
     Return202 -.-> End
@@ -240,15 +265,15 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph Frontend[Frontend]
+    subgraph FrontendLane["         Frontend"]
         Client[React App]
     end
 
-    subgraph Gateway[API Gateway :8080]
+    subgraph GatewayLane["         API Gateway"]
         Router[Маршрутизация<br/>StripPrefix 1]
     end
 
-    subgraph Notif[notification-service :8085]
+    subgraph NotificationLane["         notification-service"]
         Filter[JwtAuthenticationFilter]
         Controller[NotificationController]
         Service[NotificationService]
@@ -256,8 +281,8 @@ flowchart LR
         Template[Thymeleaf]
     end
 
-    subgraph External[Внешние сервисы]
-        AuthS[auth-service :8081<br/>JWT issuer]
+    subgraph ExternalLane["         Внешние сервисы"]
+        AuthS[auth-service<br/>JWT issuer]
         SMTP[SMTP сервер<br/>Yandex Postbox]
         DB[PostgreSQL<br/>notification_db]
     end
@@ -275,9 +300,9 @@ flowchart LR
     Controller -.-> Router
     Router -.-> Client
 
-    style Gateway fill:#e3f2fd
-    style Notif fill:#f3e5f5
-    style External fill:#fff3e0
+    style GatewayLane fill:#e3f2fd
+    style NotificationLane fill:#f3e5f5
+    style ExternalLane fill:#fff3e0
 ```
 
 ## Зависимости между сервисами
@@ -300,15 +325,15 @@ graph LR
 
 Шаблоны расположены в `src/main/resources/templates/emails/`:
 
-| Файл | Тип уведомления | Параметры |
-|------|-----------------|-----------|
-| `order-created.html` | ORDER_CREATED | `orderId`, `totalAmount` |
-| `payment-approved.html` | PAYMENT_APPROVED | `orderId`, `amount`, `domainName` |
-| `domain-activated.html` | DOMAIN_ACTIVATED | `domains` (список), `expiresAt` |
+| Файл                        | Тип уведомления      | Параметры                             |
+|-----------------------------|----------------------|---------------------------------------|
+| `order-created.html`        | ORDER_CREATED        | `orderId`, `totalAmount`              |
+| `payment-approved.html`     | PAYMENT_APPROVED     | `orderId`, `amount`, `domainName`     |
+| `domain-activated.html`     | DOMAIN_ACTIVATED     | `domains` (список), `expiresAt`       |
 | `domain-expiring-soon.html` | DOMAIN_EXPIRING_SOON | `domainName`, `expiresAt`, `daysLeft` |
-| `domain-expired.html` | DOMAIN_EXPIRED | `domainName`, `expiresAt` |
-| `domain-renewed.html` | DOMAIN_RENEWED | `domains` (map domain->newExpiry) |
-| `email-verification.html` | EMAIL_VERIFICATION | `verificationLink` |
+| `domain-expired.html`       | DOMAIN_EXPIRED       | `domainName`, `expiresAt`             |
+| `domain-renewed.html`       | DOMAIN_RENEWED       | `domains` (map domain->newExpiry)     |
+| `email-verification.html`   | EMAIL_VERIFICATION   | `verificationLink`                    |
 
 Все шаблоны на русском языке с HTML форматированием и inline стилями.
 

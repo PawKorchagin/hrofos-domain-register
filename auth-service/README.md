@@ -73,67 +73,67 @@ auth-service/
 
 **Таблицы:**
 
-| Таблица | Описание |
-|---------|----------|
-| `app_user` | Пользователи системы |
-| `refresh_token` | JWT refresh токены |
-| `auth_factor` | Факторы двухфакторной аутентификации |
+| Таблица         | Описание                             |
+|-----------------|--------------------------------------|
+| `app_user`      | Пользователи системы                 |
+| `refresh_token` | JWT refresh токены                   |
+| `auth_factor`   | Факторы двухфакторной аутентификации |
 
 **База данных:** `auth_db` (PostgreSQL)
 
 ## Конфигурация
 
-| Параметр | Описание | По умолчанию |
-|----------|----------|--------------|
-| `server.port` | Порт сервиса | 8081 |
-| `JWT_SECRET` | Ключ для подписи JWT токенов | your-256-bit-secret-key... |
-| `jwt.access-token-expiration-minutes` | Время жизни access токена (мин) | 15 |
-| `jwt.refresh-token-expiration-days` | Время жизни refresh токена (дни) | 30 |
-| `AUDIT_SERVICE_URL` | Базовый URL audit-service | http://localhost:8087 |
-| `NOTIFICATION_SERVICE_URL` | Базовый URL notification-service | http://localhost:8085 |
-| `API_GATEWAY_URL` | Базовый URL api-gateway | http://localhost:8080 |
-| `verification.base-url` | Базовый URL для верификации | http://localhost:8080 |
+| Параметр                              | Описание                         | По умолчанию               |
+|---------------------------------------|----------------------------------|----------------------------|
+| `server.port`                         | Порт сервиса                     | 8081                       |
+| `JWT_SECRET`                          | Ключ для подписи JWT токенов     | your-256-bit-secret-key... |
+| `jwt.access-token-expiration-minutes` | Время жизни access токена (мин)  | 15                         |
+| `jwt.refresh-token-expiration-days`   | Время жизни refresh токена (дни) | 30                         |
+| `AUDIT_SERVICE_URL`                   | Базовый URL audit-service        | http://localhost:8087      |
+| `NOTIFICATION_SERVICE_URL`            | Базовый URL notification-service | http://localhost:8085      |
+| `API_GATEWAY_URL`                     | Базовый URL api-gateway          | http://localhost:8080      |
+| `verification.base-url`               | Базовый URL для верификации      | http://localhost:8080      |
 
 ## API Endpoints
 
 ### Аутентификация
 
-| Метод | Эндпоинт | Описание | Требуется аутентификация |
-|-------|----------|----------|--------------------------|
-| POST | `/auth/register` | Регистрация пользователя | Нет |
-| POST | `/auth/login` | Вход в систему | Нет |
-| GET | `/auth/verify-email` | Верификация email | Нет |
-| POST | `/auth/resend-verification` | Повторная отправка верификации | Нет |
-| POST | `/auth/refresh` | Обновление токенов | Нет |
-| GET | `/auth/health` | Проверка здоровья сервиса | Нет |
+| Метод | Эндпоинт                    | Описание                       | Требуется аутентификация |
+|-------|-----------------------------|--------------------------------|--------------------------|
+| POST  | `/auth/register`            | Регистрация пользователя       | Нет                      |
+| POST  | `/auth/login`               | Вход в систему                 | Нет                      |
+| GET   | `/auth/verify-email`        | Верификация email              | Нет                      |
+| POST  | `/auth/resend-verification` | Повторная отправка верификации | Нет                      |
+| POST  | `/auth/refresh`             | Обновление токенов             | Нет                      |
+| GET   | `/auth/health`              | Проверка здоровья сервиса      | Нет                      |
 
 ### Двухфакторная аутентификация
 
-| Метод | Эндпоинт | Описание | Требуется аутентификация |
-|-------|----------|----------|--------------------------|
-| GET | `/auth/2fa/setup` | Генерация QR-кода для 2FA | Да |
-| POST | `/auth/2fa/enable` | Включение 2FA | Да |
-| POST | `/auth/2fa/disable` | Отключение 2FA | Да |
-| GET | `/auth/2fa/status` | Статус 2FA | Да |
+| Метод | Эндпоинт            | Описание                  | Требуется аутентификация |
+|-------|---------------------|---------------------------|--------------------------|
+| GET   | `/auth/2fa/setup`   | Генерация QR-кода для 2FA | Да                       |
+| POST  | `/auth/2fa/enable`  | Включение 2FA             | Да                       |
+| POST  | `/auth/2fa/disable` | Отключение 2FA            | Да                       |
+| GET   | `/auth/2fa/status`  | Статус 2FA                | Да                       |
 
 ### Пользователи
 
-| Метод | Эндпоинт | Описание | Требуется аутентификация |
-|-------|----------|----------|--------------------------|
-| GET | `/users/{id}` | Получить пользователя по ID | Да |
-| GET | `/users/{id}/email` | Получить email пользователя | Да |
+| Метод | Эндпоинт            | Описание                    | Требуется аутентификация |
+|-------|---------------------|-----------------------------|--------------------------|
+| GET   | `/users/{id}`       | Получить пользователя по ID | Да                       |
+| GET   | `/users/{id}/email` | Получить email пользователя | Да                       |
 
 ### Статистика (ADMIN)
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| GET | `/auth/stats/users-count` | Количество пользователей | ADMIN |
+| Метод | Эндпоинт                  | Описание                 | Требуется роль |
+|-------|---------------------------|--------------------------|----------------|
+| GET   | `/auth/stats/users-count` | Количество пользователей | ADMIN          |
 
 ### Внутренние (ADMIN)
 
-| Метод | Эндпоинт | Описание | Требуется роль |
-|-------|----------|----------|----------------|
-| POST | `/auth/internal/emails` | Получить email по ID пользователей | ADMIN |
+| Метод | Эндпоинт                | Описание                           | Требуется роль |
+|-------|-------------------------|------------------------------------|----------------|
+| POST  | `/auth/internal/emails` | Получить email по ID пользователей | ADMIN          |
 
 ## Диаграммы
 
@@ -314,43 +314,75 @@ sequenceDiagram
 ### BPMN Diagram — Процесс входа в систему
 
 ```mermaid
-flowchart TD
-    Start([Начало]) --> Receive[Получить запрос на вход<br/>email, password, totpCode?]
+flowchart TB
+    subgraph UserLane["         Пользователь"]
+        Start([Начало])
+        AuthFail([401 Unauthorized])
+        VerifyFail([403 Forbidden])
+        TOTPFail(["Требуется TOTP код"])
+        Return200([200 OK<br/>accessToken, refreshToken])
+        End([Конец])
+    end
 
-    Receive --> FindUser[Найти пользователя по email]
-    FindUser --> UserExists{Пользователь<br/>найден?}
+    subgraph AuthLane["         auth-service"]
+        Receive[Получить запрос на вход<br/>email, password, totpCode?]
+        FindUser[Найти пользователя по email]
+        UserExists{Пользователь<br/>найден?}
+        CheckPassword[Проверить пароль]
+        ValidPass{Пароль<br/>верный?}
+        CheckVerified{Email<br/>подтверждён?}
+        Check2FA[Проверить статус 2FA]
+        TwoFA{2FA<br/>включена?}
+        HasCode{Передан<br/>TOTP код?}
+    end
 
-    UserExists -- Нет --> AuthFail([401 Unauthorized])
-    UserExists -- Да --> CheckPassword[Проверить пароль]
+    subgraph TOTPLane["         TOTP"]
+        VerifyTOTP[Проверить TOTP код]
+        ValidTOTP{Код<br/>верный?}
+    end
 
-    CheckPassword --> ValidPass{Пароль<br/>верный?}
+    subgraph TokenLane["         Токены"]
+        GenerateTokens[Создать токены]
+        DeleteOld[Удалить старые<br/>refresh-токены]
+        SaveNew[Сохранить новый<br/>refresh-токен]
+    end
+
+    subgraph AuditLane["         audit-service"]
+        LogAudit[Записать в аудит]
+    end
+
+    Start --> Receive
+    Receive --> FindUser
+    FindUser --> UserExists
+    UserExists -- Нет --> AuthFail
+    UserExists -- Да --> CheckPassword
+
+    CheckPassword --> ValidPass
     ValidPass -- Нет --> AuthFail
-    ValidPass -- Да --> CheckVerified{Email<br/>подтверждён?}
+    ValidPass -- Да --> CheckVerified
 
-    CheckVerified -- Нет --> VerifyFail([403 Forbidden])
-    CheckVerified -- Да --> Check2FA[Проверить статус 2FA]
+    CheckVerified -- Нет --> VerifyFail
+    CheckVerified -- Да --> Check2FA
 
-    Check2FA --> TwoFA{2FA<br/>включена?}
+    Check2FA --> TwoFA
 
     TwoFA -- Нет --> GenerateTokens
-    TwoFA -- Да --> HasCode{Передан<br/>TOTP код?}
+    TwoFA -- Да --> HasCode
 
-    HasCode -- Нет --> TOTPFail(["Требуется TOTP код"])
-    HasCode -- Да --> VerifyTOTP[Проверить TOTP код]
+    HasCode -- Нет --> TOTPFail
+    HasCode -- Да --> VerifyTOTP
 
-    VerifyTOTP --> ValidTOTP{Код<br/>верный?}
+    VerifyTOTP --> ValidTOTP
     ValidTOTP -- Нет --> TOTPFail
-    ValidTOTP -- Да --> GenerateTokens[Создать токены]
+    ValidTOTP -- Да --> GenerateTokens
 
-    GenerateTokens --> DeleteOld[Удалить старые<br/>refresh-токены]
-    DeleteOld --> SaveNew[Сохранить новый<br/>refresh-токен]
-
-    SaveNew --> LogAudit[Записать в аудит]
-
-    LogAudit --> Return200([200 OK<br/>accessToken, refreshToken])
+    GenerateTokens --> DeleteOld
+    DeleteOld --> SaveNew
+    SaveNew --> LogAudit
+    LogAudit --> Return200
 
     Start -.-> AuthFail
-    AuthFail -.-> End([Конец])
+    AuthFail -.-> End
     VerifyFail -.-> End
     TOTPFail -.-> End
     Return200 -.-> End
@@ -366,39 +398,60 @@ flowchart TD
 ### BPMN Diagram — Процесс регистрации
 
 ```mermaid
-flowchart TD
-    Start([Начало]) --> Receive[Получить запрос на регистрацию<br/>email, password]
+flowchart TB
+    subgraph UserLane["         Пользователь"]
+        Start([Начало])
+        ValidationFail([400 Bad Request<br/>Ошибка валидации])
+        EmailFail([409 Conflict])
+        Return201([201 Created<br/>id, email, ...])
+        End([Конец])
+    end
 
-    Receive --> Validate[Валидировать данные<br/>password >${DB_USER:***REMOVED***} 8 символов]
-    Validate --> ValidData{Данные<br/>валидны?}
+    subgraph AuthLane["         auth-service"]
+        Receive[Получить запрос на регистрацию<br/>email, password]
+        Validate[Валидировать данные<br/>password >= 8 символов]
+        ValidData{Данные<br/>валидны?}
+        CheckEmail[Проверить email<br/>на занятость]
+        EmailExists{Email уже<br/>существует?}
+        HashPass[Хешировать пароль]
+        GenerateToken[Создать<br/>verificationToken UUID]
+        SaveUser[Сохранить пользователя в БД]
+        LogAudit["User registered"]
+        BuildLink[Сформировать<br/>verificationLink]
+        CreateResponse[Сформировать ответ]
+        LogWarning[Лог warning<br/>продолжаем]
+    end
 
-    ValidData -- Нет --> ValidationFail([400 Bad Request<br/>Ошибка валидации])
-    ValidData -- Да --> CheckEmail[Проверить email<br/>на занятость]
+    subgraph NotifLane["         notification-service"]
+        SendEmail[Отправить email]
+        EmailSent{Email отправлен<br/>успешно?}
+    end
 
-    CheckEmail --> EmailExists{Email уже<br/>существует?}
+    Start --> Receive
+    Receive --> Validate
+    Validate --> ValidData
+    ValidData -- Нет --> ValidationFail
+    ValidData -- Да --> CheckEmail
 
-    EmailExists -- Да --> EmailFail([409 Conflict])
-    EmailExists -- Нет --> HashPass[Хешировать пароль]
+    CheckEmail --> EmailExists
+    EmailExists -- Да --> EmailFail
+    EmailExists -- Нет --> HashPass
 
-    HashPass --> GenerateToken[Создать<br/>verificationToken UUID]
+    HashPass --> GenerateToken
+    GenerateToken --> SaveUser
+    SaveUser --> LogAudit
+    LogAudit --> BuildLink
+    BuildLink --> SendEmail
 
-    GenerateToken --> SaveUser[Сохранить пользователя в БД]
-
-    SaveUser --> LogAudit["User registered"]
-
-    LogAudit --> BuildLink[Сформировать<br/>verificationLink]
-    BuildLink --> SendEmail[Отправить email через<br/>notification-service]
-
-    SendEmail --> EmailSent{Email отправлен<br/>успешно?}
-
-    EmailSent -- Нет --> LogWarning[Лог warning<br/>продолжаем]
+    SendEmail --> EmailSent
+    EmailSent -- Нет --> LogWarning
     EmailSent -- Да --> CreateResponse
-    LogWarning --> CreateResponse[Сформировать ответ]
+    LogWarning --> CreateResponse
 
-    CreateResponse --> Return201([201 Created<br/>id, email, ...])
+    CreateResponse --> Return201
 
     Start -.-> ValidationFail
-    ValidationFail -.-> End([Конец])
+    ValidationFail -.-> End
     EmailFail -.-> End
     Return201 -.-> End
 
@@ -413,15 +466,15 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph Frontend["Frontend"]
+    subgraph FrontendLane["         Frontend"]
         Client[React App]
     end
 
-    subgraph Gateway["API Gateway :8080"]
+    subgraph GatewayLane["         API Gateway"]
         Router[Маршрутизация<br/>StripPrefix 1]
     end
 
-    subgraph Auth["auth-service :8081"]
+    subgraph AuthLane["         auth-service"]
         Filter[JwtAuthenticationFilter]
         AuthC[AuthController]
         TwoFactorC[TwoFactorController]
@@ -429,15 +482,15 @@ flowchart LR
         TwoFactorS[TwoFactorService]
     end
 
-    subgraph DB["PostgreSQL :5432"]
+    subgraph DBLane["         PostgreSQL"]
         UserDB[app_user]
         TokenDB[refresh_token]
         FactorDB[auth_factor]
     end
 
-    subgraph Services["Внешние сервисы"]
-        Notif["notification-service :8085"]
-        Audit["audit-service :8087"]
+    subgraph ServicesLane["         Внешние сервисы"]
+        Notif["notification-service"]
+        Audit["audit-service"]
     end
 
     Client -->|POST /api/auth/register| Router
@@ -470,10 +523,10 @@ flowchart LR
     TwoFactorC -.-> Router
     Router -.-> Client
 
-    style Gateway fill:#e3f2fd
-    style Auth fill:#f3e5f5
-    style Services fill:#fff3e0
-    style DB fill:#e8f5e9
+    style GatewayLane fill:#e3f2fd
+    style AuthLane fill:#f3e5f5
+    style ServicesLane fill:#fff3e0
+    style DBLane fill:#e8f5e9
 ```
 
 ## Зависимости между сервисами
@@ -496,10 +549,10 @@ graph LR
 
 Типы токенов:
 
-| Тип | Срок действия | Хранение | Назначение |
-|-----|---------------|----------|------------|
-| Access Token | 15 минут | Клиент (localStorage/cookie) | Доступ к защищённым эндпоинтам |
-| Refresh Token | 30 дней | База данных (refresh_token) | Получение нового access token |
+| Тип           | Срок действия | Хранение                     | Назначение                     |
+|---------------|---------------|------------------------------|--------------------------------|
+| Access Token  | 15 минут      | Клиент (localStorage/cookie) | Доступ к защищённым эндпоинтам |
+| Refresh Token | 30 дней       | База данных (refresh_token)  | Получение нового access token  |
 
 **Payload Access Token:**
 ```json
