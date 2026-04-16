@@ -79,19 +79,19 @@ sequenceDiagram
     participant Notif as notification-service
     participant Audit as audit-service
 
-    U->>GW: POST /api/auth/register<br/>{email, password}
+    U->>GW: POST /api/auth/register {email, password}
     GW->>Auth: POST /auth/register
 
     Auth->>DB: Найти пользователя по email
     DB-->>Auth: email свободен
 
-    Auth->>Auth: Хешировать пароль<br/>Создать токен верификации
+    Auth->>Auth: Хешировать пароль Создать токен верификации
 
     Auth->>DB: Сохранить пользователя
     DB-->>Auth: Пользователь создан
 
     Auth->>Audit: Логирование: "Пользователь зарегистрирован"
-    Auth->>Notif: Отправить уведомление<br/>EMAIL_VERIFICATION
+    Auth->>Notif: Отправить уведомление EMAIL_VERIFICATION
 
     Notif->>Notif: Получить email пользователя
     Notif->>Notif: Сгенерировать HTML письмо
@@ -102,7 +102,7 @@ sequenceDiagram
 
     Note over U: Пользователь переходит по ссылке
 
-    U->>GW: GET /api/auth/verify-email?token${DB_USER:***REMOVED***}xxx
+    U->>GW: GET /api/auth/verify-email?token=...
     GW->>Auth: GET /auth/verify-email
 
     Auth->>DB: Отметить email как подтверждённый
@@ -123,7 +123,7 @@ sequenceDiagram
     participant TOTP as TOTP-верификатор
     participant Audit as audit-service
 
-    U->>GW: POST /api/auth/login<br/>{email, password, totpCode?}
+    U->>GW: POST /api/auth/login {email, password, totpCode?}
     GW->>Auth: POST /auth/login
 
     Auth->>DB: Найти пользователя по email
@@ -144,11 +144,11 @@ sequenceDiagram
     Auth->>DB: Удалить старые refresh-токены
     Auth->>DB: Сохранить новый refresh-токен
 
-    Auth->>Auth: Создать access-токен (15 мин)<br/>Создать refresh-токен (30 дней)
+    Auth->>Auth: Создать access-токен (15 мин) Создать refresh-токен (30 дней)
 
     Auth->>Audit: Логирование: "Пользователь вошёл"
 
-    Auth-->>GW: 200 OK<br/>{accessToken, refreshToken, userId, email}
+    Auth-->>GW: 200 OK {accessToken, refreshToken, userId, email}
     GW-->>U: Токены получены
 ```
 
@@ -173,22 +173,22 @@ sequenceDiagram
         Order->>DB: Добавить домен в корзину
     end
 
-    U->>GW: POST /api/orders/cart/checkout<br/>{period: MONTH/YEAR}
+    U->>GW: POST /api/orders/cart/checkout {period: MONTH/YEAR}
     GW->>Order: POST /orders/cart/checkout
 
     Order->>DB: Получить корзину пользователя
-    Order->>Order: Рассчитать стоимость<br/>(кол-во * цена * множитель)
+    Order->>Order: Рассчитать стоимость (кол-во * цена * множитель)
 
-    Order->>Payment: Создать платёж<br/>{domains, amount, currency}
-    Payment->>Domain: Забронировать домены<br/>на время оплаты
-    Domain->>Domain: Создать запись бронирования<br/>с TTL
+    Order->>Payment: Создать платёж {domains, amount, currency}
+    Payment->>Domain: Забронировать домены на время оплаты
+    Domain->>Domain: Создать запись бронирования с TTL
 
-    Payment-->>Order: 200 OK<br/>{paymentId, paymentUrl}
+    Payment-->>Order: 200 OK {paymentId, paymentUrl}
 
     Order->>DB: Очистить корзину
     Order->>Audit: Логирование: "Платёж инициирован"
 
-    Order-->>GW: 200 OK<br/>{paymentId, paymentUrl}
+    Order-->>GW: 200 OK {paymentId, paymentUrl}
     GW-->>U: Платёжная ссылка
 
     Note over U: Пользователь оплачивает
@@ -222,7 +222,7 @@ sequenceDiagram
     participant Query as DNS запрос
     participant Audit as audit-service
 
-    U->>GW: POST /api/domains/l3Domains/sub.example.com<br/>{type: A, value: 1.2.3.4}
+    U->>GW: POST /api/domains/l3Domains/sub.example.com {type: A, value: 1.2.3.4}
     GW->>Domain: POST /domains/l3Domains/sub.example.com
 
     Domain->>Domain: Проверить JWT и userId
@@ -230,11 +230,11 @@ sequenceDiagram
     Domain->>DB: Создать L3 домен (sub.example.com)
     Domain->>DB: Создать DNS запись
 
-    Domain->>Dns: Получить текущую зону<br/>Bearer token
+    Domain->>Dns: Получить текущую зону Bearer token
     Dns-->>Domain: Текущая версия
 
     Domain->>Domain: Собрать все записи
-    Domain->>Dns: Обновить зону<br/>{version, records}
+    Domain->>Dns: Обновить зону {version, records}
     Dns-->>Domain: 200 OK
 
     Domain->>DB: Обновить версию зоны
@@ -261,12 +261,12 @@ sequenceDiagram
     participant Notif as notification-service
     participant Audit as audit-service
 
-    U->>GW: POST /api/orders/domains/renew<br/>{domains, period}
+    U->>GW: POST /api/orders/domains/renew {domains, period}
     GW->>Order: POST /orders/domains/renew
 
-    Order->>Domain: Продлить домены<br/>{domains, period}
+    Order->>Domain: Продлить домены {domains, period}
 
-    Domain->>Domain: Для каждого домена:<br/>Проверить владельца<br/>Рассчитать дату окончания
+    Domain->>Domain: Для каждого домена: Проверить владельца Рассчитать дату окончания
 
     Domain->>Domain: Обновить finishedAt в БД
 
@@ -277,7 +277,7 @@ sequenceDiagram
     Order-->>GW: 200 OK
     GW-->>U: Домены продлены
 
-    Note over Domain: Если домены платные:<br/>создаётся платёж через PaymentService
+    Note over Domain: Если домены платные: создаётся платёж через PaymentService
 ```
 
 ### Sequence Diagram — Генерация административного отчёта
@@ -291,7 +291,7 @@ sequenceDiagram
     participant Domain as domain-service
     participant Audit as audit-service
 
-    Admin->>GW: GET /api/admin/report<br/>Authorization: Bearer JWT
+    Admin->>GW: GET /api/admin/report Authorization: Bearer JWT
     GW->>Svc: GET /admin/report
 
     Svc->>Svc: Проверить роль ADMIN
@@ -300,7 +300,7 @@ sequenceDiagram
     Auth-->>Svc: 150 пользователей
 
     Svc->>Domain: Получить статистику доменов
-    Domain-->>Svc: {активных: 85,<br/>доменов: 320}
+    Domain-->>Svc: {активных: 85, доменов: 320}
 
     Svc->>Svc: Сформировать отчёт в Markdown
 
@@ -346,7 +346,7 @@ flowchart TB
         Start([Начало])
         WaitVerify[Ожидание клика в email]
         AddToCart[Добавить домены в корзину]
-        Checkout[Оформить заказ<br/>Выбор периода]
+        Checkout[Оформить заказ Выбор периода]
         Success([Домен активирован])
         Fail([Домен не зарегистрирован])
         End([Конец])
@@ -356,7 +356,7 @@ flowchart TB
         Register[Зарегистрироваться]
         RegSuccess[Пользователь создан]
         VerifyEmail[Подтвердить email]
-        EmailVerified{Email<br/>подтверждён?}
+        EmailVerified{Email подтверждён?}
         Login[Войти в систему]
         GetToken[Получить JWT токены]
     end
@@ -368,7 +368,7 @@ flowchart TB
     subgraph PaymentLane["         payment-service"]
         CreatePayment[Создать платёж]
         Reserve[Забронировать домены]
-        UserPay{Оплата<br/>успешна?}
+        UserPay{Оплата успешна?}
     end
 
     subgraph DomainLane["         domain-service"]
@@ -446,19 +446,19 @@ flowchart LR
     end
 
     subgraph ServicesLane["         Микросервисы"]
-        Auth[auth-service<br/>Аутентификация]
-        Domain[domain-service<br/>Домены и DNS]
-        Payment[payment-service<br/>Платежи]
-        Order[order-service<br/>Корзина и заказы]
-        Notif[notification-service<br/>Email уведомления]
-        Admin[admin-service<br/>Отчёты]
-        Audit[audit-service<br/>Аудит логи]
-        Scheduler[scheduler-service<br/>Задачи]
+        Auth[auth-service Аутентификация]
+        Domain[domain-service Домены и DNS]
+        Payment[payment-service Платежи]
+        Order[order-service Корзина и заказы]
+        Notif[notification-service Email уведомления]
+        Admin[admin-service Отчёты]
+        Audit[audit-service Аудит логи]
+        Scheduler[scheduler-service Задачи]
     end
 
     subgraph ExternalLane["         Внешние сервисы"]
-        Exdns[exdns<br/>DNS сервер]
-        SMTP[SMTP<br/>Yandex Postbox]
+        Exdns[exdns DNS сервер]
+        SMTP[SMTP Yandex Postbox]
         YooKassa[YooKassa API]
     end
 
@@ -533,17 +533,17 @@ flowchart TB
     end
 
     subgraph SecurityLane["         Безопасность"]
-        HasToken{Передан<br/>Authorization<br/>Bearer?}
+        HasToken{Передан Authorization Bearer?}
         JwtFilter[JWT фильтр]
         Validate[Проверить токен]
-        IsValid{Токен<br/>валидный?}
-        ExtractClaims[Извлечь userId,<br/>email, isAdmin]
-        CreateAuth[Создать аутентификацию<br/>ROLE_USER + ROLE_ADMIN?]
+        IsValid{Токен валидный?}
+        ExtractClaims[Извлечь userId, email, isAdmin]
+        CreateAuth[Создать аутентификацию ROLE_USER + ROLE_ADMIN?]
         SecurityCtx[Установить в контекст]
-        IsPublic{Публичный<br/>эндпоинт?}
-        IsAuthenticated{Требуется<br/>аутентификация?}
-        HasAdmin{Требуется<br/>роль ADMIN?}
-        CheckAdmin{Пользователь<br/>ADMIN?}
+        IsPublic{Публичный эндпоинт?}
+        IsAuthenticated{Требуется аутентификация?}
+        HasAdmin{Требуется роль ADMIN?}
+        CheckAdmin{Пользователь ADMIN?}
         PassFilter[Разрешить доступ]
     end
 
@@ -617,13 +617,13 @@ flowchart TB
         Start([Свободен])
         Cancel[Отмена брони]
         Active([Активен])
-        Reserved[Забронирован<br/>TTL: 15 мин]
-        Renewed[Продлён<br/>finishedAt + period]
-        Expired[Истёк<br/>finishedAt < now]
+        Reserved[Забронирован TTL: 15 мин]
+        Renewed[Продлён finishedAt + period]
+        Expired[Истёк finishedAt < now]
     end
 
     subgraph PaymentLane["         payment-service"]
-        Payment{Оплата<br/>успешна?}
+        Payment{Оплата успешна?}
     end
 
     subgraph NotifLane["         notification-service"]
@@ -635,9 +635,9 @@ flowchart TB
     end
 
     subgraph UserLane["         Пользователь"]
-    Renew{Пользователь<br/>продлевает?}
-    RenewCheck{Продлён до<br/>истечения?}
-        Delete{Админ<br/>удаляет?}
+    Renew{Пользователь продлевает?}
+    RenewCheck{Продлён до истечения?}
+        Delete{Админ удаляет?}
         Deleted[Удалён]
         End([Конец])
     end
@@ -657,7 +657,7 @@ flowchart TB
     Renew -- Да --> Renewed
     Renewed --> Active
 
-    Active --> Expiring{Истекает<br/>через 7 дней?}
+    Active --> Expiring{Истекает через 7 дней?}
 
     Expiring -- Да --> Reminder
     Reminder --> RenewCheck
@@ -680,6 +680,512 @@ flowchart TB
     style Expired fill:#ef9a9a
     style Deleted fill:#b0bec5
     style End fill:#fce1e1
+```
+
+#### Class Diagram
+
+```mermaid
+classDiagram
+    direction TB
+
+    class User {
+        +UUID id
+        +String email
+        +String passwordHash
+        +Boolean emailVerified
+        +Boolean isAdmin
+    }
+
+    class RefreshToken {
+        +UUID id
+        +UUID userId
+        +String token
+        +LocalDateTime expiresAt
+    }
+
+    class Cart {
+        +UUID userId
+        +String l3Domain
+    }
+
+    class Domain {
+        +Long id
+        +String domainPart
+        +Long domainVersion
+        +UUID userId
+        +LocalDateTime activatedAt
+        +LocalDateTime finishedAt
+    }
+
+    class DnsRecord {
+        +Long id
+        +String recordData
+    }
+
+    class Payment {
+        +UUID id
+        +UUID userId
+        +String period
+        +Integer amount
+        +String currency
+        +PaymentStatus status
+        +String paymentUrl
+        +boolean domainsCreated
+    }
+
+    class PaymentStatus {
+        <<enumeration>>
+        CREATED
+        PENDING
+        PAID
+        FAILED
+    }
+
+    class AuditEvent {
+        +Long id
+        +String description
+        +UUID userId
+        +LocalDateTime eventTime
+    }
+
+    User "1" --> "0..*" RefreshToken : хранит сессии
+    Domain "1" --> "0..*" DnsRecord : зона и записи
+    Domain "0..1" --> "0..*" Domain : parent / children
+    Payment "1" --> "1" PaymentStatus
+    Cart ..> User : userId без FK между сервисами
+```
+
+#### Object Diagram
+
+```mermaid
+flowchart TB
+    subgraph objects["Экземпляры в один момент времени"]
+        o1["userAlice : User id = uuid-alice email = alice@example.com emailVerified = true"]
+        o2["cartRow1 : Cart userId = uuid-alice l3Domain = shop.example.com"]
+        o3["paymentCheckout : Payment id = uuid-payment-1 status = PENDING amount = 9900 RUB"]
+        o4["reservationSlot : Reservation l3Domain = shop.example.com ttlMinutes = 15"]
+    end
+
+    o1 -.->|владеет корзиной| o2
+    o1 -.->|инициировала оплату| o3
+    o3 -.->|бронь в domain-service| o4
+```
+
+#### Deployment Diagram
+
+```mermaid
+flowchart TB
+    subgraph host["Хост / Docker Engine"]
+        subgraph net["network: domain-registrar-network"]
+            FE[frontend]
+            GW[api-gateway]
+            RD[(redis)]
+
+            AS[auth-service]
+            DS[domain-service]
+            PS[payment-service]
+            OS[order-service]
+            NS[notification-service]
+            AD[admin-service]
+            AU[audit-service]
+            SCH[scheduler-service]
+
+            PG_A[(postgres auth_db)]
+            PG_D[(postgres domain_db)]
+            PG_P[(postgres payment_db)]
+            PG_O[(postgres order_db)]
+            PG_N[(postgres notification_db)]
+            PG_U[(postgres audit_db)]
+
+            EX[exdns HTTP и DNS]
+        end
+    end
+
+    FE --> GW
+    GW --> RD
+    GW --> AS & DS & PS & OS & NS & AD & AU
+
+    AS --> PG_A
+    DS --> PG_D
+    PS --> PG_P
+    OS --> PG_O
+    NS --> PG_N
+    AU --> PG_U
+
+    DS -->|HTTP Bearer| EX
+    NS -->|SMTP| SMTP[(smtp.yandex.ru)]
+    PS -->|HTTPS| YK[(YooKassa API)]
+    PS --> DS
+    OS --> DS
+    OS --> PS
+    AD --> AS
+    AD --> DS
+    SCH --> DS
+    SCH --> AS
+    SCH --> NS
+```
+
+#### Composite Structure Diagram
+
+```mermaid
+flowchart LR
+    subgraph DomainService["«classifier» domain-service"]
+        direction TB
+        UC[UserDomainApiController «port» REST]
+        SVC[UserDomainServiceImpl «part» бизнес-логика]
+        REPO[(JpaRepository Domain)]
+        AUD[AuditClient «part» outbound]
+        DNS[ExDnsRestClient «part» outbound]
+        UC --> SVC
+        SVC --> REPO
+        SVC --> AUD
+        SVC --> DNS
+    end
+
+    AUD -.->|HTTP POST /audit/events| AuditSvc[audit-service]
+    DNS -.->|HTTP зона| Exdns[exdns]
+```
+
+#### Package Diagram
+
+```mermaid
+flowchart TB
+    subgraph root["project domain-registrar"]
+        GW_MOD[api-gateway]
+        CM[common]
+        AUTH[auth-service]
+        DOM[domain-service]
+        PAY[payment-service]
+        ORD[order-service]
+        NOTIF[notification-service]
+        ADM[admin-service]
+        AUD[audit-service]
+        SCH[scheduler-service]
+    end
+
+    AUTH --> CM
+    DOM --> CM
+    PAY --> CM
+    ORD --> CM
+    NOTIF --> CM
+    ADM --> CM
+    AUD --> CM
+    SCH --> CM
+    GW_MOD -.->|маршрутизация HTTP| AUTH
+    GW_MOD -.-> DOM
+    GW_MOD -.-> PAY
+    GW_MOD -.-> ORD
+    GW_MOD -.-> NOTIF
+    GW_MOD -.-> ADM
+    GW_MOD -.-> AUD
+
+    subgraph front["domains-frontend"]
+        FE[React SPA]
+    end
+
+    FE -.->|/api/**| GW_MOD
+
+    subgraph dns["exdns Elixir"]
+        EX[Bandit + DNS worker]
+    end
+
+    DOM -.-> EX
+```
+
+#### Profile Diagram
+
+```mermaid
+classDiagram
+    class RegistrableZone <<stereotype>> {
+        +syncToDns()
+    }
+
+    class BillableOrder <<stereotype>> {
+        +checkout()
+    }
+
+    class AuditedAction <<stereotype>> {
+        +auditDescription
+    }
+
+    class Domain
+    class Payment
+    class AuthService
+
+    RegistrableZone <|.. Domain
+    BillableOrder <|.. Payment
+    AuditedAction <|.. AuthService
+```
+
+#### Component Diagram
+
+```mermaid
+flowchart TB
+    subgraph client_tier["Клиент"]
+        UI[domains-frontend]
+    end
+
+    subgraph edge["Пограничный слой"]
+        APIGW[api-gateway Spring Cloud Gateway]
+        REDIS[(Redis rate limit / session data)]
+    end
+
+    subgraph core["Микросервисы Spring Boot"]
+        AUTH_C[auth-service JWT TOTP users]
+        DOM_C[domain-service L2 L3 DNS sync]
+        PAY_C[payment-service YooKassa webhook]
+        ORD_C[order-service cart checkout]
+        NOT_C[notification-service SMTP]
+        ADM_C[admin-service reports]
+        AUD_C[audit-service events API]
+        SCH_C[scheduler-service cron tasks]
+    end
+
+    subgraph external["Внешние интерфейсы"]
+        EXDNS_I[exdns HTTP API]
+        YK_I[YooKassa REST]
+        SMTP_I[SMTP]
+    end
+
+    UI -->|HTTPS /api/**| APIGW
+    APIGW --> REDIS
+    APIGW --> AUTH_C
+    APIGW --> DOM_C
+    APIGW --> PAY_C
+    APIGW --> ORD_C
+    APIGW --> NOT_C
+    APIGW --> ADM_C
+    APIGW --> AUD_C
+
+    DOM_C --> EXDNS_I
+    PAY_C --> YK_I
+    PAY_C --> DOM_C
+    ORD_C --> PAY_C
+    ORD_C --> DOM_C
+    NOT_C --> SMTP_I
+    ADM_C --> AUTH_C
+    ADM_C --> DOM_C
+    SCH_C --> DOM_C
+    AUTH_C ..->|AuditClient| AUD_C
+    DOM_C ..->|AuditClient| AUD_C
+    PAY_C ..->|AuditClient| AUD_C
+    ORD_C ..->|AuditClient| AUD_C
+    ADM_C ..->|AuditClient| AUD_C
+```
+
+#### State Machine Diagram
+
+Жизненный цикл `Payment` в `payment-service`.
+
+```mermaid
+stateDiagram-v2
+    [*] --> CREATED: new Payment()
+    CREATED --> PENDING: создание в YooKassa paymentUrl выдан
+    PENDING --> PAID: webhook / подтверждение оплаты
+    PENDING --> FAILED: отказ / таймаут
+    PAID --> [*]
+    FAILED --> [*]
+
+    note right of PENDING
+        domain-service бронирует L3
+        до подтверждения или отмены
+    end note
+```
+
+#### Activity Diagram
+
+Оформление заказа из `order-service`.
+
+```mermaid
+flowchart TB
+    start([Пользователь: checkout корзины]) --> loadCart[Загрузить позиции корзины]
+    loadCart --> calc[Рассчитать сумму и период]
+    calc --> createPay[Вызвать payment-service: создать платёж]
+    createPay --> reserve[payment-service → domain-service: забронировать домены]
+    reserve --> fork{Оплата на стороне YooKassa}
+
+    fork -->|успех| confirm[Подтвердить бронь]
+    confirm --> persist[Создать домены и DNS]
+    persist --> notify[notification-service]
+    notify --> auditOk[audit-service: события]
+    auditOk --> endOk([Конец: домены активны])
+
+    fork -->|неуспех| cancel[Отменить бронь]
+    cancel --> auditFail[audit-service при необходимости]
+    auditFail --> endFail([Конец: без регистрации])
+```
+
+#### Use Case Diagram
+
+```mermaid
+flowchart LR
+    subgraph actors["Акторы"]
+        U((Пользователь))
+        A((Администратор))
+        YK((YooKassa))
+        M((Почтовый сервер SMTP))
+        D((DNS клиент интернета))
+    end
+
+    subgraph system["Hrofos domain register"]
+        UC1[Регистрация и вход JWT]
+        UC2[2FA TOTP]
+        UC3[Управление доменами L2 L3]
+        UC4[Редактирование DNS записей]
+        UC5[Корзина и заказ доменов]
+        UC6[Оплата и вебхуки]
+        UC7[Email уведомления]
+        UC8[Админ отчёты]
+        UC9[Аудит событий]
+        UC10[Планировщик истечения]
+        UC11[Ответ DNS на запросы]
+    end
+
+    U --> UC1
+    U --> UC2
+    U --> UC3
+    U --> UC4
+    U --> UC5
+    UC5 --> UC6
+    UC6 --> YK
+    UC6 --> UC7
+    UC1 --> UC7
+    UC3 --> UC7
+    UC5 --> UC7
+    UC7 --> M
+    A --> UC8
+    A --> UC3
+    UC8 --> UC9
+    U --> UC9
+    UC10 --> UC7
+    UC10 --> UC3
+    UC3 --> UC11
+    D --> UC11
+```
+
+#### Sequence Diagram
+
+Обновление пары токенов по `POST /auth/refresh` в `auth-service`.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as Клиент
+    participant GW as api-gateway
+    participant Auth as auth-service
+    participant JWT as JwtUtil
+    participant RT as RefreshTokenRepository
+    participant DB as auth_db
+
+    C->>GW: POST /api/auth/refresh JSON refreshToken
+    GW->>Auth: POST /auth/refresh
+    Auth->>JWT: validateToken type refresh
+    JWT-->>Auth: OK / исключение
+    Auth->>RT: findByToken(refresh)
+    RT->>DB: SELECT refresh_token
+    DB-->>RT: строка или пусто
+    RT-->>Auth: Optional RefreshToken
+    alt срок не истёк и совпадает пользователь
+        Auth->>JWT: generateAccessToken user
+        Auth->>JWT: generateRefreshToken userId
+        Auth->>RT: delete старый save новый
+        RT->>DB: UPDATE refresh_token
+        Auth-->>GW: 200 accessToken refreshToken
+        GW-->>C: 200
+    else невалидный или просроченный refresh
+        Auth-->>GW: 401 InvalidTokenException
+        GW-->>C: 401
+    end
+```
+
+#### Communication Diagram
+
+Нумерация сообщений в стиле collaboration diagram для сценария «создание DNS записи».
+
+```mermaid
+flowchart TB
+    U([Пользователь])
+    GW[api-gateway]
+    DC[L3DomainApiController]
+    US[UserDomainServiceImpl]
+    REP[DomainRepository]
+    EX[exdns HTTP API]
+
+    U --1 POST /api/domains/...--> GW
+    GW --2 strip /api--> DC
+    DC --3 createRecord dto--> US
+    US --4 find parent L2--> REP
+    REP --5 rows--> US
+    US --6 persist L3 + DnsRecord--> REP
+    US --7 GET/PATCH зона--> EX
+    EX --8 OK новая версия--> US
+    US --9 save domainVersion--> REP
+```
+
+#### Interaction Overview Diagram
+
+Обзор: регистрация домена как последовательность вложенных фрагментов (ref-блоки как подграфы).
+
+```mermaid
+flowchart TB
+    subgraph ref_auth["ref: аутентификация"]
+        A1[login или register]
+        A2[JWT в заголовке]
+    end
+
+    subgraph ref_order["ref: заказ"]
+        O1[корзина POST cart]
+        O2[checkout → paymentId]
+    end
+
+    subgraph ref_pay["ref: оплата"]
+        P1[редирект YooKassa]
+        P2[webhook PAID FAILED]
+    end
+
+    subgraph ref_domain["ref: домены и DNS"]
+        D1[бронь TTL]
+        D2[создание Domain DnsRecord]
+        D3[push зоны в exdns]
+    end
+
+    subgraph ref_side["ref: побочные эффекты"]
+        S1[notification-service]
+        S2[audit-service]
+    end
+
+    ref_auth --> ref_order
+    ref_order --> ref_pay
+    ref_pay --> ref_domain
+    ref_domain --> ref_side
+```
+
+#### Timing Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Order as order-service
+    participant Pay as payment-service
+    participant Dom as domain-service
+    participant DNS as exdns
+
+    Note over Order,DNS: t0 — checkout завершён
+    Order->>Pay: создать платёж
+    Pay->>Dom: забронировать домены
+    activate Dom
+    Note right of Dom: t0..t0+15m окно брони
+    Dom-->>Pay: OK бронь
+    deactivate Dom
+    Pay-->>Order: paymentUrl
+
+    Note over Pay,Dom: t1 — пользователь оплатил
+    Pay->>Dom: подтвердить бронь
+    activate Dom
+    Dom->>DNS: обновить зону
+    DNS-->>Dom: версия принята
+    Dom-->>Pay: домены созданы
+    deactivate Dom
 ```
 
 ## JWT Токены
