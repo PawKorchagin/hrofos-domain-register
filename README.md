@@ -892,31 +892,6 @@ flowchart TB
     DOM -.-> EX
 ```
 
-#### Profile Diagram
-
-```mermaid
-classDiagram
-    class RegistrableZone <<stereotype>> {
-        +syncToDns()
-    }
-
-    class BillableOrder <<stereotype>> {
-        +checkout()
-    }
-
-    class AuditedAction <<stereotype>> {
-        +auditDescription
-    }
-
-    class Domain
-    class Payment
-    class AuthService
-
-    RegistrableZone <|.. Domain
-    BillableOrder <|.. Payment
-    AuditedAction <|.. AuthService
-```
-
 #### Component Diagram
 
 ```mermaid
